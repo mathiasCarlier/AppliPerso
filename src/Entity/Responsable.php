@@ -39,6 +39,12 @@ class Responsable
     #[ORM\OneToMany(targetEntity: Commande::class, mappedBy: 'Responsable')]
     private Collection $commandes;
 
+    #[ORM\Column]
+    private ?bool $verif_responsable = null;
+
+    #[ORM\ManyToOne(inversedBy: 'responsables')]
+    private ?Role $Role = null;
+
     public function __construct()
     {
         $this->commandes = new ArrayCollection();
@@ -147,6 +153,30 @@ class Responsable
                 $commande->setResponsable(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isVerifResponsable(): ?bool
+    {
+        return $this->verif_responsable;
+    }
+
+    public function setVerifResponsable(bool $verif_responsable): static
+    {
+        $this->verif_responsable = $verif_responsable;
+
+        return $this;
+    }
+
+    public function getRole(): ?Role
+    {
+        return $this->Role;
+    }
+
+    public function setRole(?Role $Role): static
+    {
+        $this->Role = $Role;
 
         return $this;
     }
