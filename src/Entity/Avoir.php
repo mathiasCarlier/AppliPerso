@@ -20,6 +20,9 @@ class Avoir
     #[ORM\ManyToOne(inversedBy: 'avoirs')]
     private ?Produit $Produit = null;
 
+    #[ORM\Column]
+    private ?float $prix = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -45,6 +48,18 @@ class Avoir
     public function setProduit(?Produit $Produit): static
     {
         $this->Produit = $Produit;
+
+        return $this;
+    }
+
+    public function getPrix(): ?float
+    {
+        return $this->prix;
+    }
+
+    public function setPrix(float $prix): static
+    {
+        $this->prix = $prix;
 
         return $this;
     }

@@ -6,7 +6,13 @@
     <title>Accueil</title>
 </head>
 <body>
-    <h1>{{ message }}</h1>
+    
+    <div class="example-wrapper">
+        
+        {{ form_start(form) }}
+        {{ form_widget(form) }}
+        {{ form_end(form) }}
+    </div>
 </body>
 </html>
 
