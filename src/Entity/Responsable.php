@@ -6,7 +6,10 @@ use App\Repository\ResponsableRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
+#[UniqueEntity(['login'])]
 #[ORM\Entity(repositoryClass: ResponsableRepository::class)]
 class Responsable
 {
@@ -15,18 +18,25 @@ class Responsable
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
+    #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
 
+    #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
     private ?string $login = null;
 
+    #[Assert\Length(min: 8)]
+    #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
     private ?string $mdp = null;
 
+    #[Assert\Email]
+    #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
     private ?string $mail = null;
 
