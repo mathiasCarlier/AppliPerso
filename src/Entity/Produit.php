@@ -39,12 +39,6 @@ class Produit
     private ?SousCategorie $sous_categorie = null;
 
     /**
-     * @var Collection<int, Appartient>
-     */
-    #[ORM\OneToMany(targetEntity: Appartient::class, mappedBy: 'Produit')]
-    private Collection $appartients;
-
-    /**
      * @var Collection<int, Avoir>
      */
     #[ORM\OneToMany(targetEntity: Avoir::class, mappedBy: 'Produit')]
@@ -56,9 +50,9 @@ class Produit
     private $tailles;
 
     /**
-     * @ORM\OneToMany(targetEntity=Appartient::class, mappedBy="produit")
+     * @ORM\OneToMany(targetEntity=LigneCommande::class, mappedBy="produit")
      */
-    private $commandes;
+    private $ligne_commandes;
 
     /**
      * @var Collection<int, LigneCommande>

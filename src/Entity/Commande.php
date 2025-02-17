@@ -40,12 +40,6 @@ class Commande
     private ?Statut $Statut = null;
 
     /**
-     * @var Collection<int, Appartient>
-     */
-    #[ORM\OneToMany(targetEntity: Appartient::class, mappedBy: 'Commande')]
-    private Collection $appartients;
-
-    /**
      * @var Collection<int, LigneCommande>
      */
     #[ORM\OneToMany(targetEntity: LigneCommande::class, mappedBy: 'Commande')]
