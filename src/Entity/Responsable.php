@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Entity;
 
 use App\Repository\ResponsableRepository;
@@ -8,10 +7,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[UniqueEntity(['login'])]
 #[ORM\Entity(repositoryClass: ResponsableRepository::class)]
-class Responsable
+class Responsable implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -30,7 +31,7 @@ class Responsable
     #[ORM\Column(length: 255)]
     private ?string $login = null;
 
-    #[Assert\Length(min: 8)]
+    //#[Assert\Length(min: 8)]
     #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
     private ?string $mdp = null;
@@ -60,6 +61,8 @@ class Responsable
         $this->commandes = new ArrayCollection();
     }
 
+    // Méthodes déjà existantes (getters et setters)
+
     public function getId(): ?int
     {
         return $this->id;
@@ -73,7 +76,6 @@ class Responsable
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -85,7 +87,6 @@ class Responsable
     public function setPrenom(string $prenom): static
     {
         $this->prenom = $prenom;
-
         return $this;
     }
 
@@ -97,7 +98,6 @@ class Responsable
     public function setLogin(string $login): static
     {
         $this->login = $login;
-
         return $this;
     }
 
@@ -106,10 +106,9 @@ class Responsable
         return $this->mdp;
     }
 
-    public function setMdp(string $mdp): static
+    public function setMdp(string $mdp): self
     {
         $this->mdp = $mdp;
-
         return $this;
     }
 
@@ -121,7 +120,6 @@ class Responsable
     public function setMail(string $mail): static
     {
         $this->mail = $mail;
-
         return $this;
     }
 
@@ -133,7 +131,6 @@ class Responsable
     public function setTelephone(?string $telephone): static
     {
         $this->telephone = $telephone;
-
         return $this;
     }
 
@@ -151,7 +148,6 @@ class Responsable
             $this->commandes->add($commande);
             $commande->setResponsable($this);
         }
-
         return $this;
     }
 
@@ -163,7 +159,6 @@ class Responsable
                 $commande->setResponsable(null);
             }
         }
-
         return $this;
     }
 
@@ -175,7 +170,6 @@ class Responsable
     public function setVerifResponsable(bool $verif_responsable): static
     {
         $this->verif_responsable = $verif_responsable;
-
         return $this;
     }
 
@@ -187,7 +181,31 @@ class Responsable
     public function setRole(?Role $Role): static
     {
         $this->Role = $Role;
-
         return $this;
+    }
+
+    // ✅ Implémentation des méthodes de l'interface UserInterface
+
+    public function getRoles(): array
+    {
+        // Par défaut, l'utilisateur a le rôle ROLE_USER
+        return ['ROLE_USER'];
+    }
+
+    public function eraseCredentials(): void
+    {
+        // Tu peux laisser cette méthode vide si tu n'as pas de données sensibles
+    }
+
+    public function getUserIdentifier(): string
+    {
+        // On retourne le login comme identifiant unique
+        return $this->login;
+    }
+
+    // ✅ Implémentation de la méthode de PasswordAuthenticatedUserInterface
+    public function getPassword(): ?string
+    {
+        return $this->mdp;
     }
 }

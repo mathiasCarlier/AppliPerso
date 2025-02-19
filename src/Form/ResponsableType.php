@@ -21,10 +21,7 @@ class ResponsableType extends AbstractType
             ->add('nom', TextType::class)
             ->add('prenom',TextType::class)
             ->add('login',TextType::class)
-            ->add('mdp',PasswordType::class,[
-                'mapped' => false, // Ne lie pas directement ce champ à l'entité
-                'required' => true,
-            ])
+            ->add('mdp',PasswordType::class)
             ->add('mail',EmailType::class)
             ->add('telephone',TelType::class)
         ;
