@@ -1,0 +1,22 @@
+{% block body %}
+    <style>
+        .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+        .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    </style>
+    <div class="example-wrapper">
+        <h1>Liste des responsables</h1>
+        <ul class="list-group list-group-flush">
+            {% for donnee in donnees  %}
+                <div class="card mb-1">
+                    <div class="card-body">
+                        <div class="card-title d-flex justify-content-between">
+                            <a href="{{ path('connexion_show', {id: donnee.id}) }}" class="stretched-link link-dark">
+                            <h4 class="mb-1">{{ donnee.nom }}</h4></a>
+                            <small class="text-muted">Identifiant : {{ donnee.id }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

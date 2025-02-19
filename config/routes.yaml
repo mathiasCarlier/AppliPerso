@@ -7,3 +7,6 @@ home:
     path: /
     controller: App\Controller\HomeController::index
 
+connexion:
+    path: /connexion
+    controller: App\Controller\ConnexionController::index
