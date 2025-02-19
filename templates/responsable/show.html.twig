@@ -1,7 +1,4 @@
 
-
-{% block title %}Détail d'un responsable{% endblock %}
-
 {% block body %}
     <style>
         .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
@@ -23,6 +20,6 @@
     {% else %}
         <div>Auteur non trouvé</div>
     {% endif %}
-    <a href="{{ path('connexion') }}" class="btn btn-primary">Retour</a>
+    <a href="{{ path('responsable') }}" class="btn btn-primary">Retour</a>
     </div>
 {% endblock %}

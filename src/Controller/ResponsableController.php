@@ -10,23 +10,23 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Responsable;
 use App\Repository\ResponsableRepository;
 
-class ConnexionController extends AbstractController
+class ResponsableController extends AbstractController
 {
-    #[Route('/connexion', name: 'connexion', methods: ['GET'])]
+    #[Route('/responsable', name: 'responsable', methods: ['GET'])]
     public function index(ResponsableRepository $repository): Response
     {
         $donnees = $repository->findAll();
         
-        return $this->render('/connexion/connexion.html.twig', [
-            'controller_name' => 'ConnexionController',
+        return $this->render('/responsable/responsable.html.twig', [
+            'controller_name' => 'ResponsableController',
             'donnees' => $donnees,
         ]);
     }
 
-    #[Route('/connexion/{id}', name: 'connexion_show', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[Route('/responsable/{id}', name: 'responsable_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(?Responsable $donnee): Response
     {
-        return $this->render('/connexion/show.html.twig',[
+        return $this->render('/responsable/show.html.twig',[
             'donnee' => $donnee,
         ]);
     }

@@ -50,7 +50,7 @@ class Responsable
     private Collection $commandes;
 
     #[ORM\Column]
-    private ?bool $verif_responsable = null;
+    private ?bool $verif_responsable = false;
 
     #[ORM\ManyToOne(inversedBy: 'responsables')]
     private ?Role $Role = null;
