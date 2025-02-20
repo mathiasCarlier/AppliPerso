@@ -31,7 +31,7 @@ class Responsable implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $login = null;
 
-    //#[Assert\Length(min: 8)]
+    #[Assert\Length(min: 8)]
     #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
     private ?string $mdp = null;
@@ -41,6 +41,7 @@ class Responsable implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $mail = null;
 
+    #[Assert\Regex(pattern: "/^\d+$/", message: "Le numéro de téléphone doit contenir uniquement des chiffres.")]
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $telephone = null;
 

@@ -19,17 +19,8 @@ class Produit
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[ORM\Column]
-    private ?float $prix = null;
-
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $ref_produit = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?int $quantite_produit_restant = null;
 
     #[ORM\ManyToOne(inversedBy: 'produits')]
     #[ORM\JoinColumn(nullable: false)]
@@ -60,11 +51,33 @@ class Produit
     #[ORM\OneToMany(targetEntity: LigneCommande::class, mappedBy: 'Produit')]
     private Collection $ligneCommandes;
 
+    /**
+     * @var Collection<int, Famille>
+     */
+    #[ORM\OneToMany(targetEntity: Famille::class, mappedBy: 'produit')]
+    private Collection $familles;
+
+    #[ORM\Column]
+    private ?bool $en_ligne = null;
+
+    #[ORM\Column]
+    private ?bool $est_remise = null;
+
+    #[ORM\Column]
+    private ?bool $est_menu = null;
+
+    #[ORM\Column]
+    private ?int $valeur = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $ref_produit = null;
+
     public function __construct()
     {
         $this->appartients = new ArrayCollection();
         $this->avoirs = new ArrayCollection();
         $this->ligneCommandes = new ArrayCollection();
+        $this->familles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -84,18 +97,6 @@ class Produit
         return $this;
     }
 
-    public function getPrix(): ?float
-    {
-        return $this->prix;
-    }
-
-    public function setPrix(float $prix): static
-    {
-        $this->prix = $prix;
-
-        return $this;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -104,30 +105,6 @@ class Produit
     public function setDescription(?string $description): static
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getRefProduit(): ?string
-    {
-        return $this->ref_produit;
-    }
-
-    public function setRefProduit(?string $ref_produit): static
-    {
-        $this->ref_produit = $ref_produit;
-
-        return $this;
-    }
-
-    public function getQuantiteProduitRestant(): ?int
-    {
-        return $this->quantite_produit_restant;
-    }
-
-    public function setQuantiteProduitRestant(?int $quantite_produit_restant): static
-    {
-        $this->quantite_produit_restant = $quantite_produit_restant;
 
         return $this;
     }
@@ -242,6 +219,96 @@ class Produit
                 $ligneCommande->setProduit(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Famille>
+     */
+    public function getFamilles(): Collection
+    {
+        return $this->familles;
+    }
+
+    public function addFamille(Famille $famille): static
+    {
+        if (!$this->familles->contains($famille)) {
+            $this->familles->add($famille);
+            $famille->setProduit($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFamille(Famille $famille): static
+    {
+        if ($this->familles->removeElement($famille)) {
+            // set the owning side to null (unless already changed)
+            if ($famille->getProduit() === $this) {
+                $famille->setProduit(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isEnLigne(): ?bool
+    {
+        return $this->en_ligne;
+    }
+
+    public function setEnLigne(bool $en_ligne): static
+    {
+        $this->en_ligne = $en_ligne;
+
+        return $this;
+    }
+
+    public function isEstRemise(): ?bool
+    {
+        return $this->est_remise;
+    }
+
+    public function setEstRemise(bool $est_remise): static
+    {
+        $this->est_remise = $est_remise;
+
+        return $this;
+    }
+
+    public function isEstMenu(): ?bool
+    {
+        return $this->est_menu;
+    }
+
+    public function setEstMenu(bool $est_menu): static
+    {
+        $this->est_menu = $est_menu;
+
+        return $this;
+    }
+
+    public function getValeur(): ?int
+    {
+        return $this->valeur;
+    }
+
+    public function setValeur(int $valeur): static
+    {
+        $this->valeur = $valeur;
+
+        return $this;
+    }
+
+    public function getRefProduit(): ?string
+    {
+        return $this->ref_produit;
+    }
+
+    public function setRefProduit(?string $ref_produit): static
+    {
+        $this->ref_produit = $ref_produit;
 
         return $this;
     }

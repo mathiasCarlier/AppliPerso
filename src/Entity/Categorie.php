@@ -35,6 +35,9 @@ class Categorie
     */
     private $sousCategories;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $ordre = null;
+
     public function __construct()
     {
         $this->produits = new ArrayCollection();
@@ -114,6 +117,18 @@ class Categorie
                 $possede->setCategorie(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getOrdre(): ?int
+    {
+        return $this->ordre;
+    }
+
+    public function setOrdre(?int $ordre): static
+    {
+        $this->ordre = $ordre;
 
         return $this;
     }

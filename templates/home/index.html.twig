@@ -4,24 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil</title>
+    <link rel="stylesheet" href="{{ asset('styles/login/styles.css') }}">
 </head>
 <body>
 
-    <h1> {{message}} </h1>
-    
+      
     <div class="example-wrapper">
-        
+
         {{ form_start(form) }}
-            {{ form_row(form.nom, {label: 'Nom :'}) }}
-            {{ form_row(form.prenom, {label: 'Prenom :'}) }}
-            {{ form_row(form.login, {label: 'Login :'}) }}
-            {{ form_row(form.mdp, {label: 'Mot de passe :'}) }}
-            {{ form_row(form.mail, {label: 'Mail :'}) }}
-            {{ form_row(form.telephone, {label: 'Téléphone :'}) }}
+
+             <h1>{{ message }}</h1>
+
+            <div class="form-row">
+                {{ form_row(form.nom, {label: 'Nom :'}) }}
+            </div>
+            <div class="form-row">
+                {{ form_row(form.prenom, {label: 'Prénom :'}) }}
+            </div>
+            <div class="form-row">
+                {{ form_row(form.login, {label: 'Login :'}) }}
+            </div>
+            <div class="form-row">
+                {{ form_row(form.mdp, {label: 'Mot de passe :'}) }}
+            </div>
+            <div class="form-row">
+                {{ form_row(form.mail, {label: 'Mail :'}) }}
+            </div>
+            <div class="form-row">
+                {{ form_row(form.telephone, {label: 'Téléphone :'}) }}
+            </div>
             {{ form_widget(form) }}
             <button type="submit" class="btn btn-primary">Envoyer</button>
+            <a href="{{ path('app_login') }}" class="btn btn-secondary">Retour</a>
         {{ form_end(form) }}
+
     </div>
+    
 </body>
 </html>
-

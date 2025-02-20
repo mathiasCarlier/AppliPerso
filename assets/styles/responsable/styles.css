@@ -1,0 +1,121 @@
+/* Définir une palette de couleurs inspirée du fauteuil rouge et du cinéma */
+:root {
+    --primary-color: #e30613; /* Rouge du fauteuil */
+    --secondary-color: #1c1c1c; /* Noir profond pour l'ambiance cinéma */
+    --background-color: #333; /* Gris foncé pour l'arrière-plan */
+    --card-bg-color: #444; /* Fond sombre des cartes */
+    --link-hover-color: #ff4d4d; /* Rouge plus clair pour les liens au survol */
+    --text-color: #fff; /* Texte blanc pour le contraste */
+    --muted-text-color: #aaa; /* Texte atténué pour les informations secondaires */
+}
+
+/* Style global de la page */
+body {
+    background-color: var(--secondary-color);
+    font-family: 'Arial', sans-serif;
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    text-align: center;
+}
+
+/* Wrapper pour le contenu central */
+.example-wrapper {
+    background-color: var(--background-color);
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 900px;
+    width: 95%;
+    margin-top: 30px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+}
+
+/* Titre principal */
+h1 {
+    font-size: 2.5em;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    font-family: 'Georgia', serif;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Style des listes (pour les responsables) */
+.list-group {
+    list-style-type: none;
+    padding: 0;
+}
+
+.card {
+    background-color: var(--card-bg-color);
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2em;
+}
+
+.card-title a {
+    text-decoration: none;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.card-title a:hover {
+    color: var(--link-hover-color);
+}
+
+/* Petite info sous chaque carte */
+small {
+    color: var(--muted-text-color);
+    font-size: 0.9em;
+}
+
+/* Style de la section "Bienvenue" si l'utilisateur est connecté */
+.mb-3 {
+    font-size: 1.2em;
+    color: var(--text-color);
+    margin-top: 20px;
+}
+
+/* Style des liens dans le bloc "Bienvenue" */
+.mb-3 a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.mb-3 a:hover {
+    color: var(--link-hover-color);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .example-wrapper {
+        width: 90%;
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    .card-title h4 {
+        font-size: 1.2em;
+    }
+}

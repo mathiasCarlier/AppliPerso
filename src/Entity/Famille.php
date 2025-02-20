@@ -2,33 +2,35 @@
 
 namespace App\Entity;
 
-use App\Repository\AvoirRepository;
+use App\Repository\FamilleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: AvoirRepository::class)]
-class Avoir
+#[ORM\Entity(repositoryClass: FamilleRepository::class)]
+class Famille
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'avoirs')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Taille $Taille = null;
-
-    #[ORM\ManyToOne(inversedBy: 'avoirs')]
-    private ?Produit $Produit = null;
+    #[ORM\Column(length: 255)]
+    private ?string $libelle = null;
 
     #[ORM\Column]
-    private ?float $prix = null;
+    private ?int $nbMin = null;
+
+    #[ORM\Column]
+    private ?int $nbMax = null;
+
+    #[ORM\ManyToOne(inversedBy: 'familles')]
+    private ?Produit $produit = null;
 
     /**
      * @var Collection<int, Composer>
      */
-    #[ORM\OneToMany(targetEntity: Composer::class, mappedBy: 'avoir')]
+    #[ORM\OneToMany(targetEntity: Composer::class, mappedBy: 'famille')]
     private Collection $composers;
 
     public function __construct()
@@ -41,38 +43,50 @@ class Avoir
         return $this->id;
     }
 
-    public function getTaille(): ?Taille
+    public function getLibelle(): ?string
     {
-        return $this->Taille;
+        return $this->libelle;
     }
 
-    public function setTaille(?Taille $Taille): static
+    public function setLibelle(string $libelle): static
     {
-        $this->Taille = $Taille;
+        $this->libelle = $libelle;
+
+        return $this;
+    }
+
+    public function getNbMin(): ?int
+    {
+        return $this->nbMin;
+    }
+
+    public function setNbMin(int $nbMin): static
+    {
+        $this->nbMin = $nbMin;
+
+        return $this;
+    }
+
+    public function getNbMax(): ?int
+    {
+        return $this->nbMax;
+    }
+
+    public function setNbMax(int $nbMax): static
+    {
+        $this->nbMax = $nbMax;
 
         return $this;
     }
 
     public function getProduit(): ?Produit
     {
-        return $this->Produit;
+        return $this->produit;
     }
 
-    public function setProduit(?Produit $Produit): static
+    public function setProduit(?Produit $produit): static
     {
-        $this->Produit = $Produit;
-
-        return $this;
-    }
-
-    public function getPrix(): ?float
-    {
-        return $this->prix;
-    }
-
-    public function setPrix(float $prix): static
-    {
-        $this->prix = $prix;
+        $this->produit = $produit;
 
         return $this;
     }
@@ -89,7 +103,7 @@ class Avoir
     {
         if (!$this->composers->contains($composer)) {
             $this->composers->add($composer);
-            $composer->setAvoir($this);
+            $composer->setFamille($this);
         }
 
         return $this;
@@ -99,8 +113,8 @@ class Avoir
     {
         if ($this->composers->removeElement($composer)) {
             // set the owning side to null (unless already changed)
-            if ($composer->getAvoir() === $this) {
-                $composer->setAvoir(null);
+            if ($composer->getFamille() === $this) {
+                $composer->setFamille(null);
             }
         }
 
