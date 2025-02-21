@@ -20,7 +20,7 @@ security:
             form_login:
                 login_path: app_login
                 check_path: app_login
-                default_target_path: responsable
+                default_target_path: accueil
                 enable_csrf: true
                 username_parameter: _username
                 password_parameter: _password

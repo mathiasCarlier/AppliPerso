@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accueil</title>
-    <link rel="stylesheet" href="{{ asset('styles/login/styles.css') }}">
+    <title>Inscription</title>
+    <link rel="stylesheet" href="{{ asset('styles/inscription/styles.css') }}">
 </head>
 <body>
-
       
     <div class="example-wrapper">
 
-        {{ form_start(form) }}
+    <h1>{{ message }}</h1>
 
-             <h1>{{ message }}</h1>
+        {{ form_start(form) }}
 
             <div class="form-row">
                 {{ form_row(form.nom, {label: 'Nom :'}) }}
@@ -35,9 +34,8 @@
             </div>
             {{ form_widget(form) }}
             <button type="submit" class="btn btn-primary">Envoyer</button>
-            <a href="{{ path('app_login') }}" class="btn btn-secondary">Retour</a>
         {{ form_end(form) }}
-
+        <a href="{{ path('app_login') }}" class="btn btn-secondary">Retour</a>
     </div>
     
 </body>

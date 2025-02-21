@@ -9,9 +9,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Responsable;
 use App\Repository\ResponsableRepository;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
 
 class ResponsableController extends AbstractController
 {
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[Route('/responsable', name: 'responsable', methods: ['GET'])]
     public function index(ResponsableRepository $repository): Response
     {
@@ -23,6 +26,7 @@ class ResponsableController extends AbstractController
         ]);
     }
 
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[Route('/responsable/{id}', name: 'responsable_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(?Responsable $donnee): Response
     {

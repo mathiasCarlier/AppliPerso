@@ -10,9 +10,9 @@ use App\Entity\Responsable;
 use App\Form\ResponsableType;
 use Doctrine\ORM\EntityManagerInterface;
 
-class HomeController extends AbstractController
+class InscriptionController extends AbstractController
 {
-    #[Route('/home', name: 'home', methods: ['GET', 'POST'])]
+    #[Route('/inscription', name: 'inscription', methods: ['GET', 'POST'])]
     public function index(Request $request, EntityManagerInterface $manager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $respo = new Responsable();
@@ -32,9 +32,9 @@ class HomeController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        return $this->render('home/index.html.twig', [
+        return $this->render('inscription/index.html.twig', [
             'form' => $form->createView(),
-            'message' => 'Bienvenue sur le formulaire d\'inscription',
+            'message' => 'Formulaire d\'inscription',
         ]);
     }
 }

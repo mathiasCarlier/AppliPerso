@@ -1,0 +1,11 @@
+{% if app.user %}
+            <div class="mb-3">
+                Bienvenue {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Déconnexion</a>
+            </div>           
+{% endif %}
+
+{% block body %}
+
+<a href="{{ path('responsable') }}" class="btn btn-primary">Liste du personnel</a>
+
+{% endblock %}

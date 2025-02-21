@@ -1,98 +1,158 @@
-/* Définir une palette de couleurs inspirée du fauteuil rouge et du cinéma */
-:root {
-    --primary-color: #e30613; /* Rouge du fauteuil */
-    --secondary-color: #1c1c1c; /* Noir profond pour l'ambiance cinéma */
-    --background-color: #333; /* Gris foncé pour l'arrière-plan */
-    --card-bg-color: #444; /* Fond sombre des cartes */
-    --link-hover-color: #ff4d4d; /* Rouge plus clair pour les liens au survol */
-    --text-color: #fff; /* Texte blanc pour le contraste */
-    --muted-text-color: #aaa; /* Texte atténué pour les informations secondaires */
-}
-
-/* Style global de la page */
+/* Corps de la page */
 body {
-    background-color: var(--secondary-color);
     font-family: 'Arial', sans-serif;
-    color: var(--text-color);
+    background-color: #1c1c1c; /* Fond sombre pour l'ambiance cinéma */
+    color: #fff;
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     height: 100vh;
+    flex-direction: column;
     text-align: center;
 }
 
-/* Wrapper pour le contenu central */
-.example-wrapper {
-    background-color: var(--background-color);
-    padding: 30px;
-    border-radius: 10px;
-    max-width: 900px;
-    width: 95%;
-    margin-top: 30px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+/* Définir une palette de couleurs inspirée du fauteuil rouge et du cinéma */
+:root {
+    --primary-color: #e30613; /* Rouge vif du fauteuil */
+    --secondary-color: #1a1a1a; /* Noir cinématographique pour l'arrière-plan */
+    --card-bg-color: #2a2a2a; /* Fond sombre des cartes */
+    --card-border-color: #e30613; /* Bordure rouge autour des cartes */
+    --btn-bg-color: #e30613; /* Rouge vif pour les boutons */
+    --btn-hover-bg-color: #b10202; /* Rouge plus foncé au survol des boutons */
+    --text-color: #fff; /* Texte blanc pour le contraste */
+    --muted-text-color: #b0b0b0; /* Texte secondaire atténué */
 }
 
 /* Titre principal */
 h1 {
-    font-size: 2.5em;
-    color: var(--primary-color);
-    margin-bottom: 30px;
+    font-size: 2em;
+    color: #e30613; /* Rouge vif pour rappeler le fauteuil rouge */
+    margin-bottom: 20px;
     font-family: 'Georgia', serif;
     text-transform: uppercase;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-/* Style des listes (pour les responsables) */
-.list-group {
-    list-style-type: none;
-    padding: 0;
-}
-
-.card {
-    background-color: var(--card-bg-color);
-    border: none;
+/* Conteneur du formulaire */
+.example-wrapper {
+    background-color: #2e2e2e; /* Fond légèrement plus clair que le body */
+    padding: 40px;
     border-radius: 10px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
+    width: 100%;
+    max-width: 600px;
+    text-align: left;
+    margin: 0 auto;
 }
 
-.card-body {
-    padding: 20px;
+/* Espacement entre les champs du formulaire */
+.form-row {
+    margin-bottom: 20px; /* Espacement entre chaque champ */
 }
 
-.card-title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* Labels des champs */
+label {
     font-size: 1.2em;
+    color: #ccc;
+    margin-bottom: 5px;
+    display: block;
 }
 
-.card-title a {
-    text-decoration: none;
-    color: var(--text-color);
-    transition: color 0.3s ease;
+/* Appliquer à tous les champs de texte, email, mot de passe, téléphone */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="tel"],
+select,
+textarea {
+    width: 100%; /* Assurer que tous les champs ont la même largeur */
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #333;
+    color: #fff;
+    font-size: 1em;
 }
 
-.card-title a:hover {
-    color: var(--link-hover-color);
+/* Focus sur les champs de saisie */
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #e30613; /* Bordure rouge lors du focus */
+    background-color: #444;
 }
 
-/* Petite info sous chaque carte */
-small {
-    color: var(--muted-text-color);
-    font-size: 0.9em;
-}
-
-/* Style de la section "Bienvenue" si l'utilisateur est connecté */
-.mb-3 {
+/* Boutons */
+button, .btn-secondary {
+    background-color: #e30613; /* Rouge vif */
+    color: white;
+    padding: 15px 30px;
     font-size: 1.2em;
-    color: var(--text-color);
+    width: 100%;
     margin-top: 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-/* Style des liens dans le bloc "Bienvenue" */
+/* Hover sur le bouton de soumission */
+button:hover, .btn-secondary:hover {
+    background-color: #d50000; /* Rouge plus foncé au survol */
+}
+
+/* Espacement général entre les éléments */
+br {
+    margin-bottom: 20px;
+}
+
+/* Accessibilité des placeholders */
+input::placeholder,
+textarea::placeholder {
+    color: #aaa;
+}
+
+/* Bouton "Retour" avec un style différent */
+.btn-secondary {
+    background-color: #333; /* Fond sombre */
+    margin-top: 10px;
+}
+
+@media (max-width: 480px) {
+    .example-wrapper {
+        padding: 20px;
+        width: 90%;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+
+    button, .btn-secondary {
+        padding: 12px 25px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    input[type="tel"],
+    select,
+    textarea {
+        padding: 10px;
+    }
+}
+
+.mb-3 {
+    margin-top: 20px;
+    font-size: 1.2em;
+}
+
 .mb-3 a {
     color: var(--primary-color);
     text-decoration: none;
@@ -101,21 +161,5 @@ small {
 }
 
 .mb-3 a:hover {
-    color: var(--link-hover-color);
-}
-
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-    .example-wrapper {
-        width: 90%;
-        padding: 15px;
-    }
-
-    h1 {
-        font-size: 2em;
-    }
-
-    .card-title h4 {
-        font-size: 1.2em;
-    }
+    color: var(--btn-hover-bg-color);
 }
