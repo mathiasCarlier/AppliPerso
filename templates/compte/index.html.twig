@@ -1,13 +1,14 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier vos informations</title>
-    <link rel="stylesheet" href="{{ asset('styles/inscription/styles.css') }}">
-</head>
-<body>
+{% extends 'base.html.twig' %}
 
+{% block title %}Modifier vos informations{% endblock %}
+
+{% block body %}
+
+    {% if app.user %}
+                <div class="mb-3">
+                    <a href="{{ path('app_logout') }}">Déconnexion</a>
+                </div>
+    {% endif %}
     <div class="example-wrapper">
         <h1>{{ message }}</h1>
 
@@ -39,6 +40,4 @@
         
         <a href="{{ path('accueil') }}" class="btn btn-secondary">Retour</a>
     </div>
-
-</body>
-</html>
+{% endblock %}

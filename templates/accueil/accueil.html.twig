@@ -1,12 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
 {% if app.user %}
             <div class="mb-3">
                 Bienvenue {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Déconnexion</a>
             </div>           
 {% endif %}
 
-{% block body %}
+<a href="{{ path('responsable') }}" class="btn btn-primary">Liste du personnel</a><br>
 
-<a href="{{ path('responsable') }}" class="btn btn-primary">Liste du personnel</a>
+<a href="{{ path('commande') }}" class="btn btn-primary">Listes des commandes</a><br>
 
 <a href="{{ path('compte') }}" class="btn btn-primary">Mon compte</a>
 

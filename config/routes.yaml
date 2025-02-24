@@ -18,3 +18,7 @@ accueil:
 compte:
     path: /compte
     controller: App\Controller\CompteController::index
+
+commande:
+    path: /commande
+    controller: App\Controller\CommandeController::index

@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Commandes{% endblock %}
+
+{% block body %}
+    <h1>Liste des Commandes</h1>
+
+    {% if app.user %}
+        <div class="mb-3">
+            <a href="{{ path('app_logout') }}">Déconnexion</a>
+        </div>
+    {% endif %}
+
+    <!-- Formulaire de sélection du statut -->
+    <form method="get" action="{{ path('commande') }}">
+        <label for="statut">Filtrer par Statut :</label>
+        <select name="statut" id="statut" onchange="this.form.submit()">
+            <option value="">Tous</option>
+            {% for statut in statuts %}
+                <option value="{{ statut.id }}" {% if statut.id == statutId %}selected{% endif %}>
+                    {{ statut.libelle }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Client</th>
+                <th>Numéro Commande</th>
+                <th>Produits</th> <!-- Nouvelle colonne pour afficher les produits avec tailles -->
+                <th>Heure</th>
+                <th>Prix Total</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody id="commandes-tbody">
+            {% set commandes_sorted = commandes|sort((a, b) => a.id > b.id ? -1 : 1) %}
+            {% for commande in commandes_sorted %}
+                <tr>
+                    <td>{{ commande.Client.nom ?? 'N/A' }} {{ commande.Client.prenom ?? 'N/A' }}</td>
+                    <td>{{ commande.numeroCommande }}</td>
+                    <td>
+                        {% for ligne in commande.ligneCommandes %}
+                            {{ ligne.Produit.nom }}
+                            {% if ligne.Taille %}
+                                {% if ligne.Taille.unite %}
+                                    ({{ ligne.Taille.unite }}) <!-- Affiche la taille uniquement si "unite" n'est pas null -->
+                                {% endif %}
+                            {% endif %}
+                            ({{ ligne.quantite }}x) <br>
+                        {% else %}
+                            Aucun produit
+                        {% endfor %}
+                    </td> <!-- Colonne des produits avec tailles -->
+                    <td>{{ commande.heure|date('H:i') }}</td>
+                    <td>{{ commande.prixTotal }} €</td>
+                    <td>
+                        <select class="statut-select" data-commande-id="{{ commande.id }}">
+                            {% for statut in statuts %}
+                                <option value="{{ statut.id }}" {% if commande.Statut.id == statut.id %}selected{% endif %}>
+                                    {{ statut.libelle }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6">Aucune commande trouvée.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    
+    <a href="{{ path('accueil') }}" class="btn btn-primary">Retour</a>
+
+    <script>
+        // Fonction pour actualiser le tableau des commandes toutes les 3 secondes
+        setInterval(() => {
+            fetch("{{ path('commande') }}")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur réseau: ' + response.status);
+                    }
+                    return response.text();  // Récupérer la réponse en HTML
+                })
+                .then(text => {
+                    // Remplacer le contenu actuel du tableau avec les nouvelles commandes
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(text, 'text/html');
+                    const newTableBody = doc.querySelector('table tbody').innerHTML;
+                    document.querySelector('#commandes-tbody').innerHTML = newTableBody;
+                })
+                .catch(error => {
+                    console.error('Il y a eu une erreur avec la requête fetch:', error);
+                });
+        }, 15000);
+
+        // Mettre à jour le statut d'une commande
+        document.querySelectorAll('.statut-select').forEach(select => {
+            select.addEventListener('change', function () {
+                const commandeId = this.dataset.commandeId;
+                const statutId = this.value;
+
+                fetch('{{ path('update_statut') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams({ commandeId, statutId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Statut mis à jour avec succès');
+                    } else {
+                        alert('Erreur lors de la mise à jour du statut');
+                    }
+                })
+                .catch(error => console.error('Erreur:', error));
+            });
+        });
+    </script>
+{% endblock %}
