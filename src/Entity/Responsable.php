@@ -31,7 +31,7 @@ class Responsable implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $login = null;
 
-    #[Assert\Length(min: 8)]
+    //#[Assert\Length(min: 8)]
     #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
     private ?string $mdp = null;

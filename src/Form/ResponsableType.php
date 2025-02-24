@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\Responsable;
-use App\Entity\Role;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;

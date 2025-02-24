@@ -1,20 +1,44 @@
-{% extends 'base.html.twig' %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier vos informations</title>
+    <link rel="stylesheet" href="{{ asset('styles/inscription/styles.css') }}">
+</head>
+<body>
 
-{% block title %}Hello CompteController!{% endblock %}
+    <div class="example-wrapper">
+        <h1>{{ message }}</h1>
 
-{% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+        {{ form_start(form) }}
+            <div class="form-row">
+                {{ form_row(form.nom, { label: 'Nom :' }) }}
+            </div>
+            <div class="form-row">
+                {{ form_row(form.prenom, { label: 'Prénom :' }) }}
+            </div>
+            <div class="form-row">
+                {{ form_row(form.login, { label: 'Login :' }) }}
+            </div>
+            <div class="form-row">
+                {{ form_row(form.mdp, { label: 'Mot de passe :' }) }}
+            </div>
+            <div class="form-row">
+                {{ form_row(form.confirm_mdp, { label: 'Confirmer le mot de passe :' }) }}
+            </div>
+            <div class="form-row">
+                {{ form_row(form.mail, { label: 'Mail :' }) }}
+            </div>
+            <div class="form-row">
+                {{ form_row(form.telephone, { label: 'Téléphone :' }) }}
+            </div>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+        {{ form_end(form) }}
+        
+        <a href="{{ path('accueil') }}" class="btn btn-secondary">Retour</a>
+    </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/Users/Utilisateur/.vscode/cinema/AppliPerso/src/Controller/CompteController.php</code></li>
-        <li>Your template at <code>C:/Users/Utilisateur/.vscode/cinema/AppliPerso/templates/compte/index.html.twig</code></li>
-    </ul>
-</div>
-{% endblock %}
+</body>
+</html>
