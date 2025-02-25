@@ -1,18 +1,29 @@
-{% extends 'base.html.twig' %}
+{# templates/accueil/accueil.html.twig #}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/accueil/styles.css') }}">
+{% endblock %}
 
 {% block body %}
+        
+    <!-- Bouton de déconnexion en haut à droite -->
+    {% if app.user %}
+        <div class="logout-container">
+            <a href="{{ path('app_logout') }}" class="logout-link">Déconnexion</a>
+        </div>
+    {% endif %}
 
-{% if app.user %}
-            <div class="mb-3">
-                Bienvenue {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Déconnexion</a>
-            </div>           
-{% endif %}
+    <!-- Card pour les boutons de navigation -->
+    <div class="card">
+        {% if app.user %}
+            <div class="welcome-message">
+                Bienvenue <strong>{{ app.user.userIdentifier }}</strong>
+            </div>
+        {% endif %}
 
-<a href="{{ path('responsable') }}" class="btn btn-primary">Liste du personnel</a><br>
-
-<a href="{{ path('commande') }}" class="btn btn-primary">Listes des commandes</a><br>
-
-<a href="{{ path('compte') }}" class="btn btn-primary">Mon compte</a>
-
-
+        <a href="{{ path('responsable') }}" class="btn">Liste du personnel</a>
+        <a href="{{ path('commande') }}" class="btn">Liste des commandes</a>
+        <a href="{{ path('produit') }}" class="btn">Liste des produits</a>
+        <a href="{{ path('compte') }}" class="btn">Mon compte</a>
+    </div>
 {% endblock %}

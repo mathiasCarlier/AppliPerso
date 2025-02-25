@@ -1,37 +1,38 @@
-{% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/inscription/styles.css') }}">
+{% endblock %}
 {% block body %}
-    <div class="example-wrapper">
+    <div class="container">
+        <div class="card">
+            <h1>{{ message }}</h1>
 
-        <h1>{{ message }}</h1>
+            {{ form_start(form) }}
 
-        {{ form_start(form) }}
+                <div class="form-row">
+                    {{ form_row(form.nom, { 'label': 'Nom :' }) }}
+                </div>
+                <div class="form-row">
+                    {{ form_row(form.prenom, { 'label': 'Prénom :' }) }}
+                </div>
+                <div class="form-row">
+                    {{ form_row(form.login, { 'label': 'Login :' }) }}
+                </div>
+                <div class="form-row">
+                    {{ form_row(form.mdp, { 'label': 'Mot de passe :' }) }}
+                </div>
+                <div class="form-row">
+                    {{ form_row(form.mail, { 'label': 'Mail :' }) }}
+                </div>
+                <div class="form-row">
+                    {{ form_row(form.telephone, { 'label': 'Téléphone :' }) }}
+                </div>
 
-            <div class="form-row">
-                {{ form_row(form.nom, { 'label': 'Nom :' }) }}
-            </div>
-            <div class="form-row">
-                {{ form_row(form.prenom, { 'label': 'Prénom :' }) }}
-            </div>
-            <div class="form-row">
-                {{ form_row(form.login, { 'label': 'Login :' }) }}
-            </div>
-            <div class="form-row">
-                {{ form_row(form.mdp, { 'label': 'Mot de passe :' }) }}
-            </div>
-            <div class="form-row">
-                {{ form_row(form.mail, { 'label': 'Mail :' }) }}
-            </div>
-            <div class="form-row">
-                {{ form_row(form.telephone, { 'label': 'Téléphone :' }) }}
-            </div>
+                <button type="submit" class="btn-primary">Envoyer</button>
 
-            <button type="submit" class="btn btn-primary">Envoyer</button>
+            {{ form_end(form) }}
 
-        {{ form_end(form) }}
-
-        <a href="{{ path('app_login') }}" class="btn btn-secondary">Retour</a>
-
+            <a href="{{ path('app_login') }}" class="btn-secondary">Retour</a>
+        </div>
     </div>
 {% endblock %}
-

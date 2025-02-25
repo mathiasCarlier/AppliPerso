@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un Produit{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1 class="my-4">Ajouter un Produit</h1>
+
+        {# Afficher le formulaire #}
+        {{ form_start(form) }}
+            <div class="form-group">
+                {{ form_label(form.nom) }}
+                {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.description) }}
+                {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.en_ligne) }}
+                {{ form_widget(form.en_ligne, {'attr': {'class': 'form-check-input'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.est_remise) }}
+                {{ form_widget(form.est_remise, {'attr': {'class': 'form-check-input'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.est_menu) }}
+                {{ form_widget(form.est_menu, {'attr': {'class': 'form-check-input'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.valeur) }}
+                {{ form_widget(form.valeur, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.ref_produit) }}
+                {{ form_widget(form.ref_produit, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.Categorie) }}
+                {{ form_widget(form.Categorie, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.sous_categorie) }}
+                {{ form_widget(form.sous_categorie, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+        {{ form_end(form) }}
+    </div>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const categorieSelect = document.querySelector('#{{ form.Categorie.vars.id }}');
+            const sousCategorieSelect = document.querySelector('#{{ form.sous_categorie.vars.id }}');
+
+            // Écouter les changements de la catégorie
+            categorieSelect.addEventListener('change', function () {
+                const categorieId = this.value;
+
+                // Vider la liste des sous-catégories
+                sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
+
+                if (categorieId) {
+                    // Récupérer les sous-catégories via l'API
+                    fetch(`/api/sous-categories/${categorieId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.forEach(sousCategorie => {
+                                const option = document.createElement('option');
+                                option.value = sousCategorie.id;
+                                option.textContent = sousCategorie.libelle;
+                                sousCategorieSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Erreur :', error));
+                }
+            });
+        });
+    </script>
+{% endblock %}

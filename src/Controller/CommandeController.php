@@ -42,25 +42,21 @@ final class CommandeController extends AbstractController
     }
 
 
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    #[Route('/commande/update-statut', name: 'update_statut', methods: ['POST'])]
-    public function updateStatut(Request $request, CommandeRepository $commandeRepository, StatutRepository $statutRepository, EntityManagerInterface $entityManager): JsonResponse
+    #[Route('/commande/{id}/update-statut', name: 'update_statut', methods: ['POST'])]
+    public function updateStatut(Request $request, Commande $commande, EntityManagerInterface $em): JsonResponse
     {
-        $commandeId = $request->request->get('commandeId');
-        $statutId = $request->request->get('statutId');
+        $data = json_decode($request->getContent(), true);
+        $statutId = (int) $data['statutId'];
 
-        $commande = $commandeRepository->find($commandeId);
-        $statut = $statutRepository->find($statutId);
-
-        if (!$commande || !$statut) {
-            return new JsonResponse(['success' => false, 'message' => 'Commande ou Statut introuvable'], 400);
+        $statut = $em->getRepository(Statut::class)->find($statutId);
+        if (!$statut) {
+            return $this->json(['success' => false, 'message' => 'Statut non trouvé']);
         }
 
         $commande->setStatut($statut);
-        $entityManager->persist($commande);
-        $entityManager->flush();
+        $em->flush();
 
-        return new JsonResponse(['success' => true]);
+        return $this->json(['success' => true]);
     }
 
     

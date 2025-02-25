@@ -1,0 +1,112 @@
+/* Style général de la page */
+#commande-page {
+    background-color: #f5f5f5;
+    /* Fond clair pour la page */
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    color: #ff4444;
+    /* Rouge clair pour le titre */
+    margin-bottom: 20px;
+}
+
+/* Boutons */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #ff4444;
+    /* Rouge clair */
+    color: #fff;
+    /* Texte blanc */
+}
+
+.btn-primary:hover {
+    background-color: #cc0000;
+    /* Rouge plus foncé au survol */
+}
+
+.btn-secondary {
+    background-color: #2c2c2c;
+    /* Gris foncé */
+    color: #fff;
+    /* Texte blanc */
+}
+
+.btn-secondary:hover {
+    background-color: #1a1a1a;
+    /* Noir au survol */
+}
+
+/* Tableau des commandes */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    /* Fond blanc pour le tableau */
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table th,
+.table td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.table th {
+    background-color: #ff4444;
+    /* Rouge clair pour les en-têtes */
+    color: #fff;
+    /* Texte blanc pour les en-têtes */
+    font-weight: bold;
+}
+
+.table td {
+    color: #333;
+    /* Texte noir pour les cellules */
+    border-bottom: 1px solid #ddd;
+    /* Ligne de séparation */
+}
+
+.table tbody tr:hover {
+    background-color: #f9f9f9;
+    /* Fond gris clair au survol */
+}
+
+/* Style pour les listes déroulantes */
+.statut-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    font-size: 14px;
+}
+
+.statut-select:focus {
+    border-color: #ff4444;
+    /* Rouge clair au focus */
+    outline: none;
+    box-shadow: 0 0 5px rgba(255, 68, 68, 0.3);
+}
+
+/* Message "Aucune commande trouvée" */
+.text-center {
+    text-align: center;
+    color: #666;
+    /* Texte gris */
+}

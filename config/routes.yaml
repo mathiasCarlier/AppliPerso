@@ -22,3 +22,24 @@ compte:
 commande:
     path: /commande
     controller: App\Controller\CommandeController::index
+
+produit:
+    path: /produit
+    controller: App\Controller\ProduitController::index
+
+produit_new:
+    path: /produit/new
+    controller: App\Controller\ProduitController::new
+    methods: [GET, POST]
+
+# config/routes.yaml
+
+update_en_ligne:
+    path: /produit/{id}/update-en-ligne
+    controller: App\Controller\ProduitController::updateEnLigne
+    methods: POST
+
+update_statut:
+    path: /commande/{id}/update-statut
+    controller: App\Controller\CommandeController::updateStatut
+    methods: POST

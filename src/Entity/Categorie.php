@@ -32,7 +32,7 @@ class Categorie
 
     /**
      * @ORM\ManyToMany(targetEntity=SousCategorie::class, mappedBy="categories")
-    */
+     */
     private $sousCategories;
 
     #[ORM\Column(nullable: true)]
@@ -42,6 +42,7 @@ class Categorie
     {
         $this->produits = new ArrayCollection();
         $this->possedes = new ArrayCollection();
+        $this->sousCategories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -116,6 +117,33 @@ class Categorie
             if ($possede->getCategorie() === $this) {
                 $possede->setCategorie(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SousCategorie>
+     */
+    public function getSousCategories(): Collection
+    {
+        return $this->sousCategories;
+    }
+
+    public function addSousCategory(SousCategorie $sousCategory): static
+    {
+        if (!$this->sousCategories->contains($sousCategory)) {
+            $this->sousCategories->add($sousCategory);
+            $sousCategory->addCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSousCategory(SousCategorie $sousCategory): static
+    {
+        if ($this->sousCategories->removeElement($sousCategory)) {
+            $sousCategory->removeCategory($this);
         }
 
         return $this;

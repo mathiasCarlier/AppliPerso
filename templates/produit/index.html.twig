@@ -1,0 +1,113 @@
+{# templates/produit/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Produits{% endblock %}
+
+{% block body %}
+    <div id="produit-page">
+        <h1>Liste des Produits</h1>
+
+        {# Lien de déconnexion pour les utilisateurs connectés #}
+        {% if app.user %}
+            <div class="mb-3">
+                <a href="{{ path('app_logout') }}" class="btn btn-secondary">Déconnexion</a>
+            </div>
+        {% endif %}
+
+        <a href="{{ path('produit_new') }}" class="btn btn-primary">Ajouter un produit</a><br>
+
+        {# Bouton de retour à l'accueil #}
+        <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a>
+
+        {# Formulaire de filtrage par catégorie #}
+        <div class="mb-3">
+            <label for="categorie-select" class="form-label">Filtrer par catégorie :</label>
+            <select id="categorie-select" class="form-select">
+                <option value="">Toutes les catégories</option>
+                {% for categorie in categories %}
+                    <option value="{{ categorie.id }}" {{ app.request.query.get('categorie') == categorie.id ? 'selected' : '' }}>
+                        {{ categorie.libelle }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {# Tableau des produits #}
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>Nom</th>
+                    <th>Prix</th>
+                    <th>Catégorie</th>
+                    <th>Sous-Catégorie</th>
+                    <th>En Ligne</th>
+                    <th>Menu</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produit in produits %}
+                    <tr>
+                        <td>{{ produit.nom }}</td>
+                        <td>
+                            <ul class="list-unstyled">
+                                {% for avoir in produit.avoirs %}
+                                    <li>
+                                        {{ avoir.Taille.unite }} {{ avoir.prix }}€
+                                    </li>
+                                {% else %}
+                                    <li>Aucune taille disponible</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ produit.Categorie ? produit.Categorie.libelle : 'N/A' }}</td>
+                        <td>{{ produit.sousCategorie ? produit.sousCategorie.libelle : 'N/A' }}</td>
+                        <td>
+                            <select class="form-select en-ligne-select" data-id="{{ produit.id }}">
+                                <option value="1" {{ produit.enLigne ? 'selected' : '' }}>Oui</option>
+                                <option value="0" {{ not produit.enLigne ? 'selected' : '' }}>Non</option>
+                            </select>
+                        </td>
+                        <td>{{ produit.estMenu ? 'Oui' : 'Non' }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">Aucun produit trouvé</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# Script pour la gestion des interactions #}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const selects = document.querySelectorAll('.en-ligne-select');
+
+        selects.forEach(select => {
+            select.addEventListener('change', async function () {
+                const produitId = this.getAttribute('data-id');
+                const newValue = this.value;
+
+                try {
+                    const response = await fetch(`/produit/${produitId}/update-en-ligne`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ enLigne: newValue })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        console.log('Statut "En Ligne" mis à jour avec succès');
+                    } else {
+                        console.error('Erreur lors de la mise à jour');
+                    }
+                } catch (error) {
+                    console.error('Erreur AJAX :', error);
+                }
+            });
+        });
+    });
+    </script>
+{% endblock %}

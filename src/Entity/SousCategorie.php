@@ -40,6 +40,7 @@ class SousCategorie
     {
         $this->produits = new ArrayCollection();
         $this->possedes = new ArrayCollection();
+        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -114,6 +115,33 @@ class SousCategorie
             if ($possede->getSousCategorie() === $this) {
                 $possede->setSousCategorie(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Categorie>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Categorie $category): static
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->addSousCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Categorie $category): static
+    {
+        if ($this->categories->removeElement($category)) {
+            $category->removeSousCategory($this);
         }
 
         return $this;
