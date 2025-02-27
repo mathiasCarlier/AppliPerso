@@ -10,6 +10,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Responsable;
 use App\Repository\ResponsableRepository;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 
 class ResponsableController extends AbstractController
@@ -33,5 +35,20 @@ class ResponsableController extends AbstractController
         return $this->render('/responsable/show.html.twig',[
             'donnee' => $donnee,
         ]);
+    }
+
+    #[Route('/responsable/{id}/verif/{value}', name: 'responsable_verif', methods: ['POST'])]
+    public function updateVerif(Responsable $responsable, $value, EntityManagerInterface $em,Request $request,CsrfTokenManagerInterface $csrfTokenManager
+    ): Response {
+        // Vérification CSRF
+        $submittedToken = $request->headers->get('X-CSRF-Token');
+        if (!$csrfTokenManager->isTokenValid(new CsrfToken('verif', $submittedToken))) {
+            return new JsonResponse(['status' => 'invalid csrf'], 403);
+        }
+
+        $responsable->setVerifResponsable((bool)$value);
+        $em->flush();
+        
+        return new JsonResponse(['status' => 'success']);
     }
 }

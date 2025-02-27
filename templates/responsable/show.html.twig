@@ -12,11 +12,17 @@
             <div class="card-body">
                 <div class="card-title d-flex justify-content-between">
                     <h4 class="mb-1">{{ donnee.nom }}</h4>
-                    <small class="text-muted">Prenom : {{ donnee.prenom }}</small><br>
+                    <small class="text-muted">Prénom : {{ donnee.prenom }}</small><br><br>
                     <small class="text-muted">Identifiant : {{ donnee.id }}</small><br>
                     <small class="text-muted">Login : {{ donnee.login }}</small><br>
                     <small class="text-muted">Mail : {{ donnee.mail }}</small><br>
                     <small class="text-muted">Téléphone : {{ donnee.telephone }}</small><br>
+                    <small class="text-muted">Accès autorisé ? :</small>
+                    <select class="form-select verif-responsable-select" data-id="{{ donnee.id }}">
+                        <option value="1" {{ donnee.verifResponsable ? 'selected' : '' }}>Oui</option>
+                        <option value="0" {{ not donnee.verifResponsable ? 'selected' : '' }}>Non</option>
+                    </select>
+                </div>
             </div>
         </div>
     {% else %}
@@ -24,4 +30,32 @@
     {% endif %}
     <a href="{{ path('responsable') }}" class="btn btn-primary">Retour</a>
     </div>
+
+    <script>
+        document.querySelectorAll('.verif-responsable-select').forEach(select => {
+            select.addEventListener('change', function() {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+                const responsableId = this.dataset.id;
+                const newValue = this.value;
+
+                fetch(`/responsable/${responsableId}/verif/${newValue}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    }
+                })
+                .then(response => {
+                    if (response.status === 403) {
+                        alert('Session expirée, veuillez rafraîchir la page');
+                    }
+                    if (!response.ok) {
+                        console.error('Erreur serveur', response);
+                    }
+                })
+                .catch(error => console.error('Erreur réseau', error));
+            });
+        });
+    </script>
 {% endblock %}
+

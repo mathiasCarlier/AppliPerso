@@ -1,7 +1,11 @@
 {# templates/commande/index.html.twig #}
+{% extends 'base.html.twig' %}
+
 {% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('styles/commande/styles.css') }}">
 {% endblock %}
+
+{% block title %}Liste des Commandes{% endblock %}
 
 {% block body %}
     <div id="commande-page">

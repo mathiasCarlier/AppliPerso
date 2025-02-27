@@ -1,0 +1,125 @@
+/* Style général de la page */
+#produit-page {
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    color: #ff4444;
+    margin-bottom: 20px;
+}
+
+/* Boutons (conservés identiques) */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #ff4444;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #cc0000;
+}
+
+.btn-secondary {
+    background-color: #2c2c2c;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background-color: #1a1a1a;
+}
+
+/* Tableau des produits */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table th,
+.table td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.table th {
+    background-color: #ff4444;
+    color: #fff;
+    font-weight: bold;
+}
+
+.table td {
+    color: #333;
+    border-bottom: 1px solid #ddd;
+}
+
+.table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Styles pour les contrôles de formulaire */
+.form-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    font-size: 14px;
+}
+
+.form-select:focus {
+    border-color: #ff4444;
+    outline: none;
+    box-shadow: 0 0 5px rgba(255, 68, 68, 0.3);
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Liste des prix */
+.list-unstyled {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.list-unstyled li {
+    padding: 2px 0;
+}
+
+/* Message "Aucun produit trouvé" */
+.text-center {
+    text-align: center;
+    color: #666;
+}
+
+/* Alignement spécifique pour les sélecteurs d'état */
+.en-ligne-select {
+    max-width: 100px;
+    margin: 0 auto;
+}
+
+/* Espacement des colonnes de filtre */
+.col-md-4 {
+    margin-bottom: 15px;
+}

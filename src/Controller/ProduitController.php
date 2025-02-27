@@ -17,23 +17,51 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ProduitController extends AbstractController
 {
     #[Route('/produit', name: 'produit')]
-    public function index(ProduitRepository $produitRepository,CategorieRepository $categorieRepository,Request $request): Response {
-        // Récupérer l'ID de la catégorie depuis la requête
+    public function index(ProduitRepository $produitRepository, CategorieRepository $categorieRepository, Request $request): Response
+    {
         $categorieId = $request->query->get('categorie');
+        $sort = $request->query->get('sort', 'category'); // Par défaut, tri par catégorie
 
-        // Récupérer tous les produits (filtrés par catégorie si nécessaire)
-        $produits = $categorieId
-            ? $produitRepository->findByCategorie($categorieId)
-            : $produitRepository->findAllWithTaille();
+        // Appliquer le filtre et le tri
+        $produits = $produitRepository->findByFiltersAndSort($categorieId, $sort);
 
-        // Récupérer toutes les catégories pour la liste déroulante
+    
+        // Déterminer le champ et l'ordre de tri
+        $sortField = 'category';
+        $sortOrder = 'ASC';
+    
+        switch ($sort) {
+            case 'price_asc':
+                $sortField = 'price';
+                $sortOrder = 'ASC';
+                break;
+            case 'price_desc':
+                $sortField = 'price';
+                $sortOrder = 'DESC';
+                break;
+            case 'name_asc':
+                $sortField = 'name';
+                $sortOrder = 'ASC';
+                break;
+            case 'name_desc':
+                $sortField = 'name';
+                $sortOrder = 'DESC';
+                break;
+        }
+    
+        // Récupération des produits avec tri et filtre
+        $produits = $produitRepository->findByCategorieSorted($categorieId, $sortField, $sortOrder);
+    
+        // Récupération des catégories pour le menu déroulant
         $categories = $categorieRepository->findAll();
-
+    
         return $this->render('produit/index.html.twig', [
             'produits' => $produits,
             'categories' => $categories,
         ]);
     }
+    
+
 
     #[Route('/produit/{id}/update-en-ligne', name: 'update_en_ligne', methods: ['POST'])]
     public function updateEnLigne(Request $request, Produit $produit, EntityManagerInterface $em): JsonResponse

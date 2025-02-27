@@ -1,6 +1,10 @@
 {# templates/produit/index.html.twig #}
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/produit/styles.css') }}">
+{% endblock %}
+
 {% block title %}Liste des Produits{% endblock %}
 
 {% block body %}
@@ -14,15 +18,15 @@
             </div>
         {% endif %}
 
-        <a href="{{ path('produit_new') }}" class="btn btn-primary">Ajouter un produit</a><br>
+        {#<a href="{{ path('produit_new') }}" class="btn btn-primary">Ajouter un produit</a><br>#}
 
         {# Bouton de retour à l'accueil #}
-        <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a>
+        <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a><br><br>
 
-        {# Formulaire de filtrage par catégorie #}
-        <div class="mb-3">
+        {# Formulaire de filtrage par catégorie#}
+        <div class="col-12 col-md-4 mb-2">
             <label for="categorie-select" class="form-label">Filtrer par catégorie :</label>
-            <select id="categorie-select" class="form-select">
+            <select id="categorie-select" class="form-select" onchange="filtrerParCategorie()">
                 <option value="">Toutes les catégories</option>
                 {% for categorie in categories %}
                     <option value="{{ categorie.id }}" {{ app.request.query.get('categorie') == categorie.id ? 'selected' : '' }}>
@@ -31,6 +35,17 @@
                 {% endfor %}
             </select>
         </div>
+
+        <div class="col-12 col-md-4 mb-2">
+            <label for="sortSelect" class="form-label">Trier par :</label>
+            <select id="sortSelect" class="form-select" onchange="triCategorie()">
+                <option value="category" selected>Catégorie</option>
+                <option value="price_asc">Prix croissant</option>
+                <option value="price_desc">Prix décroissant</option>
+                <option value="name_asc">Nom A-Z</option>
+                <option value="name_desc">Nom Z-A</option>
+            </select>
+        </div><br>
 
         {# Tableau des produits #}
         <table class="table table-bordered">
@@ -80,34 +95,66 @@
 
     {# Script pour la gestion des interactions #}
     <script>
+        function filtrerParCategorie() {
+            const categorieSelect = document.getElementById('categorie-select');
+            const categorieId = categorieSelect.value;
+            const urlParams = new URLSearchParams(window.location.search);
+
+            if (categorieId) {
+                urlParams.set('categorie', categorieId);
+            } else {
+                urlParams.delete('categorie');
+            }
+
+            window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
+        }
+
+        function triCategorie() {
+            const sortSelect = document.getElementById('sortSelect');
+            const sortValue = sortSelect.value;
+            const urlParams = new URLSearchParams(window.location.search);
+
+            if (sortValue) {
+                urlParams.set('sort', sortValue);
+            } else {
+                urlParams.delete('sort');
+            }
+
+            window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
+        }
+
+
         document.addEventListener('DOMContentLoaded', function () {
-        const selects = document.querySelectorAll('.en-ligne-select');
+            const categorySelect = document.getElementById('categorie-select');
+            const subcategoryCol = document.getElementById('subcategoryCol');
+            const subcategorySelect = document.getElementById('subcategory-select');
 
-        selects.forEach(select => {
-            select.addEventListener('change', async function () {
-                const produitId = this.getAttribute('data-id');
-                const newValue = this.value;
+            const selects = document.querySelectorAll('.en-ligne-select');
+            selects.forEach(select => {
+                select.addEventListener('change', async function () {
+                    const produitId = this.getAttribute('data-id');
+                    const newValue = this.value;
 
-                try {
-                    const response = await fetch(`/produit/${produitId}/update-en-ligne`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: JSON.stringify({ enLigne: newValue })
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                        console.log('Statut "En Ligne" mis à jour avec succès');
-                    } else {
-                        console.error('Erreur lors de la mise à jour');
+                    try {
+                        const response = await fetch(`/produit/${produitId}/update-en-ligne`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({ enLigne: newValue })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            console.log('Statut "En Ligne" mis à jour avec succès');
+                        } else {
+                            console.error('Erreur lors de la mise à jour');
+                        }
+                    } catch (error) {
+                        console.error('Erreur AJAX :', error);
                     }
-                } catch (error) {
-                    console.error('Erreur AJAX :', error);
-                }
+                });
             });
         });
-    });
     </script>
 {% endblock %}

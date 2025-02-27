@@ -2,15 +2,17 @@
 
 {% block title %}Modifier vos informations{% endblock %}
 
-
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/compte/styles.css') }}">
+{% endblock %}
 
 {% block body %}
     
-    {% if app.user %}
+    {#{% if app.user %}
         <div class="mb-3">
             <a href="{{ path('app_logout') }}">Déconnexion</a>
         </div>
-    {% endif %}
+    {% endif %}#}
 
     <div class="example-wrapper">
         <h1>{{ message }}</h1>

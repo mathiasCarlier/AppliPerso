@@ -54,10 +54,18 @@ final class CommandeController extends AbstractController
         }
 
         $commande->setStatut($statut);
+
+        // Ajouter l'utilisateur connecté comme responsable
+        $user = $this->getUser(); // Récupération de l'utilisateur actuellement connecté
+        if ($user) {
+            $commande->setResponsable($user);
+        }
+
         $em->flush();
 
         return $this->json(['success' => true]);
     }
+
 
     
 }
