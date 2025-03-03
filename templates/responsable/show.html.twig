@@ -1,35 +1,82 @@
 {% extends 'base.html.twig' %}
 
-{% block body %}
+{% block title %}Détail de {{ donnee.nom }}{% endblock %}
 
-    <style>
-        .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-        .example-wrapper code { background:rgb(10, 6, 6); padding: 2px 6px; }
-    </style>
-    <div class="example-wrapper">
-        {% if donnee is not null %}
-        <div class="card mb-1 m-auto">
-            <div class="card-body">
-                <div class="card-title d-flex justify-content-between">
-                    <h4 class="mb-1">{{ donnee.nom }}</h4>
-                    <small class="text-muted">Prénom : {{ donnee.prenom }}</small><br><br>
-                    <small class="text-muted">Identifiant : {{ donnee.id }}</small><br>
-                    <small class="text-muted">Login : {{ donnee.login }}</small><br>
-                    <small class="text-muted">Mail : {{ donnee.mail }}</small><br>
-                    <small class="text-muted">Téléphone : {{ donnee.telephone }}</small><br>
-                    <small class="text-muted">Accès autorisé ? :</small>
-                    <select class="form-select verif-responsable-select" data-id="{{ donnee.id }}">
-                        <option value="1" {{ donnee.verifResponsable ? 'selected' : '' }}>Oui</option>
-                        <option value="0" {{ not donnee.verifResponsable ? 'selected' : '' }}>Non</option>
-                    </select>
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/responsable_show/styles.css') }}">
+{% endblock %}
+
+{% block body %}
+    {% if app.user %}
+        {% set roleId = app.user.role.id %}
+    {% else %}
+        {% set roleId = null %}
+    {% endif %}
+
+    {% if roleId == 1 %}
+        <div class="example-wrapper cinema-theme">
+            {% if donnee is not null %}
+                <div class="cinema-card">
+                    <div class="card-header">
+                        <h2 class="movie-title">{{ donnee.nom }}</h2>
+                        <div class="film-stripe"></div>
+                    </div>
+                    
+                    <div class="card-content">
+                        <div class="detail-item">
+                            <span class="detail-label">Prénom :</span>
+                            <span class="detail-value">{{ donnee.prenom }}</span>
+                        </div>
+                        
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Identifiant :</span>
+                                <span class="detail-value">{{ donnee.id }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Login :</span>
+                                <span class="detail-value">{{ donnee.login }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Email :</span>
+                                <span class="detail-value">{{ donnee.mail }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Téléphone :</span>
+                                <span class="detail-value">{{ donnee.telephone }}</span>
+                            </div>
+                        </div>
+
+                        <div class="access-control">
+                            <label class="switch-label">Accès autorisé :</label>
+                            <select class="cinema-select verif-responsable-select" data-id="{{ donnee.id }}">
+                                <option value="1" {{ donnee.verifResponsable ? 'selected' : '' }}>✅ Oui</option>
+                                <option value="0" {{ not donnee.verifResponsable ? 'selected' : '' }}>❌ Non</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            {% else %}
+                <div class="error-message">🎬 Auteur non trouvé</div>
+            {% endif %}
+
+            <a href="{{ path('responsable') }}" class="cinema-btn">
+                <i class="bi bi-arrow-left"></i> Retour à la liste
+            </a>
         </div>
     {% else %}
-        <div>Auteur non trouvé</div>
+        <script>
+            window.location.href = "{{ path('accueil') }}";
+        </script>
     {% endif %}
-    <a href="{{ path('responsable') }}" class="btn btn-primary">Retour</a>
-    </div>
+
+    <style>
+        body {
+            background: linear-gradient(45deg, #1a1a1a, #2a1e1e);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+    </style>
 
     <script>
         document.querySelectorAll('.verif-responsable-select').forEach(select => {
@@ -46,11 +93,12 @@
                     }
                 })
                 .then(response => {
+                    if (response.ok) {
+                        const icon = newValue === '1' ? '✅' : '❌';
+                        this.querySelector(`option[value="${newValue}"]`).innerHTML = `${icon} ${newValue === '1' ? 'Oui' : 'Non'}`;
+                    }
                     if (response.status === 403) {
                         alert('Session expirée, veuillez rafraîchir la page');
-                    }
-                    if (!response.ok) {
-                        console.error('Erreur serveur', response);
                     }
                 })
                 .catch(error => console.error('Erreur réseau', error));
@@ -58,4 +106,3 @@
         });
     </script>
 {% endblock %}
-

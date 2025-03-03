@@ -12,6 +12,7 @@ use App\Repository\ResponsableRepository;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use App\Repository\RoleRepository;
 
 
 class ResponsableController extends AbstractController
@@ -38,7 +39,7 @@ class ResponsableController extends AbstractController
     }
 
     #[Route('/responsable/{id}/verif/{value}', name: 'responsable_verif', methods: ['POST'])]
-    public function updateVerif(Responsable $responsable, $value, EntityManagerInterface $em,Request $request,CsrfTokenManagerInterface $csrfTokenManager
+    public function updateVerif(Responsable $responsable, $value, EntityManagerInterface $em,Request $request,CsrfTokenManagerInterface $csrfTokenManager,RoleRepository $roleRepository
     ): Response {
         // Vérification CSRF
         $submittedToken = $request->headers->get('X-CSRF-Token');
@@ -46,7 +47,18 @@ class ResponsableController extends AbstractController
             return new JsonResponse(['status' => 'invalid csrf'], 403);
         }
 
-        $responsable->setVerifResponsable((bool)$value);
+        $verif = (bool)$value;
+        $responsable->setVerifResponsable($verif);
+
+        // Logique de gestion des rôles
+        if ($verif) {
+            // Récupération du rôle "ROLE_RESPONSABLE" (ID 2 selon votre exemple)
+            $role = $roleRepository->find(2);
+            $responsable->setRole($role);
+        } else {
+            $responsable->setRole(null);
+        }
+
         $em->flush();
         
         return new JsonResponse(['status' => 'success']);

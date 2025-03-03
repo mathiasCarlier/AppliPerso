@@ -11,7 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\SecurityBundle\Attribute\IsGranted;
 
 final class CommandeController extends AbstractController
@@ -20,10 +20,13 @@ final class CommandeController extends AbstractController
     #[Route('/commande', name: 'commande')]
     public function index(CommandeRepository $commandeRepository, StatutRepository $statutRepository, Request $request): Response
     {
-        $statuts = $statutRepository->findAll(); //where commande_affichage = true
+        $statuts = $statutRepository->findAll(); 
         $statutId = $request->query->get('statut');
 
-        $commandes = $statutId ? $commandeRepository->findBy(['Statut' => $statutId]) : $commandeRepository->findAll();
+        // Trie des commandes directement dans la requête du contrôleur
+        $commandes = $statutId ? 
+            $commandeRepository->findBy(['Statut' => $statutId], ['id' => 'DESC']) :
+            $commandeRepository->findBy([], ['id' => 'DESC']);
 
         // Vérification si la requête est AJAX
         if ($request->isXmlHttpRequest()) {
@@ -40,7 +43,6 @@ final class CommandeController extends AbstractController
             'statutId' => $statutId
         ]);
     }
-
 
     #[Route('/commande/{id}/update-statut', name: 'update_statut', methods: ['POST'])]
     public function updateStatut(Request $request, Commande $commande, EntityManagerInterface $em): JsonResponse
@@ -66,6 +68,51 @@ final class CommandeController extends AbstractController
         return $this->json(['success' => true]);
     }
 
+    #[Route('/commande/details/{id}', name: 'commande_details', methods: ['GET'])]
+    public function getDetails(Commande $commande, StatutRepository $statutRepository): JsonResponse
+    {
+        // Vérifier que la commande existe
+        if (!$commande) {
+            return $this->json(['error' => 'Commande non trouvée'], 404);
+        }
 
-    
+        $ligneCommandes = [];
+        foreach ($commande->getLigneCommandes() as $ligne) {
+            $produit = $ligne->getProduit();
+            $taille = $ligne->getTaille();
+            
+            $ligneCommandes[] = [
+                'produit' => [
+                    'nom' => $produit ? $produit->getNom() : 'Produit supprimé',
+                ],
+                'taille' => $taille ? [
+                    'unite' => $taille->getUnite()
+                ] : null,
+                'quantite' => $ligne->getQuantite()
+            ];
+        }
+
+        return $this->json([
+            'id' => $commande->getId(),
+            'numeroCommande' => $commande->getNumeroCommande(),
+             'heure' => $commande->getHeure()->format('Y-m-d H:i:s'),
+            'prixTotal' => $commande->getPrixTotal(),
+            'client' => [
+                'nom' => $commande->getClient()->getNom(),
+                'prenom' => $commande->getClient()->getPrenom()
+            ],
+            'statut' => [
+                'id' => $commande->getStatut()->getId(),
+                'libelle' => $commande->getStatut()->getLibelle()
+            ],
+            'statuts' => array_map(function($statut) {
+                return [
+                    'id' => $statut->getId(),
+                    'libelle' => $statut->getLibelle()
+                ];
+            }, $statutRepository->findAll()),
+            'ligneCommandes' => $ligneCommandes
+        ]);
+    }
 }
+

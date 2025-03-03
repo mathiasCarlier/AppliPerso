@@ -1,11 +1,12 @@
-{# templates/accueil/accueil.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
 
 {% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('styles/accueil/styles.css') }}">
 {% endblock %}
 
 {% block body %}
-        
     <!-- Bouton de déconnexion en haut à droite -->
     {% if app.user %}
         <div class="logout-container">
@@ -21,9 +22,28 @@
             </div>
         {% endif %}
 
-        <a href="{{ path('responsable') }}" class="btn">Liste du personnel</a>
-        <a href="{{ path('commande') }}" class="btn">Liste des commandes</a>
-        <a href="{{ path('produit') }}" class="btn">Liste des produits</a>
-        <a href="{{ path('compte') }}" class="btn">Mon compte</a>
+        {% if app.user.role %}
+            {% set roleId = app.user.role.id %}
+        {% else %}
+            {% set roleId = null %}
+        {% endif %}
+
+        {% if roleId == 1 %}
+            <!-- Tous les boutons -->
+            <a href="{{ path('responsable') }}" class="btn">Liste du personnel</a>
+            <a href="{{ path('commande') }}" class="btn">Liste des commandes</a>
+            <a href="{{ path('produit') }}" class="btn">Liste des produits</a>
+            <a href="{{ path('compte') }}" class="btn">Mon compte</a>
+        {% elseif roleId == 2 %}
+            <!-- Tous les boutons sauf celui de responsable -->
+            <a href="{{ path('commande') }}" class="btn">Liste des commandes</a>
+            <a href="{{ path('produit') }}" class="btn">Liste des produits</a>
+            <a href="{{ path('compte') }}" class="btn">Mon compte</a>
+        {% else %}
+            <!-- Aucun bouton sauf déconnexion -->
+            <div class="message-attente">
+                <p>Vous devez attendre que l'admin vous vérifie.</p>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

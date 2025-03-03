@@ -1,33 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Responsables{% endblock %}
+
 {% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('styles/responsable/styles.css') }}">
 {% endblock %}
-{% block body %}
 
+{% block body %}
+    <!-- Vérification du rôle avant d'afficher le contenu -->
     {% if app.user %}
+        {% set roleId = app.user.role.id %}
+    {% else %}
+        {% set roleId = null %}
+    {% endif %}
+
+    {% if roleId == 1 %}
         <div class="logout-container">
             <a href="{{ path('app_logout') }}" class="logout-link">Déconnexion</a>
         </div>
-    {% endif %}
 
-    <a href="{{ path('accueil') }}" class="btn btn-secondary">Retour</a>
+        <a href="{{ path('accueil') }}" class="btn btn-secondary">Retour</a>
 
-    <div class="container">
-        <h1>Liste des responsables</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for donnee in donnees %}
+        <div class="container">
+            <h1>Liste des responsables</h1>
+            <table>
+                <thead>
                     <tr>
-                        <td><a href="{{ path('responsable_show', {id: donnee.id}) }}">{{ donnee.nom }}</a></td>
-                        <td>{{ donnee.prenom }}</td>
+                        <th>Nom</th>
+                        <th>Prénom</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    {% for donnee in donnees %}
+                        <tr>
+                            <td><a href="{{ path('responsable_show', {id: donnee.id}) }}">{{ donnee.nom }}</a></td>
+                            <td>{{ donnee.prenom }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <script>
+            window.location.href = "{{ path('accueil') }}";
+        </script>
+    {% endif %}
 {% endblock %}

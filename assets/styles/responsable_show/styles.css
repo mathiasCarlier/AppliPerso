@@ -1,0 +1,102 @@
+/* Dans votre fichier styles.css */
+.cinema-theme {
+    color: #e0e0e0;
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #ff1a1a;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(255, 26, 26, 0.2);
+}
+
+.cinema-card {
+    background: #1a1a1a;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.card-header {
+    padding: 1.5rem;
+    background: #2a1a1a;
+    position: relative;
+}
+
+.movie-title {
+    color: #ff1a1a;
+    font-family: 'Arial Black', sans-serif;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.film-stripe {
+    height: 3px;
+    background: linear-gradient(90deg, #ff1a1a 50%, transparent 50%);
+    background-size: 15px 100%;
+    margin-top: 1rem;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.detail-item {
+    padding: 0.8rem;
+    border-bottom: 1px solid #333;
+}
+
+.detail-label {
+    color: #ff4d4d;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.3rem;
+}
+
+.detail-value {
+    color: #ccc;
+    font-size: 0.95em;
+}
+
+.cinema-select {
+    background: #2a2a2a;
+    border: 2px solid #ff1a1a;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 5px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.cinema-select:focus {
+    box-shadow: 0 0 15px rgba(255, 26, 26, 0.3);
+}
+
+.cinema-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #ff1a1a;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: transform 0.2s, background 0.3s;
+}
+
+.cinema-btn:hover {
+    background: #ff3333;
+    transform: translateY(-2px);
+}
+
+.error-message {
+    color: #ff4444;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 2rem;
+    border: 2px dashed #ff4444;
+    border-radius: 10px;
+}

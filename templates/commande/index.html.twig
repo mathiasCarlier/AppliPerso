@@ -1,132 +1,198 @@
 {# templates/commande/index.html.twig #}
-{% extends 'base.html.twig' %}
 
 {% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('styles/commande/styles.css') }}">
 {% endblock %}
 
-{% block title %}Liste des Commandes{% endblock %}
 
 {% block body %}
     <div id="commande-page">
         <h1>Liste des Commandes</h1>
 
-        {# Lien de déconnexion pour les utilisateurs connectés #}
         {% if app.user %}
             <div class="mb-3">
                 <a href="{{ path('app_logout') }}" class="btn btn-secondary">Déconnexion</a>
             </div>
         {% endif %}
 
-        {# Bouton de retour à l'accueil #}
         <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a>
 
-        {# Tableau des commandes #}
-        <table class="table table-bordered">
-            <thead class="thead-light">
-                <tr>
-                    <th>Client</th>
-                    <th>Numéro Commande</th>
-                    <th>Produits</th>
-                    <th>Heure</th>
-                    <th>Prix Total</th>
-                    <th>Statut</th>
-                </tr>
-            </thead>
-            <tbody id="commandes-tbody">
-                {# Trier les commandes par ID en ordre décroissant #}
-                {% set commandes_sorted = commandes|sort((a, b) => b.id <=> a.id) %}
-                {% for commande in commandes_sorted %}
-                    <tr>
-                        <td>{{ commande.Client.nom ?? 'N/A' }} {{ commande.Client.prenom ?? 'N/A' }}</td>
-                        <td>{{ commande.numeroCommande }}</td>
-                        <td>
-                            {% for ligne in commande.ligneCommandes %}
-                                {{ ligne.Produit.nom }}
-                                {% if ligne.Taille and ligne.Taille.unite %}
-                                    ({{ ligne.Taille.unite }})
-                                {% endif %}
-                                ({{ ligne.quantite }}x) <br>
-                            {% else %}
-                                Aucun produit
-                            {% endfor %}
-                        </td>
-                        <td>{{ commande.heure|date('H:i') }}</td>
-                        <td>{{ commande.prixTotal }}€</td>
-                        <td>
-                            <select class="form-control statut-select" data-commande-id="{{ commande.id }}">
-                                {% for statut in statuts %}
-                                    <option value="{{ statut.id }}" {{ commande.Statut.id == statut.id ? 'selected' : '' }}>
-                                        {{ statut.libelle }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="6" class="text-center">Aucune commande trouvée.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div id="commandes-tbody" class="row"> <!-- Ajout de la classe 'row' -->
+            {% set commandes_sorted = commandes|sort((a, b) => b.id <=> a.id) %}
+            {% for commande in commandes_sorted %}
+                <!-- Modification des classes pour 4 colonnes -->
+                <div data-commande-id="{{ commande.id }}">
+                    <div class="card h-100 commande-card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                {{ commande.Client.nom ?? "N/A"}} 
+                            </h5>
+                            <div class="commande-info">
+                                <p class="mb-2 text-muted">
+                                    <i class="bi bi-clock"></i> {{ commande.heure|date('H:i') }}
+                                </p>
+                                <div class="statut-container">
+                                    <span class="badge bg-secondary">
+                                        {{ commande.Statut.libelle }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info">Aucune commande trouvée.</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div id="custom-popup-overlay" class="popup-overlay">
+            <div class="custom-popup">
+                <div class="popup-header">
+                    <h3>Informations client</h3>
+                    <span class="close-popup">&times;</span>
+                </div>
+                <div class="popup-content" id="popup-content"></div>
+            </div>
+        </div>
     </div>
 
-    {# Script pour l'actualisation automatique et la mise à jour du statut #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        if (document.getElementById('commande-page')) {
-            // Fonction pour attacher les écouteurs d'événements aux listes déroulantes
-            function attachStatutListeners() {
-                document.querySelectorAll('.statut-select').forEach(select => {
-                    select.addEventListener('change', async function () {
-                        const commandeId = this.getAttribute('data-commande-id');
-                        const statutId = this.value;
+        console.log("Script chargé");
 
-                        try {
-                            const response = await fetch(`/commande/${commandeId}/update-statut`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                },
-                                body: JSON.stringify({ statutId: statutId })
-                            });
-                            const data = await response.json();
-                            if (data.success) {
-                                console.log('Statut de la commande mis à jour avec succès');
-                            } else {
-                                console.error('Erreur lors de la mise à jour');
-                            }
-                        } catch (error) {
-                            console.error('Erreur AJAX :', error);
-                        }
-                    });
-                });
-            }
+        let currentPopupCommandeId = null;
+        let refreshInterval; // Variable pour stocker l'intervalle d'actualisation
 
-            // Attacher les écouteurs d'événements au chargement initial de la page
-            attachStatutListeners();
+        function showPopup(content) {
+            const overlay = document.getElementById('custom-popup-overlay');
+            const contentContainer = document.getElementById('popup-content');
+            contentContainer.innerHTML = content;
+            overlay.style.display = 'flex';
+        }
 
-            // Fonction pour actualiser le tableau des commandes
-            async function refreshCommandes() {
-                try {
-                    const response = await fetch("{{ path('commande') }}");
-                    if (!response.ok) throw new Error('Erreur réseau: ' + response.status);
-                    const text = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(text, 'text/html');
-                    const newTableBody = doc.querySelector('#commandes-tbody').innerHTML;
-                    document.querySelector('#commandes-tbody').innerHTML = newTableBody;
+        function closePopup() {
+            document.getElementById('custom-popup-overlay').style.display = 'none';
+            currentPopupCommandeId = null;
+        }
 
-                    // Réattacher les écouteurs d'événements après l'actualisation
-                    attachStatutListeners();
-                } catch (error) {
-                    console.error('Erreur lors de la récupération des commandes:', error);
+        document.addEventListener('DOMContentLoaded', () => {
+            // Gestionnaires d'événements
+            document.querySelector('.close-popup').addEventListener('click', closePopup);
+            document.getElementById('custom-popup-overlay').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closePopup();
+            });
+
+            document.getElementById('commande-page').addEventListener('click', async (event) => {
+                const cardContainer = event.target.closest('[data-commande-id]');
+                if (cardContainer) {
+                    const commandeId = cardContainer.dataset.commandeId;
+                    await openCommandeModal(commandeId);
                 }
-            }
+            });
 
-            // Actualiser le tableau toutes les 15 secondes
-            setInterval(refreshCommandes, 15000);
+            // Démarrage de l'actualisation automatique
+            refreshInterval = setInterval(refreshCommandes, 15000);
+            
+            // Actualisation immédiate au premier chargement
+            refreshCommandes();
+        });
+
+        async function openCommandeModal(commandeId) {
+            try {
+                const url = "{{ path('commande_details', {'id': 'REPLACE_ID'}) }}".replace('REPLACE_ID', commandeId);
+                const response = await fetch(url);
+
+                if (!response.ok) throw new Error('Erreur lors du chargement des détails');
+
+                const data = await response.json();
+                
+                const htmlContent = `
+                    <div class="client-info">
+                        <p><strong>${data.client.nom} ${data.client.prenom}</strong></p>
+                        <p>Commande #${data.numeroCommande}</p>
+                        <p>Heure: ${new Date(data.heure).toLocaleTimeString()}</p>
+                        <p>Total: ${data.prixTotal.toFixed(2)}€</p>
+                    </div>
+
+                    <div class="produit-list">
+                        <h4>Produits :</h4>
+                        ${data.ligneCommandes.map(lc => `
+                            <div class="produit-item">
+                                ${lc.produit.nom} 
+                                ${lc.taille && lc.taille.unite ? `- ${lc.taille.unite}` : ''} 
+                                x ${lc.quantite}
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="statut-container">
+                        <label>Statut :</label>
+                        <select class="statut-select" data-commande-id="${commandeId}">
+                            ${data.statuts.map(statut => `
+                                <option value="${statut.id}" ${statut.id === data.statut.id ? 'selected' : ''}>
+                                    ${statut.libelle}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+                `;
+
+                showPopup(htmlContent);
+                currentPopupCommandeId = commandeId;
+
+                document.querySelector('.statut-select').addEventListener('change', function() {
+                    updateStatut(commandeId, this.value);
+                });
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                showPopup('<p class="text-danger">Impossible de charger les informations.</p>');
+            }
+        }
+
+        function updateStatut(commandeId, statutId) {
+            fetch("{{ path('update_statut', {'id': 'REPLACE_ID'}) }}".replace('REPLACE_ID', commandeId), {  
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ statutId: statutId })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Erreur de mise à jour');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    refreshCommandes();
+                    closePopup();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        async function refreshCommandes() {
+            try {
+                const response = await fetch("{{ path('commande') }}");
+                const newHTML = await response.text();
+                
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = newHTML;
+                
+                const commandesContainer = tempDiv.querySelector('#commandes-tbody');
+                const currentContainer = document.getElementById('commandes-tbody');
+                
+                // Mise à jour uniquement si le contenu a changé
+                if (commandesContainer.innerHTML !== currentContainer.innerHTML) {
+                    currentContainer.innerHTML = commandesContainer.innerHTML;
+                    console.log('Commandes actualisées');
+                }
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
         }
     </script>
 {% endblock %}
