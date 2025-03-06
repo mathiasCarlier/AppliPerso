@@ -16,6 +16,17 @@ class CommandeRepository extends ServiceEntityRepository
         parent::__construct($registry, Commande::class);
     }
 
+    public function findCommandesDuJour()
+    {
+        $today = new \DateTime();
+        $today->setTime(0, 0, 0); // Début de la journée
+        $tomorrow = clone $today;
+        $tomorrow->modify('+1 day'); // Fin de la journée
+    }    
+
+
+
+
     //    /**
     //     * @return Commande[] Returns an array of Commande objects
     //     */

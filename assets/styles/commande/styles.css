@@ -101,6 +101,7 @@ h1 {
 .commande-card {
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
+    margin: 0 auto;
 }
 
 .commande-card:hover {
@@ -199,15 +200,76 @@ h1 {
 /* Élément de commande individuelle (carte) */
 .commande-card {
     width: 250px; /* Largeur de chaque carte */
-    background-color: #fff;
+    background-color: #ffffff;
     padding: 15px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
+/* Centrage vertical et horizontal du contenu de la carte */
+.commande-card .card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Centrage du texte dans l'alerte quand aucune commande n'est trouvée */
+.alert {
+    text-align: center;
+}
+
 /* Effet hover sur la carte */
 .commande-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Pour les cartes de commande */
+.commande-card.statut-1 { background-color: #f0ad4e; }
+.commande-card.statut-2 { background-color: #e38746; }
+.commande-card.statut-3 { background-color: #b35226; }
+.commande-card.statut-4 { background-color: #5cb85c; }
+.commande-card.statut-5 { background-color: #e60800; }
+
+.commande-card.statut-1 .card-header .card-title { color: #f0ad4e; }
+.commande-card.statut-2 .card-header .card-title { color: #e38746; }
+.commande-card.statut-3 .card-header .card-title { color: #b35226; }
+.commande-card.statut-4 .card-header .card-title { color: #5cb85c; }
+.commande-card.statut-5 .card-header .card-title { color: #e60800; }
+
+
+.custom-popup[class*="statut-"] {
+    border-left: 20px solid;
+}
+
+.custom-popup {
+    border: 5px ; /* Définit une bordure gauche qui pourra être colorée */
+    transition: border-left-color 0.3s ease;
+}
+
+.custom-popup.statut-1-popup { border-color: #f0ad4e; }
+.custom-popup.statut-2-popup { border-color: #e38746; }
+.custom-popup.statut-3-popup { border-color: #b35226; }
+.custom-popup.statut-4-popup { border-color: #5cb85c; }
+.custom-popup.statut-5-popup { border-color: #e60800; }
+
+/* Partie haute en noir avec pleine largeur */
+.commande-card .card-header {
+    background-color: black;
+    padding: 5px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    text-align: center;
+    width: 100%; /* Force à prendre toute la largeur */
+    margin: 0; /* Supprime les marges éventuelles */
+}
+
+/* Style du titre coloré selon le statut */
+.commande-card .card-header .card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
 }

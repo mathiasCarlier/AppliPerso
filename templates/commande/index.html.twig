@@ -1,51 +1,66 @@
 {# templates/commande/index.html.twig #}
 
-{% block stylesheets %}
-    <link rel="stylesheet" href="{{ asset('styles/commande/styles.css') }}">
-{% endblock %}
+    {% block stylesheets %}
+        <link rel="stylesheet" href="{{ asset('styles/commande/styles.css') }}">
+    {% endblock %}
+
+    {% block body %}
+        <div id="commande-page">
+            <h1>Liste des Commandes</h1>
+
+            {% if app.user %}
+                <div class="mb-3">
+                    <a href="{{ path('app_logout') }}" class="btn btn-secondary">Déconnexion</a>
+                </div>
+            {% endif %}
+
+            <button id="refresh-commandes" class="btn btn-primary mb-3">
+                <i class="bi bi-arrow-clockwise"></i> Rafraîchir
+            </button>
 
 
-{% block body %}
-    <div id="commande-page">
-        <h1>Liste des Commandes</h1>
+            <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a><br><br>
 
-        {% if app.user %}
-            <div class="mb-3">
-                <a href="{{ path('app_logout') }}" class="btn btn-secondary">Déconnexion</a>
-            </div>
-        {% endif %}
+            <div id="commandes-tbody" class="row">
+                {% set today = "now"|date("Y-m-d") %}
+                {% set commandes_today = commandes|filter(command => command.heure|date("Y-m-d") == today) %}
+                {% set commandes_sorted = commandes_today %}
 
-        <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a>
-
-        <div id="commandes-tbody" class="row"> <!-- Ajout de la classe 'row' -->
-            {% set commandes_sorted = commandes|sort((a, b) => b.id <=> a.id) %}
-            {% for commande in commandes_sorted %}
-                <!-- Modification des classes pour 4 colonnes -->
-                <div data-commande-id="{{ commande.id }}">
-                    <div class="card h-100 commande-card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                {{ commande.Client.nom ?? "N/A"}} 
-                            </h5>
-                            <div class="commande-info">
+                {% for commande in commandes_sorted %}
+                    {% set statut_class = 'statut-' ~ commande.Statut.id %}
+                    <div data-commande-id="{{ commande.id }}" class="col-12 col-md-3">
+                        <div class="card h-100 commande-card {{ statut_class }}">
+                            <div class="card-body">
+                                <div class="card-header">
+                                    <h5 class="card-title">
+                                        {{ commande.Client.nom ?? "N/A" }}
+                                    </h5>
+                                </div>
                                 <p class="mb-2 text-muted">
                                     <i class="bi bi-clock"></i> {{ commande.heure|date('H:i') }}
                                 </p>
-                                <div class="statut-container">
-                                    <span class="badge bg-secondary">
-                                        {{ commande.Statut.libelle }}
-                                    </span>
-                                </div>
+                                <span class="badge bg-secondary">{{ commande.Statut.libelle }}</span>
                             </div>
                         </div>
                     </div>
-                </div>
-            {% else %}
-                <div class="col-12">
-                    <div class="alert alert-info">Aucune commande trouvée.</div>
-                </div>
-            {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">Aucune commande trouvée.</div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
+
+        <div id="custom-popup-overlay" class="popup-overlay">
+            <div id="custom-popup" class="custom-popup">
+                <div class="popup-header">
+                    <h3>Informations client</h3>
+                    <span class="close-popup">&times;</span>
+                </div>
+                <div class="popup-content" id="popup-content"></div>
+            </div>
+        </div>
+
 
         <div id="custom-popup-overlay" class="popup-overlay">
             <div class="custom-popup">
@@ -64,30 +79,31 @@
 
         let currentPopupCommandeId = null;
         let refreshInterval; // Variable pour stocker l'intervalle d'actualisation
+        let isPopupOpen = false;
 
-        function showPopup(content) {
+        function showPopup(content, statusClass) {
             const overlay = document.getElementById('custom-popup-overlay');
-            const contentContainer = document.getElementById('popup-content');
-            contentContainer.innerHTML = content;
+            const popup = overlay.querySelector('.custom-popup');
+            
+            // Reset all classes and apply base + status
+            popup.className = `custom-popup ${statusClass || ''}`;
+            
+            document.getElementById('popup-content').innerHTML = content;
             overlay.style.display = 'flex';
         }
 
-        function closePopup() {
-            document.getElementById('custom-popup-overlay').style.display = 'none';
-            currentPopupCommandeId = null;
-        }
+        
+
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Gestionnaires d'événements
             document.querySelector('.close-popup').addEventListener('click', closePopup);
             document.getElementById('custom-popup-overlay').addEventListener('click', (e) => {
                 if (e.target === e.currentTarget) closePopup();
             });
-
             document.getElementById('commande-page').addEventListener('click', async (event) => {
-                const cardContainer = event.target.closest('[data-commande-id]');
-                if (cardContainer) {
-                    const commandeId = cardContainer.dataset.commandeId;
+                const card = event.target.closest('[data-commande-id]');
+                if (card) {
+                    const commandeId = card.dataset.commandeId;
                     await openCommandeModal(commandeId);
                 }
             });
@@ -97,6 +113,23 @@
             
             // Actualisation immédiate au premier chargement
             refreshCommandes();
+
+            const refreshButton = document.getElementById("refresh-commandes");
+
+            refreshButton.addEventListener("click", function () {
+                fetch("{{ path('commande') }}", { headers: { "X-Requested-With": "XMLHttpRequest" } })
+                    .then(response => response.text())
+                    .then(html => {
+                        // Extraire uniquement le contenu des commandes
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, "text/html");
+                        const newContent = doc.querySelector("#commandes-tbody").innerHTML;
+
+                        // Remplacer les commandes actuelles
+                        document.querySelector("#commandes-tbody").innerHTML = newContent;
+                    })
+                    .catch(error => console.error("Erreur lors du rafraîchissement :", error));
+            });
         });
 
         async function openCommandeModal(commandeId) {
@@ -128,8 +161,8 @@
                     </div>
 
                     <div class="statut-container">
-                        <label>Statut :</label>
-                        <select class="statut-select" data-commande-id="${commandeId}">
+                        <label for="statut-select-${commandeId}">Statut :</label>
+                        <select id="statut-select-${commandeId}" class="statut-select" data-commande-id="${commandeId}">
                             ${data.statuts.map(statut => `
                                 <option value="${statut.id}" ${statut.id === data.statut.id ? 'selected' : ''}>
                                     ${statut.libelle}
@@ -137,7 +170,13 @@
                             `).join('')}
                         </select>
                     </div>
+
                 `;
+
+                document.getElementById('popup-content').innerHTML = htmlContent;
+
+                const statutClass = 'statut-' + data.statut.id;
+                document.getElementById('custom-popup').className = `custom-popup ${statutClass}-popup`;
 
                 showPopup(htmlContent);
                 currentPopupCommandeId = commandeId;
@@ -150,6 +189,18 @@
                 console.error('Erreur:', error);
                 showPopup('<p class="text-danger">Impossible de charger les informations.</p>');
             }
+        }
+
+        function closePopup() {
+            isPopupOpen = false; // Marquer la popup comme fermée
+            // Ne redémarre pas immédiatement l'actualisation automatique
+            setTimeout(() => {
+                if (!isPopupOpen) {
+                    refreshInterval = setInterval(refreshCommandes, 15000);
+                }
+            }, 1000); // Attendre avant de redémarrer l'intervalle
+            document.getElementById('custom-popup-overlay').style.display = 'none';
+            currentPopupCommandeId = null;
         }
 
         function updateStatut(commandeId, statutId) {
@@ -166,12 +217,17 @@
             })
             .then(data => {
                 if (data.success) {
-                    refreshCommandes();
-                    closePopup();
+                    // Effectuer d'abord la mise à jour du statut
+                    refreshCommandes(); 
+                    // Ensuite, ouvrir la popup après la mise à jour
+                    setTimeout(() => {
+                        openCommandeModal(commandeId); // Ouvrir la popup après la mise à jour du DOM
+                    }, 200); // Attendre un peu pour s'assurer que le DOM est stable
                 }
             })
             .catch(error => console.error('Error:', error));
         }
+
 
         async function refreshCommandes() {
             try {
@@ -188,11 +244,26 @@
                 if (commandesContainer.innerHTML !== currentContainer.innerHTML) {
                     currentContainer.innerHTML = commandesContainer.innerHTML;
                     console.log('Commandes actualisées');
+                    
+                    // Réaffecter les événements après la mise à jour
+                    // Si tu utilises des événements sur les <select>, assure-toi de les réattacher
+                    document.querySelectorAll('.statut-select').forEach(select => {
+                        select.addEventListener('focus', function(event) {
+                            event.preventDefault(); // Empêcher la revalidation sur le focus
+                        });
+
+                        select.addEventListener('click', function(event) {
+                            event.preventDefault(); // Empêcher la revalidation sur le clic
+                        });
+                    });
+
                 }
                 
             } catch (error) {
                 console.error('Erreur:', error);
             }
         }
+
+
     </script>
 {% endblock %}

@@ -18,17 +18,44 @@ final class CommandeController extends AbstractController
 {
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[Route('/commande', name: 'commande')]
-    public function index(CommandeRepository $commandeRepository, StatutRepository $statutRepository, Request $request): Response
-    {
-        $statuts = $statutRepository->findAll(); 
+    public function index(
+        CommandeRepository $commandeRepository,
+        StatutRepository $statutRepository,
+        Request $request
+    ): Response {
+        $statuts = $statutRepository->findAll();
         $statutId = $request->query->get('statut');
 
-        // Trie des commandes directement dans la requête du contrôleur
-        $commandes = $statutId ? 
+        $commandes = $statutId ?
             $commandeRepository->findBy(['Statut' => $statutId], ['id' => 'DESC']) :
             $commandeRepository->findBy([], ['id' => 'DESC']);
 
-        // Vérification si la requête est AJAX
+        usort($commandes, function ($a, $b) {
+            $statutA = $a->getStatut()->getId();
+            $statutB = $b->getStatut()->getId();
+        
+            // Déplacer le statut 4 en dernier (sauf si l'autre est un 5)
+            if ($statutA === 4 && $statutB !== 4 && $statutB !== 5) {
+                return 1;
+            }
+            if ($statutB === 4 && $statutA !== 4 && $statutA !== 5) {
+                return -1;
+            }
+        
+            // Déplacer le statut 5 après le 4, mais avant les autres
+            if ($statutA === 5 && $statutB !== 5) {
+                return 1;
+            }
+            if ($statutB === 5 && $statutA !== 5) {
+                return -1;
+            }
+        
+            // Sinon, trier par ID croissant
+            return $a->getId() <=> $b->getId();
+        });
+            
+        
+
         if ($request->isXmlHttpRequest()) {
             return $this->render('commande/_tableau_commande.html.twig', [
                 'commandes' => $commandes,
@@ -45,35 +72,45 @@ final class CommandeController extends AbstractController
     }
 
     #[Route('/commande/{id}/update-statut', name: 'update_statut', methods: ['POST'])]
-    public function updateStatut(Request $request, Commande $commande, EntityManagerInterface $em): JsonResponse
-    {
+    public function updateStatut(
+        Request $request,
+        Commande $commande,
+        EntityManagerInterface $em
+    ): JsonResponse {
         $data = json_decode($request->getContent(), true);
-        $statutId = (int) $data['statutId'];
+        $statutId = (int) ($data['statutId'] ?? 0);
 
         $statut = $em->getRepository(Statut::class)->find($statutId);
         if (!$statut) {
-            return $this->json(['success' => false, 'message' => 'Statut non trouvé']);
+            return $this->json([
+                'success' => false,
+                'message' => 'Statut non trouvé'
+            ], 404);
         }
 
-        $commande->setStatut($statut);
-
-        // Ajouter l'utilisateur connecté comme responsable
-        $user = $this->getUser(); // Récupération de l'utilisateur actuellement connecté
-        if ($user) {
-            $commande->setResponsable($user);
-        }
+        $commande
+            ->setStatut($statut)
+            ->setResponsable($this->getUser());
 
         $em->flush();
 
-        return $this->json(['success' => true]);
+        return $this->json([
+            'success' => true,
+            'newLibelle' => $statut->getLibelle()
+        ], 200, [
+            'Cache-Control' => 'no-store, max-age=0'
+        ]);
     }
 
     #[Route('/commande/details/{id}', name: 'commande_details', methods: ['GET'])]
-    public function getDetails(Commande $commande, StatutRepository $statutRepository): JsonResponse
-    {
-        // Vérifier que la commande existe
+    public function getDetails(
+        Commande $commande,
+        StatutRepository $statutRepository
+    ): JsonResponse {
         if (!$commande) {
-            return $this->json(['error' => 'Commande non trouvée'], 404);
+            return $this->json([
+                'error' => 'Commande non trouvée'
+            ], 404);
         }
 
         $ligneCommandes = [];
@@ -92,10 +129,10 @@ final class CommandeController extends AbstractController
             ];
         }
 
-        return $this->json([
+        $response = $this->json([
             'id' => $commande->getId(),
             'numeroCommande' => $commande->getNumeroCommande(),
-             'heure' => $commande->getHeure()->format('Y-m-d H:i:s'),
+            'heure' => $commande->getHeure()->format('Y-m-d H:i:s'),
             'prixTotal' => $commande->getPrixTotal(),
             'client' => [
                 'nom' => $commande->getClient()->getNom(),
@@ -113,6 +150,8 @@ final class CommandeController extends AbstractController
             }, $statutRepository->findAll()),
             'ligneCommandes' => $ligneCommandes
         ]);
+
+        $response->headers->set('Cache-Control', 'no-store, max-age=0');
+        return $response;
     }
 }
-

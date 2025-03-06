@@ -9,11 +9,12 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Responsable;
 use App\Form\ResponsableType;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\NotificationService;  // Import du service NotificationService
 
 class InscriptionController extends AbstractController
 {
     #[Route('/inscription', name: 'inscription', methods: ['GET', 'POST'])]
-    public function index(Request $request, EntityManagerInterface $manager, UserPasswordHasherInterface $passwordHasher): Response
+    public function index(Request $request, EntityManagerInterface $manager, UserPasswordHasherInterface $passwordHasher, NotificationService $notificationService): Response
     {
         $respo = new Responsable();
         $form = $this->createForm(ResponsableType::class, $respo);
@@ -29,6 +30,10 @@ class InscriptionController extends AbstractController
             $manager->persist($respo);
             $manager->flush();
 
+            // Notifier les administrateurs après l'inscription
+            $notificationService->notifyAdmins($respo);
+
+            // Redirection vers la page de connexion ou une autre page de confirmation
             return $this->redirectToRoute('app_login');
         }
 
