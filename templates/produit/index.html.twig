@@ -18,7 +18,7 @@
             </div>
         {% endif %}
 
-        {#<a href="{{ path('produit_new') }}" class="btn btn-primary">Ajouter un produit</a><br>#}
+        <a href="{{ path('produit_new') }}" class="btn btn-primary">Ajouter un produit</a><br><br>
 
         {# Bouton de retour à l'accueil #}
         <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a><br><br>
@@ -56,7 +56,6 @@
                     <th>Catégorie</th>
                     <th>Sous-Catégorie</th>
                     <th>En Ligne</th>
-                    <th>Menu</th>
                 </tr>
             </thead>
             <tbody>
@@ -82,7 +81,6 @@
                                 <option value="0" {{ not produit.enLigne ? 'selected' : '' }}>Non</option>
                             </select>
                         </td>
-                        <td>{{ produit.estMenu ? 'Oui' : 'Non' }}</td>
                     </tr>
                 {% else %}
                     <tr>

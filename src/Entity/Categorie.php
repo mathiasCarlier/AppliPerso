@@ -122,13 +122,16 @@ class Categorie
         return $this;
     }
 
-    /**
-     * @return Collection<int, SousCategorie>
-     */
+    // Cette méthode récupère les sous-catégories via les entités Possede
     public function getSousCategories(): Collection
     {
-        return $this->sousCategories;
+        $sousCategories = new ArrayCollection();
+        foreach ($this->possedes as $possede) {
+            $sousCategories->add($possede->getSousCategorie());
+        }
+        return $sousCategories;
     }
+
 
     public function addSousCategory(SousCategorie $sousCategory): static
     {

@@ -61,13 +61,13 @@ class Produit
     private ?bool $en_ligne = null;
 
     #[ORM\Column]
-    private ?bool $est_remise = null;
+    private ?bool $est_remise = false;
 
     #[ORM\Column]
-    private ?bool $est_menu = null;
+    private ?bool $est_menu = false;
 
     #[ORM\Column]
-    private ?int $valeur = null;
+    private ?int $valeur = 0;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $ref_produit = null;
@@ -312,4 +312,19 @@ class Produit
 
         return $this;
     }
+
+    #[ORM\Column(type: 'float', nullable: false)]
+    private ?float $prix = null;
+
+    public function getPrix(): ?float
+    {
+        return $this->prix;
+    }
+
+    public function setPrix(float $prix): static
+    {
+        $this->prix = $prix;
+        return $this;
+    }
+
 }

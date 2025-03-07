@@ -78,31 +78,53 @@ final class ProduitController extends AbstractController
     #[Route('/produit/new', name: 'produit_new')]
     public function new(Request $request, EntityManagerInterface $em, CategorieRepository $categorieRepository): Response
     {
-        // Créer une nouvelle instance de Produit
         $produit = new Produit();
-
-        // Créer le formulaire
         $form = $this->createForm(ProduitType::class, $produit);
-
-        // Récupérer toutes les catégories pour les passer au template
-        $categories = $categorieRepository->findAll();
-
-        // Gérer la soumission du formulaire
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Enregistrer le produit en base de données
-            $em->persist($produit);
-            $em->flush();
-
-            // Rediriger vers une autre page (par exemple, la liste des produits)
-            return $this->redirectToRoute('produit_list');
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                try {
+                    $em->persist($produit);
+                    $em->flush();
+                    $this->addFlash('success', 'Le produit a été enregistré avec succès !');
+                    return $this->redirectToRoute('produit');
+                } catch (\Exception $e) {
+                    $this->addFlash('error', "Erreur lors de l'enregistrement : " . $e->getMessage());
+                }
+            } else {
+                // Récupère tous les erreurs du formulaire
+                foreach ($form->getErrors(true) as $error) {
+                    $this->addFlash('error', $error->getMessage());
+                }
+            }
         }
 
-        // Afficher le formulaire avec les catégories
         return $this->render('produit/new.html.twig', [
             'form' => $form->createView(),
-            'categories' => $categories, // Passer les catégories au template
+            'categories' => $categorieRepository->findAll(),
         ]);
     }
+
+    #[Route('/api/sous-categories/{categorieId}', name: 'api_sous_categories')]
+    public function getSousCategories($categorieId, CategorieRepository $categorieRepository): JsonResponse
+    {
+        $categorie = $categorieRepository->find($categorieId);
+        if (!$categorie) {
+            return $this->json([], 200); // Retourner un tableau vide plutôt qu'une erreur
+        }
+        
+        $sousCategories = [];
+        foreach ($categorie->getSousCategories() as $sousCategorie) {
+            $sousCategories[] = [
+                'id' => $sousCategorie->getId(),
+                'libelle' => $sousCategorie->getLibelle()
+            ];
+        }
+        
+        return $this->json($sousCategories);
+    }
+
+
+
 }

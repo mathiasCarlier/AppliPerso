@@ -38,8 +38,6 @@ class SousCategorie
 
     public function __construct()
     {
-        $this->produits = new ArrayCollection();
-        $this->possedes = new ArrayCollection();
         $this->categories = new ArrayCollection();
     }
 
@@ -120,12 +118,14 @@ class SousCategorie
         return $this;
     }
 
-    /**
-     * @return Collection<int, Categorie>
-     */
+    // Cette méthode récupère les catégories via les entités Possede
     public function getCategories(): Collection
     {
-        return $this->categories;
+        $categories = new ArrayCollection();
+        foreach ($this->possedes as $possede) {
+            $categories->add($possede->getCategorie());
+        }
+        return $categories;
     }
 
     public function addCategory(Categorie $category): static

@@ -1,12 +1,9 @@
-
-
 {% block title %}Ajouter un Produit{% endblock %}
 
 {% block body %}
     <div class="container">
         <h1 class="my-4">Ajouter un Produit</h1>
 
-        {# Afficher le formulaire #}
         {{ form_start(form) }}
             <div class="form-group">
                 {{ form_label(form.nom) }}
@@ -14,8 +11,14 @@
             </div>
 
             <div class="form-group">
-                {{ form_label(form.description) }}
-                {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+                {{ form_label(form.Categorie) }}
+                {{ form_widget(form.Categorie, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            {# Conteneur pour le champ sous-catégorie, masqué par défaut #}
+            <div class="form-group" id="sousCategorieContainer" style="display: none;">
+                {{ form_label(form.sous_categorie) }}
+                {{ form_widget(form.sous_categorie, {'attr': {'class': 'form-control'}}) }}
             </div>
 
             <div class="form-group">
@@ -24,66 +27,76 @@
             </div>
 
             <div class="form-group">
-                {{ form_label(form.est_remise) }}
-                {{ form_widget(form.est_remise, {'attr': {'class': 'form-check-input'}}) }}
-            </div>
-
-            <div class="form-group">
-                {{ form_label(form.est_menu) }}
-                {{ form_widget(form.est_menu, {'attr': {'class': 'form-check-input'}}) }}
-            </div>
-
-            <div class="form-group">
-                {{ form_label(form.valeur) }}
-                {{ form_widget(form.valeur, {'attr': {'class': 'form-control'}}) }}
-            </div>
-
-            <div class="form-group">
                 {{ form_label(form.ref_produit) }}
                 {{ form_widget(form.ref_produit, {'attr': {'class': 'form-control'}}) }}
             </div>
 
             <div class="form-group">
-                {{ form_label(form.Categorie) }}
-                {{ form_widget(form.Categorie, {'attr': {'class': 'form-control'}}) }}
-            </div>
-
-            <div class="form-group">
-                {{ form_label(form.sous_categorie) }}
-                {{ form_widget(form.sous_categorie, {'attr': {'class': 'form-control'}}) }}
+                {{ form_label(form.prix) }}
+                {{ form_widget(form.prix, {'attr': {'class': 'form-control'}}) }}
             </div>
 
             <button type="submit" class="btn btn-primary">Enregistrer</button>
         {{ form_end(form) }}
+
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ type }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
     </div>
 
     <script>
-
         document.addEventListener('DOMContentLoaded', function () {
             const categorieSelect = document.querySelector('#{{ form.Categorie.vars.id }}');
+            const sousCategorieContainer = document.getElementById('sousCategorieContainer');
             const sousCategorieSelect = document.querySelector('#{{ form.sous_categorie.vars.id }}');
 
-            // Écouter les changements de la catégorie
-            categorieSelect.addEventListener('change', function () {
-                const categorieId = this.value;
+            // Supprimer l'option catégorie avec id 7
+            Array.from(categorieSelect.options).forEach(option => {
+                if (option.value === "7") {
+                    option.remove();
+                }
+            });
 
-                // Vider la liste des sous-catégories
+            function chargerSousCategories(categorieId) {
                 sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
-
+                sousCategorieSelect.required = false; // Reset à chaque changement
                 if (categorieId) {
-                    // Récupérer les sous-catégories via l'API
                     fetch(`/api/sous-categories/${categorieId}`)
                         .then(response => response.json())
                         .then(data => {
-                            data.forEach(sousCategorie => {
-                                const option = document.createElement('option');
-                                option.value = sousCategorie.id;
-                                option.textContent = sousCategorie.libelle;
-                                sousCategorieSelect.appendChild(option);
-                            });
+                            if (data.length > 0) {
+                                sousCategorieContainer.style.display = 'block';
+                                sousCategorieSelect.required = true; // Rendre obligatoire
+                                data.forEach(sousCategorie => {
+                                    const option = document.createElement('option');
+                                    option.value = sousCategorie.id;
+                                    option.textContent = sousCategorie.libelle;
+                                    sousCategorieSelect.appendChild(option);
+                                });
+                            } else {
+                                sousCategorieContainer.style.display = 'none';
+                            }
                         })
                         .catch(error => console.error('Erreur :', error));
+                } else {
+                    sousCategorieContainer.style.display = 'none';
                 }
+            }
+
+            // Vérifier s'il y a une catégorie sélectionnée au chargement de la page
+            if (categorieSelect.value) {
+                chargerSousCategories(categorieSelect.value);
+            } else {
+                sousCategorieContainer.style.display = 'none';
+            }
+
+            // Écouter les changements sur la catégorie
+            categorieSelect.addEventListener('change', function () {
+                chargerSousCategories(this.value);
             });
         });
     </script>

@@ -43,3 +43,5 @@ update_statut:
     path: /commande/{id}/update-statut
     controller: App\Controller\CommandeController::updateStatut
     methods: POST
+
+
