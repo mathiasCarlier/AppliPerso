@@ -1,4 +1,8 @@
-{% block title %}Ajouter un Produit{% endblock %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/produit_new/styles.css') }}">
+{% endblock %}
+
+<title>{% block title %}Ajouter un Produit{% endblock %}</title>
 
 {% block body %}
     <div class="container">
@@ -11,14 +15,32 @@
             </div>
 
             <div class="form-group">
-                {{ form_label(form.Categorie) }}
-                {{ form_widget(form.Categorie, {'attr': {'class': 'form-control'}}) }}
+                <div class="input-group">
+                    {{ form_label(form.Categorie) }}
+                    {{ form_widget(form.Categorie, {'attr': {'class': 'form-control'}}) }}
+                    <button type="button" class="btn btn-outline-secondary" onclick="showPopup('categorie')">+</button>
+                </div>
             </div>
 
-            {# Conteneur pour le champ sous-catégorie, masqué par défaut #}
             <div class="form-group" id="sousCategorieContainer" style="display: none;">
-                {{ form_label(form.sous_categorie) }}
-                {{ form_widget(form.sous_categorie, {'attr': {'class': 'form-control'}}) }}
+                <div class="input-group">
+                    {{ form_label(form.sous_categorie) }}
+                    {{ form_widget(form.sous_categorie, {'attr': {'class': 'form-control'}}) }}
+                    <button type="button" class="btn btn-outline-secondary" onclick="showPopup('sous_categorie')">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-group">
+                    {{ form_label(form.taille) }}
+                    {{ form_widget(form.taille, {'attr': {'class': 'form-control'}}) }}
+                    <button type="button" class="btn btn-outline-secondary" onclick="showPopup('taille')">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.prix) }}
+                {{ form_widget(form.prix, {'attr': {'class': 'form-control'}}) }}
             </div>
 
             <div class="form-group">
@@ -27,17 +49,46 @@
             </div>
 
             <div class="form-group">
-                {{ form_label(form.ref_produit) }}
+                {{ form_label(form.ref_produit, 'Url de l\'image') }}
                 {{ form_widget(form.ref_produit, {'attr': {'class': 'form-control'}}) }}
-            </div>
-
-            <div class="form-group">
-                {{ form_label(form.prix) }}
-                {{ form_widget(form.prix, {'attr': {'class': 'form-control'}}) }}
             </div>
 
             <button type="submit" class="btn btn-primary">Enregistrer</button>
         {{ form_end(form) }}
+
+        <a href="{{ path('produit') }}" class="btn">Retour</a>
+
+        <!-- Popups -->
+        <div id="popupOverlay" class="popup-overlay" style="display: none;">
+            <div class="popup-content">
+                <div id="categoriePopup" class="entity-popup" style="display: none;">
+                    <h4>Nouvelle Catégorie</h4>
+                    <input type="text" id="newCategorie" class="form-control mb-2" placeholder="Nom de la catégorie">
+                    <button class="btn btn-success" onclick="saveEntity('categorie')">Enregistrer</button>
+                    <button class="btn btn-secondary" onclick="hidePopups()">Annuler</button>
+                </div>
+
+                <div id="sous_categoriePopup" class="entity-popup" style="display: none;">
+                    <h4>Nouvelle Sous-Catégorie</h4>
+                    <select id="sousCategorieParent" class="form-control mb-2">
+                        <option value="">Choisir une catégorie</option>
+                        {% for categorie in categories %}
+                            <option value="{{ categorie.id }}">{{ categorie.libelle }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" id="newSousCategorie" class="form-control mb-2" placeholder="Nom de la sous catégorie">
+                    <button class="btn btn-success" onclick="saveEntity('sous_categorie')">Enregistrer</button>
+                    <button class="btn btn-secondary" onclick="hidePopups()">Annuler</button>
+                </div>
+
+                <div id="taillePopup" class="entity-popup" style="display: none;">
+                    <h4>Nouvelle Taille</h4>
+                    <input type="text" id="newTaille" class="form-control mb-2" placeholder="Quantité + Unité">
+                    <button class="btn btn-success" onclick="saveEntity('taille')">Enregistrer</button>
+                    <button class="btn btn-secondary" onclick="hidePopups()">Annuler</button>
+                </div>
+            </div>
+        </div>
 
         {% for type, messages in app.flashes %}
             {% for message in messages %}
@@ -49,6 +100,74 @@
     </div>
 
     <script>
+
+        function showPopup(type) {
+            document.getElementById('popupOverlay').style.display = 'flex';
+            document.getElementById(`${type}Popup`).style.display = 'block';
+        }
+
+        function hidePopups() {
+            document.getElementById('popupOverlay').style.display = 'none';
+            document.querySelectorAll('.entity-popup').forEach(popup => {
+                popup.style.display = 'none';
+            });
+        }
+
+        async function saveEntity(type) {
+            let data = {};
+            let selectId = '';
+
+            switch(type) {
+                case 'categorie':
+                    selectId = '{{ form.Categorie.vars.id }}';
+                    data.libelle = document.getElementById('newCategorie').value;
+                    break;
+                case 'sous_categorie':
+                    selectId = '{{ form.sous_categorie.vars.id }}';
+                    data.libelle = document.getElementById('newSousCategorie').value;
+                    data.categorieId = document.getElementById('sousCategorieParent').value;
+                    break;
+                case 'taille':
+                    selectId = '{{ form.taille.vars.id }}';
+                    data.unite = document.getElementById('newTaille').value;
+                    break;
+            }
+
+            try {
+                const response = await fetch(`/produit/new/add-${type}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Ajouter la nouvelle option au select
+                    const select = document.getElementById(selectId);
+                    const option = new Option(result.libelle || result.unite, result.id);
+                    select.add(option);
+                    option.selected = true;
+
+                    // Pour les sous-catégories, rafraîchir si nécessaire
+                    if (type === 'sous_categorie') {
+                        const categorieSelect = document.getElementById('{{ form.Categorie.vars.id }}');
+                        categorieSelect.value = data.categorieId;
+                        categorieSelect.dispatchEvent(new Event('change'));
+                    }
+
+                    hidePopups();
+                } else {
+                    alert(result.error || 'Une erreur est survenue');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur de connexion');
+            }
+        }
         document.addEventListener('DOMContentLoaded', function () {
             const categorieSelect = document.querySelector('#{{ form.Categorie.vars.id }}');
             const sousCategorieContainer = document.getElementById('sousCategorieContainer');

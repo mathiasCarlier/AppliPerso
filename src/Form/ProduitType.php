@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Categorie;
 use App\Entity\Produit;
+use App\Entity\Taille;
 use App\Entity\SousCategorie;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -18,14 +19,9 @@ class ProduitType extends AbstractType
         $builder
             ->add('nom')
             ->add('en_ligne')
-            ->add('ref_produit')
-
-            ->add('prix', NumberType::class, [
-                'required' => true,
-                'label' => 'Prix (€)',
-                'attr' => ['class' => 'form-control']
+            ->add('ref_produit', null, [
+                'label' => 'Url de l\'image'
             ])
-            
 
             ->add('Categorie', EntityType::class, [
                 'class' => Categorie::class,
@@ -37,6 +33,19 @@ class ProduitType extends AbstractType
                 'required' => false,
                 'choice_label' => 'libelle',
                 'placeholder' => 'Sélectionnez une sous-catégorie',
+            ])
+
+            ->add('taille', EntityType::class, [
+                'class' => Taille::class,
+                'choice_label' => 'unite',
+                'placeholder' => 'Sélectionnez une taille',
+                'mapped' => false,
+                'required' => true,
+            ])
+            ->add('prix', NumberType::class, [
+                'mapped' => false,
+                'required' => true,
+                'label' => 'Prix'
             ]);
 
             

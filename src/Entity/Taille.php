@@ -16,7 +16,7 @@ class Taille
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?float $quantite = null;
+    private ?float $quantite = 0;
 
     #[ORM\Column(length: 50)]
     private ?string $unite = null;

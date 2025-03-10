@@ -44,4 +44,17 @@ update_statut:
     controller: App\Controller\CommandeController::updateStatut
     methods: POST
 
+add_categorie:
+    path: /produit/new/add-categorie
+    controller: App\Controller\AjaxController::addCategorie
+    methods: POST
 
+add_sous_categorie:
+    path: /produit/new/add-sous_categorie
+    controller: App\Controller\AjaxController::addSousCategorie
+    methods: POST
+
+add_taille:
+    path: /produit/new/add-taille
+    controller: App\Controller\AjaxController::addTaille
+    methods: POST

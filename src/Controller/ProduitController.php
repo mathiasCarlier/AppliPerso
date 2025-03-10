@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Produit;
 use App\Entity\Categorie;
+use App\Entity\Avoir;
 use App\Form\ProduitType;
 use App\Repository\ProduitRepository;
 use App\Repository\CategorieRepository;
@@ -82,21 +83,33 @@ final class ProduitController extends AbstractController
         $form = $this->createForm(ProduitType::class, $produit);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
-            if ($form->isValid()) {
-                try {
-                    $em->persist($produit);
-                    $em->flush();
-                    $this->addFlash('success', 'Le produit a été enregistré avec succès !');
-                    return $this->redirectToRoute('produit');
-                } catch (\Exception $e) {
-                    $this->addFlash('error', "Erreur lors de l'enregistrement : " . $e->getMessage());
-                }
-            } else {
-                // Récupère tous les erreurs du formulaire
-                foreach ($form->getErrors(true) as $error) {
-                    $this->addFlash('error', $error->getMessage());
-                }
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                // Persiste le produit
+                $em->persist($produit);
+                $em->flush();
+
+                // Récupère les données du formulaire
+                $taille = $form->get('taille')->getData();
+                $prix = $form->get('prix')->getData();
+
+                // Crée et persiste l'Avoir
+                $avoir = new Avoir();
+                $avoir->setProduit($produit);
+                $avoir->setTaille($taille);
+                $avoir->setPrix($prix);
+
+                $em->persist($avoir);
+                $em->flush();
+
+                $this->addFlash('success', 'Le produit a été enregistré avec succès !');
+                return $this->redirectToRoute('produit');
+            } catch (\Exception $e) {
+                $this->addFlash('error', "Erreur lors de l'enregistrement : " . $e->getMessage());
+            }
+        } else {
+            foreach ($form->getErrors(true) as $error) {
+                $this->addFlash('error', $error->getMessage());
             }
         }
 
