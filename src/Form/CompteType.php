@@ -20,27 +20,24 @@ class CompteType extends AbstractType
             ->add('nom', TextType::class)
             ->add('prenom', TextType::class)
             ->add('login', TextType::class)
-            ->add('mdp', PasswordType::class, [
-                'label' => 'Mot de passe',
-                'attr' => ['autocomplete' => 'new-password']
-            ])
-            ->add('confirm_mdp', PasswordType::class, [
-                'label' => 'Confirmer le mot de passe',
-                'mapped' => false, // Ce champ n'est pas lié à l'entité
-                'attr' => ['autocomplete' => 'new-password'],
-                'constraints' => [
-                    new NotBlank(['message' => 'Veuillez confirmer votre mot de passe.'])
-                ]
-            ])
             ->add('mail', EmailType::class)
             ->add('telephone', TelType::class)
-        ;
+            // Champs de mot de passe à afficher uniquement si l'utilisateur souhaite modifier son mot de passe
+            ->add('oldPassword', PasswordType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'Ancien mot de passe :',
+            ])
+            ->add('newPassword', PasswordType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'Nouveau mot de passe :',
+            ])
+            ->add('confirmNewPassword', PasswordType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'Confirmer le nouveau mot de passe :',
+            ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
-    {
-        $resolver->setDefaults([
-            'data_class' => Responsable::class,
-        ]);
-    }
 }

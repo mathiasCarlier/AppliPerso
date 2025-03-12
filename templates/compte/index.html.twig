@@ -1,19 +1,11 @@
-{% extends 'base.html.twig' %}
 
-{% block title %}Modifier vos informations{% endblock %}
+<title>{% block title %}Modifier vos informations{% endblock %}</title>
 
 {% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('styles/compte/styles.css') }}">
 {% endblock %}
 
 {% block body %}
-    
-    {#{% if app.user %}
-        <div class="mb-3">
-            <a href="{{ path('app_logout') }}">Déconnexion</a>
-        </div>
-    {% endif %}#}
-
     <div class="example-wrapper">
         <h1>{{ message }}</h1>
 
@@ -28,21 +20,72 @@
                 {{ form_row(form.login, { label: 'Login :' }) }}
             </div>
             <div class="form-row">
-                {{ form_row(form.mdp, { label: 'Mot de passe :' }) }}
-            </div>
-            <div class="form-row">
-                {{ form_row(form.confirm_mdp, { label: 'Confirmer le mot de passe :' }) }}
-            </div>
-            <div class="form-row">
                 {{ form_row(form.mail, { label: 'Mail :' }) }}
             </div>
             <div class="form-row">
                 {{ form_row(form.telephone, { label: 'Téléphone :' }) }}
             </div>
 
+            <button type="button" id="toggle-password-form" class="btn btn-secondary">Modifier le mot de passe</button><br>
+
+            <div id="password-form" style="display: none; margin-top:15px;" data-is-open="false">
+                <div class="form-row">
+                    {{ form_row(form.oldPassword, { label: 'Ancien mot de passe :' }) }}
+                    {% if form.oldPassword.vars.errors|length > 0 %}
+                        <div class="error-message">
+                            {% for error in form.oldPassword.vars.errors %}
+                                <p>{{ error.message }}</p>
+                            {% endfor %}
+                        </div>
+                        <div class="form-error-border"></div> {# Ajouter une bordure rouge pour l'erreur #}
+                    {% endif %}
+                </div>
+                <div class="form-row">
+                    {{ form_row(form.newPassword, { label: 'Nouveau mot de passe :' }) }}
+                </div>
+                <div class="form-row">
+                    {{ form_row(form.confirmNewPassword, { label: 'Confirmer le nouveau mot de passe :' }) }}
+                    {% if form.confirmNewPassword.vars.errors|length > 0 %}
+                        <div class="error-message">
+                            {% for error in form.confirmNewPassword.vars.errors %}
+                                <p>{{ error.message }}</p>
+                            {% endfor %}
+                        </div>
+                        <div class="form-error-border"></div> {# Ajouter une bordure rouge pour l'erreur #}
+                    {% endif %}
+                </div>
+            </div>
+
             <button type="submit" class="btn btn-primary">Enregistrer</button>
         {{ form_end(form) }}
-        
+
         <a href="{{ path('accueil') }}" class="btn btn-secondary">Retour</a>
     </div>
+
+    <script>
+        document.getElementById('toggle-password-form').addEventListener('click', function() {
+            var passwordForm = document.getElementById('password-form');
+            var isOpen = passwordForm.getAttribute('data-is-open') === 'true'; // Vérifie si la modal est ouverte
+
+            // Si la modal est ouverte, la fermer, sinon l'ouvrir
+            if (isOpen) {
+                passwordForm.style.display = 'none';
+                passwordForm.setAttribute('data-is-open', 'false');
+            } else {
+                passwordForm.style.display = 'block';
+                passwordForm.setAttribute('data-is-open', 'true');
+            }
+        });
+
+        // Empêche la fermeture de la modal après un échec de validation
+        window.addEventListener('load', function() {
+            var passwordForm = document.getElementById('password-form');
+            // Si des erreurs existent, la modal ne doit pas se fermer
+            {% if form.oldPassword.vars.errors|length > 0 or form.confirmNewPassword.vars.errors|length > 0 %}
+                passwordForm.style.display = 'block';
+                passwordForm.setAttribute('data-is-open', 'true');
+            {% endif %}
+        });
+
+    </script>
 {% endblock %}

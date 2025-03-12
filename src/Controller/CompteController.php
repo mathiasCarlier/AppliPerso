@@ -14,42 +14,45 @@ use Symfony\Component\Form\FormError;
 
 class CompteController extends AbstractController
 {
-    #[Route('/compte', name: 'compte', methods: ['GET', 'POST'])]
     public function index(Request $request, EntityManagerInterface $manager, UserPasswordHasherInterface $passwordHasher): Response
     {
-        // Récupérer l'utilisateur actuellement authentifié
         $compte = $this->getUser();
 
-        // Vérifier que l'utilisateur est bien connecté et qu'il a un compte
         if (!$compte) {
             throw $this->createAccessDeniedException('Vous devez être connecté pour modifier votre compte.');
         }
 
-        // Création du formulaire pré-rempli avec les données existantes
         $form = $this->createForm(CompteType::class, $compte);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Vérification de la correspondance des mots de passe
-            $mdp = $form->get('mdp')->getData();
-            $confirmMdp = $form->get('confirm_mdp')->getData();
+        if ($form->isSubmitted()) {
+            $hasError = false;
 
-            if ($mdp === $confirmMdp) {
-                // Hacher le mot de passe uniquement s'il a été modifié
-                if ($mdp) {
-                    $hashedPassword = $passwordHasher->hashPassword($compte, $mdp);
-                    $compte->setMdp($hashedPassword);
+            $oldPassword = $form->get('oldPassword')->getData();
+            $newPassword = $form->get('newPassword')->getData();
+            $confirmNewPassword = $form->get('confirmNewPassword')->getData();
+
+            if ($newPassword || $confirmNewPassword) {
+                if (!$passwordHasher->isPasswordValid($compte, $oldPassword)) {
+                    $form->get('oldPassword')->addError(new FormError('Ancien mot de passe incorrect.'));
+                    $hasError = true;
+                }
+                
+                if ($newPassword !== $confirmNewPassword) {
+                    $form->get('confirmNewPassword')->addError(new FormError('Les nouveaux mots de passe ne correspondent pas.'));
+                    $hasError = true;
                 }
 
-                // Sauvegarde des modifications
+                if (!$hasError) {
+                    $hashedPassword = $passwordHasher->hashPassword($compte, $newPassword);
+                    $compte->setMdp($hashedPassword);
+                }
+            }
+
+            if (!$hasError) {
                 $manager->persist($compte);
                 $manager->flush();
-
-                // Rediriger l'utilisateur après la mise à jour
                 return $this->redirectToRoute('accueil');
-            } else {
-                // Ajouter une erreur si les mots de passe ne correspondent pas
-                $form->get('confirm_mdp')->addError(new FormError('Les mots de passe ne correspondent pas.'));
             }
         }
 
@@ -58,4 +61,5 @@ class CompteController extends AbstractController
             'message' => 'Mon Compte',
         ]);
     }
+
 }
