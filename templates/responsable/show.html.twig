@@ -49,10 +49,11 @@
 
                         <div class="access-control">
                             <label class="switch-label">Accès autorisé :</label>
-                            <select class="cinema-select verif-responsable-select" data-id="{{ donnee.id }}">
-                                <option value="1" {{ donnee.verifResponsable ? 'selected' : '' }}>✅ Oui</option>
-                                <option value="0" {{ not donnee.verifResponsable ? 'selected' : '' }}>❌ Non</option>
-                            </select>
+                            <div>
+                                Responsable <input type="radio" name="verif_responsable" value="2" data-id="{{ donnee.id }}" {% if donnee.role and donnee.role.id == 2 %}checked{% endif %}>
+                                Admin <input type="radio" name="verif_responsable" value="1" data-id="{{ donnee.id }}" {% if donnee.role and donnee.role.id == 1 %}checked{% endif %}> 
+                                Aucun <input type="radio" name="verif_responsable" value="0" data-id="{{ donnee.id }}" {% if not donnee.role %}checked{% endif %}> 
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -70,17 +71,9 @@
         </script>
     {% endif %}
 
-    <style>
-        body {
-            background: linear-gradient(45deg, #1a1a1a, #2a1e1e);
-            min-height: 100vh;
-            padding: 2rem;
-        }
-    </style>
-
     <script>
-        document.querySelectorAll('.verif-responsable-select').forEach(select => {
-            select.addEventListener('change', function() {
+        document.querySelectorAll('input[name="verif_responsable"]').forEach(radio => {
+            radio.addEventListener('change', function() {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
                 const responsableId = this.dataset.id;
                 const newValue = this.value;
@@ -93,10 +86,6 @@
                     }
                 })
                 .then(response => {
-                    if (response.ok) {
-                        const icon = newValue === '1' ? '✅' : '❌';
-                        this.querySelector(`option[value="${newValue}"]`).innerHTML = `${icon} ${newValue === '1' ? 'Oui' : 'Non'}`;
-                    }
                     if (response.status === 403) {
                         alert('Session expirée, veuillez rafraîchir la page');
                     }
@@ -106,3 +95,4 @@
         });
     </script>
 {% endblock %}
+

@@ -28,6 +28,7 @@
                     <tr>
                         <th>Nom</th>
                         <th>Prénom</th>
+                        <th>Login</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,6 +36,7 @@
                         <tr>
                             <td><a href="{{ path('responsable_show', {id: donnee.id}) }}">{{ donnee.nom }}</a></td>
                             <td>{{ donnee.prenom }}</td>
+                            <td>{{ donnee.login }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

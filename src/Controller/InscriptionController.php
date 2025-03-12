@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Responsable;
 use App\Form\ResponsableType;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Service\NotificationService;  // Import du service NotificationService
+use App\Service\NotificationService;
 
 class InscriptionController extends AbstractController
 {
@@ -24,7 +24,7 @@ class InscriptionController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // Hash le mot de passe avant de le persister
             $hashedPassword = $passwordHasher->hashPassword($respo, $respo->getMdp());
-            $respo->setMdp($hashedPassword);  // Le setter est `setMdp` pour stocker le mot de passe haché
+            $respo->setMdp($hashedPassword);
 
             // Persiste l'utilisateur
             $manager->persist($respo);

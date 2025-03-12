@@ -5,19 +5,19 @@ use App\Repository\ResponsableRepository;
 use Symfony\Component\Mailer\MailerInterface;
 use App\Entity\Responsable;
 use Symfony\Component\Mime\Email;
-use Psr\Log\LoggerInterface;  // Importer l'interface LoggerInterface
+use Psr\Log\LoggerInterface;
 
 class NotificationService
 {
     private $mailer;
     private $responsableRepository;
-    private $logger;  // Déclare la propriété logger
+    private $logger;
 
     public function __construct(MailerInterface $mailer, ResponsableRepository $responsableRepository, LoggerInterface $logger)
     {
         $this->mailer = $mailer;
         $this->responsableRepository = $responsableRepository;
-        $this->logger = $logger;  // Injecte le logger dans le constructeur
+        $this->logger = $logger;
     }
 
     public function notifyAdmins($newResponsable)
@@ -27,13 +27,12 @@ class NotificationService
 
         // Parcourir tous les admins et envoyer l'email uniquement si l'email est défini
         foreach ($admins as $admin) {
-            // Vérifie si l'adresse email de l'admin est valide
             $adminEmail = $admin->getMail();
             if ($adminEmail) {
                 $email = (new Email())
-                    ->from('no-reply@votre-site.com') // Adresse de l'expéditeur
-                    ->to($adminEmail) // Destinataire (adresse mail de l'admin)
-                    ->subject('Nouvelle inscription') // Sujet de l'email
+                    ->from('mathiasc1811@gmail.com')
+                    ->to($adminEmail)
+                    ->subject('Nouvelle inscription')
                     ->html('<p>Un nouveau responsable a été inscrit : ' . $newResponsable->getNom() . ' ' . $newResponsable->getPrenom() . '.</p>');
 
                 // Envoi de l'email
@@ -45,17 +44,15 @@ class NotificationService
         }
     }
 
-    // Méthode de test pour envoyer un email
     public function testMailer(MailerInterface $mailer)
     {
         $email = (new Email())
-            ->from('no-reply@votre-site.com')
-            ->to('ton-adresse-email@example.com')
+            ->from( 'mathiasc1811@gmail.com')
+            ->to('mthscarlier@gmail.com')
             ->subject('Test Email')
             ->text('Ceci est un test.');
 
         $mailer->send($email);
     }
-
 }
 

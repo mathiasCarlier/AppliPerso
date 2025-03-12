@@ -39,7 +39,13 @@ class ResponsableController extends AbstractController
     }
 
     #[Route('/responsable/{id}/verif/{value}', name: 'responsable_verif', methods: ['POST'])]
-    public function updateVerif(Responsable $responsable, $value, EntityManagerInterface $em,Request $request,CsrfTokenManagerInterface $csrfTokenManager,RoleRepository $roleRepository
+    public function updateVerif(
+        Responsable $responsable,
+        $value,
+        EntityManagerInterface $em,
+        Request $request,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        RoleRepository $roleRepository
     ): Response {
         // Vérification CSRF
         $submittedToken = $request->headers->get('X-CSRF-Token');
@@ -47,20 +53,25 @@ class ResponsableController extends AbstractController
             return new JsonResponse(['status' => 'invalid csrf'], 403);
         }
 
-        $verif = (bool)$value;
-        $responsable->setVerifResponsable($verif);
-
-        // Logique de gestion des rôles
-        if ($verif) {
-            // Récupération du rôle "ROLE_RESPONSABLE" (ID 2 selon votre exemple)
-            $role = $roleRepository->find(2);
-            $responsable->setRole($role);
-        } else {
-            $responsable->setRole(null);
+        // Définition des valeurs en fonction du choix
+        switch ($value) {
+            case '2':
+                $role = $roleRepository->find(2); // Responsable
+                $responsable->setVerifResponsable(true);
+                break;
+            case '1':
+                $role = $roleRepository->find(1); // Admin
+                $responsable->setVerifResponsable(true);
+                break;
+            default:
+                $role = null;
+                $responsable->setVerifResponsable(false);
+                break;
         }
 
+        $responsable->setRole($role);
         $em->flush();
-        
+
         return new JsonResponse(['status' => 'success']);
     }
 }
