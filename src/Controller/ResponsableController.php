@@ -13,6 +13,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use App\Repository\RoleRepository;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 
 class ResponsableController extends AbstractController
@@ -74,4 +75,28 @@ class ResponsableController extends AbstractController
 
         return new JsonResponse(['status' => 'success']);
     }
+
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    #[Route('/responsable/{id}/delete', name: 'responsable_delete', methods: ['POST'])]
+    public function delete(Request $request, Responsable $responsable, EntityManagerInterface $em): Response
+    {
+        // Empêcher la suppression si le rôle est égal à 1
+        if ($responsable->getRole() && $responsable->getRole()->getId() === 1) {
+            $this->addFlash('error', 'Vous ne pouvez pas supprimer un administrateur.');
+            return $this->redirectToRoute('responsable');
+        }
+
+        // Vérification du token CSRF
+        if ($this->isCsrfTokenValid('delete' . $responsable->getId(), $request->request->get('_token'))) {
+            $em->remove($responsable);
+            $em->flush();
+            $this->addFlash('success', 'Responsable supprimé avec succès.');
+        } else {
+            $this->addFlash('error', 'Token CSRF invalide.');
+        }
+
+        return $this->redirectToRoute('responsable');
+    }
+
+
 }

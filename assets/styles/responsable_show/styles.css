@@ -109,3 +109,7 @@ input[type="radio"] {
 script {
     display: none;
 }
+
+.hidden {
+    display: none;
+}

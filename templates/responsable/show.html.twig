@@ -57,8 +57,17 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="delete-button" id="delete-button" {% if donnee.role and donnee.role.id == 1 %} style="display: none;" {% endif %}>
+                    <form id="delete-form" action="{{ path('responsable_delete', {'id': donnee.id}) }}" method="post">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ donnee.id) }}">
+                        <button type="submit" class="cinema-btn delete-btn" id="delete-btn">Supprimer le responsable</button>
+                    </form>
+                </div>
+
+
             {% else %}
-                <div class="error-message">🎬 Auteur non trouvé</div>
+                <div class="error-message">🎬 Responsable non trouvé</div>
             {% endif %}
 
             <a href="{{ path('responsable') }}" class="cinema-btn">
@@ -71,12 +80,22 @@
         </script>
     {% endif %}
 
-    <script>
+   <script>
         document.querySelectorAll('input[name="verif_responsable"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+           radio.addEventListener('change', function() {
                 const responsableId = this.dataset.id;
                 const newValue = this.value;
+                const deleteButton = document.getElementById('delete-button');
+
+                // Afficher ou masquer le bouton en fonction du rôle sélectionné
+                if (newValue === "1") {
+                    deleteButton.style.display = "none"; // Masquer si Admin
+                } else {
+                    deleteButton.style.display = "block"; // Afficher sinon
+                }
+
+                // Envoi de la mise à jour au serveur
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
                 fetch(`/responsable/${responsableId}/verif/${newValue}`, {
                     method: 'POST',
@@ -85,14 +104,42 @@
                         'X-CSRF-Token': csrfToken
                     }
                 })
-                .then(response => {
-                    if (response.status === 403) {
-                        alert('Session expirée, veuillez rafraîchir la page');
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status !== 'success') {
+                        alert('Une erreur est survenue');
                     }
                 })
                 .catch(error => console.error('Erreur réseau', error));
             });
         });
+
+        document.getElementById('delete-btn').addEventListener('click', function(event) {
+            event.preventDefault(); // Empêche la soumission immédiate du formulaire
+
+            const responsableNom = "{{ donnee.nom|e('js') }}";
+            const responsablePrenom = "{{ donnee.prenom|e('js') }}";
+
+            Swal.fire({
+                title: "Confirmation",
+                text: `Êtes-vous sûr de vouloir supprimer ${responsableNom} ${responsablePrenom} ?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Oui, supprimer",
+                cancelButtonText: "Annuler"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form').submit(); // Soumet le formulaire si confirmé
+                }
+            });
+        });
+
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 {% endblock %}
 
