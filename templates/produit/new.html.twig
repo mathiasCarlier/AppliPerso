@@ -15,24 +15,24 @@
             </div>
 
             <div class="form-group">
+                {{ form_label(form.Categorie) }}
                 <div class="input-group">
-                    {{ form_label(form.Categorie) }}
                     {{ form_widget(form.Categorie, {'attr': {'class': 'form-control'}}) }}
                     <button type="button" class="btn btn-outline-secondary" onclick="showPopup('categorie')">+</button>
                 </div>
             </div>
 
             <div class="form-group" id="sousCategorieContainer" style="display: none;">
+                {{ form_label(form.sous_categorie) }}
                 <div class="input-group">
-                    {{ form_label(form.sous_categorie) }}
                     {{ form_widget(form.sous_categorie, {'attr': {'class': 'form-control'}}) }}
                     <button type="button" class="btn btn-outline-secondary" onclick="showPopup('sous_categorie')">+</button>
                 </div>
             </div>
 
             <div class="form-group">
+                {{ form_label(form.taille) }}
                 <div class="input-group">
-                    {{ form_label(form.taille) }}
                     {{ form_widget(form.taille, {'attr': {'class': 'form-control'}}) }}
                     <button type="button" class="btn btn-outline-secondary" onclick="showPopup('taille')">+</button>
                 </div>
@@ -73,7 +73,9 @@
                     <select id="sousCategorieParent" class="form-control mb-2">
                         <option value="">Choisir une catégorie</option>
                         {% for categorie in categories %}
-                            <option value="{{ categorie.id }}">{{ categorie.libelle }}</option>
+                            {% if categorie.id != 7 %}
+                                <option value="{{ categorie.id }}">{{ categorie.libelle }}</option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                     <input type="text" id="newSousCategorie" class="form-control mb-2" placeholder="Nom de la sous catégorie">
@@ -217,6 +219,16 @@
             categorieSelect.addEventListener('change', function () {
                 chargerSousCategories(this.value);
             });
+
+            // Modification de l'affichage pour le select "taille"
+            const tailleSelect = document.getElementById('{{ form.taille.vars.id }}');
+            if (tailleSelect) {
+                Array.from(tailleSelect.options).forEach(option => {
+                    if (option.value === "18") {
+                        option.textContent = "Pas de taille";
+                    }
+                });
+            }
         });
     </script>
 {% endblock %}

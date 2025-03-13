@@ -1,11 +1,8 @@
-{# templates/produit/index.html.twig #}
-{% extends 'base.html.twig' %}
-
 {% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('styles/produit/styles.css') }}">
 {% endblock %}
 
-{% block title %}Liste des Produits{% endblock %}
+<title>{% block title %}Liste des Produits{% endblock %}</title>
 
 {% block body %}
     <div id="produit-page">
@@ -52,6 +49,7 @@
             <thead class="thead-light">
                 <tr>
                     <th>Nom</th>
+                    <th>Taille</th>
                     <th>Prix</th>
                     <th>Catégorie</th>
                     <th>Sous-Catégorie</th>
@@ -65,11 +63,18 @@
                         <td>
                             <ul class="list-unstyled">
                                 {% for avoir in produit.avoirs %}
-                                    <li>
-                                        {{ avoir.Taille.unite }} {{ avoir.prix }}€
-                                    </li>
+                                    <li>{{ avoir.Taille.unite }}</li>
                                 {% else %}
                                     <li>Aucune taille disponible</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>
+                            <ul class="list-unstyled">
+                                {% for avoir in produit.avoirs %}
+                                    <li>{{ avoir.prix }}€</li>
+                                {% else %}
+                                    <li>-</li>
                                 {% endfor %}
                             </ul>
                         </td>
@@ -81,6 +86,11 @@
                                 <option value="0" {{ not produit.enLigne ? 'selected' : '' }}>Non</option>
                             </select>
                         </td>
+                        <td>
+                            <form action="{{ path('produit_delete', {'id': produit.id}) }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">
+                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                            </form>
+                        </td>
                     </tr>
                 {% else %}
                     <tr>
@@ -89,6 +99,7 @@
                 {% endfor %}
             </tbody>
         </table>
+
     </div>
 
     {# Script pour la gestion des interactions #}

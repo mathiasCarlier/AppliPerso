@@ -31,8 +31,12 @@ class Responsable implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $login = null;
 
-    //#[Assert\Length(min: 8)]
+    #[Assert\Length(min: 8)]
     #[Assert\NotBlank()]
+    #[Assert\Regex(
+        pattern: "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/",
+        message: "Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre."
+    )]
     #[ORM\Column(length: 255)]
     private ?string $mdp = null;
 

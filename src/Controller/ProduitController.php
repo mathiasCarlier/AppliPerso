@@ -138,6 +138,22 @@ final class ProduitController extends AbstractController
         return $this->json($sousCategories);
     }
 
+    #[Route('/produit/{id}/delete', name: 'produit_delete', methods: ['POST'])]
+    public function delete(Produit $produit, EntityManagerInterface $em): Response
+    {
+        try {
+            $em->remove($produit);
+            $em->flush();
+            
+            $this->addFlash('success', 'Produit supprimé avec succès.');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Erreur lors de la suppression du produit.');
+        }
+
+        return $this->redirectToRoute('produit');
+    }
+
+
 
 
 }
