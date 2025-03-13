@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 final class ProduitController extends AbstractController
 {
@@ -26,11 +28,10 @@ final class ProduitController extends AbstractController
         // Appliquer le filtre et le tri
         $produits = $produitRepository->findByFiltersAndSort($categorieId, $sort);
 
-    
         // Déterminer le champ et l'ordre de tri
         $sortField = 'category';
         $sortOrder = 'ASC';
-    
+
         switch ($sort) {
             case 'price_asc':
                 $sortField = 'price';
@@ -49,20 +50,18 @@ final class ProduitController extends AbstractController
                 $sortOrder = 'DESC';
                 break;
         }
-    
+
         // Récupération des produits avec tri et filtre
         $produits = $produitRepository->findByCategorieSorted($categorieId, $sortField, $sortOrder);
-    
+
         // Récupération des catégories pour le menu déroulant
         $categories = $categorieRepository->findAll();
-    
+
         return $this->render('produit/index.html.twig', [
             'produits' => $produits,
             'categories' => $categories,
         ]);
     }
-    
-
 
     #[Route('/produit/{id}/update-en-ligne', name: 'update_en_ligne', methods: ['POST'])]
     public function updateEnLigne(Request $request, Produit $produit, EntityManagerInterface $em): JsonResponse
@@ -139,12 +138,20 @@ final class ProduitController extends AbstractController
     }
 
     #[Route('/produit/{id}/delete', name: 'produit_delete', methods: ['POST'])]
-    public function delete(Produit $produit, EntityManagerInterface $em): Response
+    public function delete(Produit $produit, EntityManagerInterface $em, Request $request, CsrfTokenManagerInterface $csrfTokenManager): Response
     {
+        $token = $request->request->get('_token');
+
+        if (!$csrfTokenManager->isTokenValid(new CsrfToken('delete' . $produit->getId(), $token))) {
+            $this->addFlash('error', 'Token CSRF invalide.');
+            return $this->redirectToRoute('produit');
+        }
+
         try {
             $em->remove($produit);
             $em->flush();
-            
+
+            // Ajout d'un message flash correct
             $this->addFlash('success', 'Produit supprimé avec succès.');
         } catch (\Exception $e) {
             $this->addFlash('error', 'Erreur lors de la suppression du produit.');
@@ -153,7 +160,18 @@ final class ProduitController extends AbstractController
         return $this->redirectToRoute('produit');
     }
 
+    #[Route('/avoir/{id}/update-prix', name: 'update_prix', methods: ['POST'])]
+    public function updatePrix(Request $request, Avoir $avoir, EntityManagerInterface $em): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        
+        if (isset($data['prix'])) {
+            $avoir->setPrix(floatval($data['prix']));
+            $em->flush();
 
+            return $this->json(['success' => true]);
+        }
 
-
+        return $this->json(['success' => false, 'message' => 'Données invalides'], 400);
+    }
 }

@@ -72,6 +72,29 @@ h1 {
     background-color: #f9f9f9;
 }
 
+/* Arrondi pour la première et dernière colonne */
+.table th:first-child,
+.table td:first-child {
+    border-top-left-radius: 10px;
+}
+
+.table th:last-child,
+.table td:last-child {
+    border-top-right-radius: 10px;
+}
+
+/* Ajout de l'arrondi à la colonne 6 */
+.table th:nth-child(6),
+.table td:nth-child(6) {
+    border-top-right-radius: 10px;
+}
+
+/* Correction si la colonne 7 a un arrondi */
+.table th:nth-child(7),
+.table td:nth-child(7) {
+    border-top-right-radius: 10px;
+}
+
 /* Styles pour les contrôles de formulaire */
 .form-select {
     padding: 8px;
@@ -121,4 +144,41 @@ h1 {
 /* Espacement des colonnes de filtre */
 .col-md-4 {
     margin-bottom: 15px;
+}
+
+/* styles.css */
+.d-none {
+    display: none !important;
+}
+
+/* Pour une transition fluide */
+[class*="btn-"] {
+    transition: opacity 0.3s ease;
+}
+
+/* Alignement spécifique pour les prix */
+.list-unstyled li {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.list-unstyled li > span,
+.list-unstyled li > input {
+    flex-grow: 1;
+    margin-right: 10px;
+    text-align: left !important;
+}
+
+.btn-sm {
+    padding: 0.15rem 0.4rem !important;
+    font-size: 0.75rem !important;
+    line-height: 1.2;
+    margin-left: auto;
+
+}
+
+.btn-sm .btn-warning {
+    padding-left: 0.3rem !important;
+    padding-right: 0.3rem !important;
 }

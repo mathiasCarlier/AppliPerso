@@ -70,11 +70,30 @@
                             </ul>
                         </td>
                         <td>
-                            <ul class="list-unstyled">
+                            <ul class="list-unstyled d-flex flex-wrap gap-2">
                                 {% for avoir in produit.avoirs %}
-                                    <li>{{ avoir.prix }}€</li>
-                                {% else %}
-                                    <li>-</li>
+                                    <li>
+                                        <div class="d-inline-flex align-items-center gap-2">
+                                            <span id="prix-{{ avoir.id }}">{{ avoir.prix }} €</span>
+                                            <input type="number" 
+                                                id="input-prix-{{ avoir.id }}" 
+                                                value="{{ avoir.prix }}" 
+                                                class="form-control d-none" 
+                                                step="0.01">
+                                                
+                                                <button class="btn btn-sm btn-warning" 
+                                                        id="toggle-btn-{{ avoir.id }}" 
+                                                        onclick="toggleEdit({{ avoir.id }})">
+                                                    ✏️
+                                                </button>
+                                                <button class="btn btn-sm btn-success d-none" 
+                                                        id="save-btn-{{ avoir.id }}" 
+                                                        onclick="savePrix({{ avoir.id }})">
+                                                    ✔
+                                                </button>
+                                            
+                                        </div>
+                                    </li>
                                 {% endfor %}
                             </ul>
                         </td>
@@ -87,8 +106,10 @@
                             </select>
                         </td>
                         <td>
-                            <form action="{{ path('produit_delete', {'id': produit.id}) }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">
-                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                            <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ produit.id }}', '{{ produit.nom }}')">Supprimer</button>
+                            <form id="delete-form-{{ produit.id }}" action="{{ path('produit_delete', {'id': produit.id}) }}" method="post" style="display: none;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
+                                <button type="submit"></button> {# Ce bouton sera cliqué en JS #}
                             </form>
                         </td>
                     </tr>
@@ -104,6 +125,49 @@
 
     {# Script pour la gestion des interactions #}
     <script>
+        function toggleEdit(avoirId) {
+            // Récupère tous les éléments concernés
+            const elements = {
+                prix: document.getElementById(`prix-${avoirId}`),
+                input: document.getElementById(`input-prix-${avoirId}`),
+                toggleBtn: document.getElementById(`toggle-btn-${avoirId}`),
+                saveBtn: document.getElementById(`save-btn-${avoirId}`)
+            };
+
+            // Basculer les classes
+            Object.values(elements).forEach(el => {
+                if (el) el.classList.toggle('d-none');
+            });
+
+            // Focus sur l'input si on est en mode édition
+            if (!elements.input.classList.contains('d-none')) {
+                elements.input.focus();
+            }
+        }
+
+        async function savePrix(avoirId) {
+            const input = document.getElementById(`input-prix-${avoirId}`);
+            const prix = parseFloat(input.value).toFixed(2);
+
+            try {
+                const response = await fetch(`/avoir/${avoirId}/update-prix`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ prix: prix })
+                });
+
+                if (response.ok) {
+                    document.getElementById(`prix-${avoirId}`).textContent = `${prix}€`;
+                    toggleEdit(avoirId); // Rebascule l'affichage
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue');
+            }
+        }
         function filtrerParCategorie() {
             const categorieSelect = document.getElementById('categorie-select');
             const categorieId = categorieSelect.value;
@@ -165,5 +229,28 @@
                 });
             });
         });
+        
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function confirmDelete(produitId, produitNom) {
+            Swal.fire({
+                title: "Confirmation",
+                text: `Êtes-vous sûr de vouloir supprimer '${produitNom}' ?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Oui, supprimer",
+                cancelButtonText: "Annuler"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`delete-form-${produitId}`).submit();
+                }
+            });
+        }
+    </script>
+
 {% endblock %}

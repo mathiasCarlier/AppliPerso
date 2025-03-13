@@ -16,6 +16,11 @@ class Produit
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\NotBlank()]
+    #[Assert\Regex(
+        pattern: "/^[A-ZÀ-Ÿ\s-]+$/",
+        message: "Le nom ne doit contenir que des majuscules, des espaces ou des traits d’union."
+    )]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
