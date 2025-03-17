@@ -230,14 +230,14 @@ h1 {
 
 /* Pour les cartes de commande */
 .commande-card.statut-1 { background-color: #f0ad4e; }
-.commande-card.statut-2 { background-color: #e38746; }
-.commande-card.statut-3 { background-color: #b35226; }
+.commande-card.statut-2 { background-color: #467de3; }
+.commande-card.statut-3 { background-color: #b7b7b7bc; }
 .commande-card.statut-4 { background-color: #5cb85c; }
 .commande-card.statut-5 { background-color: #e60800; }
 
 .commande-card.statut-1 .card-header .card-title { color: #f0ad4e; }
-.commande-card.statut-2 .card-header .card-title { color: #e38746; }
-.commande-card.statut-3 .card-header .card-title { color: #b35226; }
+.commande-card.statut-2 .card-header .card-title { color: #467de3; }
+.commande-card.statut-3 .card-header .card-title { color: #b7b7b7bc; }
 .commande-card.statut-4 .card-header .card-title { color: #5cb85c; }
 .commande-card.statut-5 .card-header .card-title { color: #e60800; }
 

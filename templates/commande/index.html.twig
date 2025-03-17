@@ -136,11 +136,46 @@
             try {
                 const url = "{{ path('commande_details', {'id': 'REPLACE_ID'}) }}".replace('REPLACE_ID', commandeId);
                 const response = await fetch(url);
-
                 if (!response.ok) throw new Error('Erreur lors du chargement des détails');
 
                 const data = await response.json();
-                
+                const currentStatus = data.statut.id;
+
+                // Mapping des statuts et leurs libellés correspondants
+                const statusLabels = {
+                    1: "Commande en attente",
+                    2: "Commande en préparation",
+                    3: "Commande à régler",
+                    4: "Commande terminé",
+                    5: "Commande annulé"
+                };
+                const currentStatusLabel = statusLabels[currentStatus] || "Inconnu";
+
+                // Par défaut, pour les statuts de 1 à 4
+                let firstButtonLabel = "Retour";
+                let secondButtonLabel = "Suivant";
+                let thirdButtonLabel = "Passer la commande annulé";
+                let firstButtonStyle = "";
+                let secondButtonStyle = "";
+
+                // Masquer le bouton "Retour" si le statut est 1
+                if (currentStatus == 1) {
+                    firstButtonStyle = "display: none;";
+                }
+
+                // Masquer le bouton "Suivant" si le statut est 4
+                if (currentStatus == 4) {
+                    secondButtonStyle = "display: none;";
+                }
+
+                // Pour le statut annulé (5) : masquer les deux premiers boutons et changer le libellé du troisième bouton
+                if (currentStatus == 5) {
+                    firstButtonStyle = "display: none;";
+                    secondButtonStyle = "display: none;";
+                    thirdButtonLabel = "Passer la commande en attente";
+                }
+
+                // On structure le HTML pour que le bouton annulé soit toujours en dessous des deux autres
                 const htmlContent = `
                     <div class="client-info">
                         <p><strong>${data.client.nom} ${data.client.prenom}</strong></p>
@@ -161,28 +196,61 @@
                     </div>
 
                     <div class="statut-container">
-                        <label for="statut-select-${commandeId}">Statut :</label>
-                        <select id="statut-select-${commandeId}" class="statut-select" data-commande-id="${commandeId}">
-                            ${data.statuts.map(statut => `
-                                <option value="${statut.id}" ${statut.id === data.statut.id ? 'selected' : ''}>
-                                    ${statut.libelle}
-                                </option>
-                            `).join('')}
-                        </select>
+                        <label>Statut : ${currentStatusLabel}</label>
+                        <div class="status-buttons" data-commande-id="${commandeId}">
+                            <div class="top-buttons">
+                                <button type="button" class="btn btn-primary statut-btn first-btn" style="${firstButtonStyle}">
+                                    ${firstButtonLabel}
+                                </button>
+                                <button type="button" class="btn btn-primary statut-btn second-btn" style="${secondButtonStyle}">
+                                    ${secondButtonLabel}
+                                </button>
+                            </div>
+                            <div class="bottom-buttons">
+                                <button type="button" class="btn btn-danger statut-btn third-btn">
+                                    ${thirdButtonLabel}
+                                </button>
+                            </div>
+                        </div>
                     </div>
-
                 `;
 
                 document.getElementById('popup-content').innerHTML = htmlContent;
-
-                const statutClass = 'statut-' + data.statut.id;
+                const statutClass = 'statut-' + currentStatus;
                 document.getElementById('custom-popup').className = `custom-popup ${statutClass}-popup`;
-
                 showPopup(htmlContent);
                 currentPopupCommandeId = commandeId;
 
-                document.querySelector('.statut-select').addEventListener('change', function() {
-                    updateStatut(commandeId, this.value);
+                // Bouton "Retour" : décrémente le statut de 1 (uniquement si supérieur à 1)
+                const firstBtn = document.querySelector('.status-buttons .first-btn');
+                if (firstBtn) {
+                    firstBtn.addEventListener('click', function() {
+                        if (currentStatus > 1) {
+                            const newStatus = currentStatus - 1;
+                            updateStatut(commandeId, newStatus);
+                        }
+                    });
+                }
+
+                // Bouton "Suivant" : incrémente le statut de 1 (uniquement si inférieur à 5)
+                const secondBtn = document.querySelector('.status-buttons .second-btn');
+                if (secondBtn) {
+                    secondBtn.addEventListener('click', function() {
+                        if (currentStatus < 5) {
+                            const newStatus = currentStatus + 1;
+                            updateStatut(commandeId, newStatus);
+                        }
+                    });
+                }
+
+                // Bouton Annulé / Passer la commande en attente
+                const thirdBtn = document.querySelector('.status-buttons .third-btn');
+                thirdBtn.addEventListener('click', function() {
+                    if (currentStatus == 5) {
+                        updateStatut(commandeId, 1);
+                    } else {
+                        updateStatut(commandeId, 5);
+                    }
                 });
 
             } catch (error) {
