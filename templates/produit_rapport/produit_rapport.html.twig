@@ -1,0 +1,32 @@
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/produit_rapport/styles.css') }}">
+{% endblock %}
+
+<body>
+    <h1>Liste des produits commandés</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Nom du produit</th>
+                <th>Taille</th>
+                <th>Quantité commandée</th>
+                <th>Prix total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.productName }}</td>
+                    <td>{{ product.taille }}</td>
+                    <td>{{ product.totalQuantity }}</td>
+                    <td>{{ product.totalPrice | number_format(2, ',', ' ') }} €</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4">Aucun produit commandé.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h2>Total global: {{ globalTotal | number_format(2, ',', ' ') }} €</h2>
+</body>

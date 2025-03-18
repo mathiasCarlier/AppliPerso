@@ -21,7 +21,7 @@ security:
                 login_path: app_login
                 check_path: app_login
                 default_target_path: accueil
-                enable_csrf: true
+                enable_csrf: false  # Désactiver CSRF dans la configuration du formulaire de login
                 username_parameter: _username
                 password_parameter: _password
             logout:
@@ -35,3 +35,4 @@ security:
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/profile, roles: ROLE_USER }
+        # Pas de règle spécifique pour /inscription, donc elle est publique

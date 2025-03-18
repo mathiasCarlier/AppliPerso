@@ -2,6 +2,7 @@ framework:
     messenger:
         transports:
             sync: 'sync://'
+            
 
         default_bus: messenger.bus.default
 

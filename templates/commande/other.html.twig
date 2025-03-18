@@ -4,7 +4,7 @@
 
 {% block body %}
     <div id="commande-page">
-        <h1>Liste des Commandes</h1>
+        <h1>Liste des Commandes Terminées et Annulées</h1>
 
         {% if app.user %}
             <div class="mb-3">
@@ -14,22 +14,21 @@
 
         <button id="refresh-commandes" class="btn btn-primary mb-3">
             <i class="bi bi-arrow-clockwise"></i> Rafraîchir
-        </button><br><br>
+        </button>
 
-        <a href="{{ path('commande_other') }}" class="btn btn-primary mb-3">Terminés</a>
-        <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a><br><br>
+        <a href="{{ path('commande') }}" class="btn btn-primary mb-3">Retour</a><br><br>
 
         {# Filtrer les commandes du jour #}
         {% set today = "now"|date("Y-m-d") %}
         {% set commandes_today = commandes|filter(command => command.heure|date("Y-m-d") == today) %}
-        {% set commandes_sorted = commandes_today %} 
+        {% set commandes_sorted = commandes_today %}
 
         <div id="commandes-tbody" class="row">
-            <!-- Colonne pour le statut 1 -->
-            <div class="col-12 col-md-4">
-                <h3>En Attente</h3>
-                {% set commandesStatut1 = commandes_sorted|filter(c => c.Statut.id == 1) %}
-                {% for commande in commandesStatut1 %}
+            <!-- Colonne pour le statut 4 : Terminé -->
+            <div class="col-12 col-md-6">
+                <h3>Terminé</h3>
+                {% set commandesStatut4 = commandes_sorted|filter(c => c.Statut.id == 4) %}
+                {% for commande in commandesStatut4 %}
                     {% set statut_class = 'statut-' ~ commande.Statut.id %}
                     <div data-commande-id="{{ commande.id }}" class="commande-card mb-3">
                         <div class="card h-100 commande-card {{ statut_class }}">
@@ -47,15 +46,15 @@
                         </div>
                     </div>
                 {% else %}
-                    <p>Aucune commande est en attente.</p>
+                    <p>Aucune commande n'est terminé.</p>
                 {% endfor %}
             </div>
 
-            <!-- Colonne pour le statut 2 -->
-            <div class="col-12 col-md-4">
-                <h3>En préparation</h3>
-                {% set commandesStatut2 = commandes_sorted|filter(c => c.Statut.id == 2) %}
-                {% for commande in commandesStatut2 %}
+            <!-- Colonne pour le statut 5 : Annulé -->
+            <div class="col-12 col-md-6">
+                <h3>Annulé</h3>
+                {% set commandesStatut5 = commandes_sorted|filter(c => c.Statut.id == 5) %}
+                {% for commande in commandesStatut5 %}
                     {% set statut_class = 'statut-' ~ commande.Statut.id %}
                     <div data-commande-id="{{ commande.id }}" class="commande-card mb-3">
                         <div class="card h-100 commande-card {{ statut_class }}">
@@ -73,33 +72,7 @@
                         </div>
                     </div>
                 {% else %}
-                    <p>Aucune commande est en préparation.</p>
-                {% endfor %}
-            </div>
-
-            <!-- Colonne pour le statut 3 -->
-            <div class="col-12 col-md-4">
-                <h3>À régler</h3>
-                {% set commandesStatut3 = commandes_sorted|filter(c => c.Statut.id == 3) %}
-                {% for commande in commandesStatut3 %}
-                    {% set statut_class = 'statut-' ~ commande.Statut.id %}
-                    <div data-commande-id="{{ commande.id }}" class="commande-card mb-3">
-                        <div class="card h-100 commande-card {{ statut_class }}">
-                            <div class="card-body">
-                                <div class="card-header">
-                                    <h5 class="card-title">
-                                        {{ commande.Client.nom ?? "N/A" }}
-                                    </h5>
-                                </div>
-                                <p class="mb-2 text-muted">
-                                    <i class="bi bi-clock"></i> {{ commande.heure|date('H:i') }}
-                                </p>
-                                <span class="badge bg-secondary">{{ commande.Statut.libelle }}</span>
-                            </div>
-                        </div>
-                    </div>
-                {% else %}
-                    <p>Aucune commande est à régler.</p>
+                    <p>Aucune commande n'est annlé.</p>
                 {% endfor %}
             </div>
         </div>
@@ -128,7 +101,7 @@
             const overlay = document.getElementById('custom-popup-overlay');
             const popup = overlay.querySelector('.custom-popup');
             
-            // Reset all classes and apply base + status
+            // Réinitialiser les classes et appliquer la classe de statut
             popup.className = `custom-popup ${statusClass || ''}`;
             
             document.getElementById('popup-content').innerHTML = content;
@@ -136,7 +109,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Vérifier que l'élément .close-popup existe bien
             const closeBtn = document.querySelector('.close-popup');
             if (closeBtn) {
                 closeBtn.addEventListener('click', closePopup);
@@ -152,24 +124,18 @@
                 }
             });
 
-            // Démarrage de l'actualisation automatique
+            // Démarrer l'actualisation automatique
             refreshInterval = setInterval(refreshCommandes, 15000);
-            
-            // Actualisation immédiate au premier chargement
             refreshCommandes();
 
             const refreshButton = document.getElementById("refresh-commandes");
-
             refreshButton.addEventListener("click", function () {
-                fetch("{{ path('commande') }}", { headers: { "X-Requested-With": "XMLHttpRequest" } })
+                fetch("{{ path('commande_other') }}", { headers: { "X-Requested-With": "XMLHttpRequest" } })
                     .then(response => response.text())
                     .then(html => {
-                        // Extraire uniquement le contenu des commandes
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, "text/html");
                         const newContent = doc.querySelector("#commandes-tbody").innerHTML;
-
-                        // Remplacer les commandes actuelles
                         document.querySelector("#commandes-tbody").innerHTML = newContent;
                     })
                     .catch(error => console.error("Erreur lors du rafraîchissement :", error));
@@ -185,27 +151,38 @@
                 const data = await response.json();
                 const currentStatus = data.statut.id;
 
-                // Mapping des statuts et leurs libellés correspondants
+                // Vérification si le statut est autre que 4 ou 5
+                if (currentStatus !== 4 && currentStatus !== 5) {
+                    closePopup(); // Fermer immédiatement le popup
+                    return; // Quitter la fonction
+                }
+
+                // Mapping des statuts pour cette page
                 const statusLabels = {
-                    1: "Commande en attente",
-                    2: "Commande en préparation",
-                    3: "Commande à régler"
+                    4: "Commande terminé",
+                    5: "Commande annulé"
                 };
                 const currentStatusLabel = statusLabels[currentStatus] || "Inconnu";
 
-                // Par défaut, pour les statuts de 1 à 4
+                // Paramètres des boutons selon le statut
                 let firstButtonLabel = "Retour";
                 let secondButtonLabel = "Suivant";
                 let thirdButtonLabel = "Passer la commande annulé";
                 let firstButtonStyle = "";
                 let secondButtonStyle = "";
+                let thirdButtonStyle = "";
 
-                // Masquer le bouton "Retour" si le statut est 1
-                if (currentStatus == 1) {
-                    firstButtonStyle = "display: none;";
+                if (currentStatus === 4) {
+                    firstButtonLabel = "Passer la commande à régler";
+                    secondButtonLabel = "Passer la commande à annuler";
+                    firstButtonStyle = ""; // Afficher le bouton
+                    secondButtonStyle = ""; // Afficher le bouton
+                    thirdButtonStyle = "display: none;"; // Cacher le troisième bouton
+                } else if (currentStatus === 5) {
+                    firstButtonStyle = "display: none;"; // Cacher le premier bouton
+                    secondButtonStyle = "display: none;"; // Cacher le second bouton
+                    thirdButtonLabel = "Passer la commande en attente";
                 }
-
-                
 
                 const htmlContent = `
                     <div class="client-info">
@@ -214,7 +191,6 @@
                         <p>Heure: ${new Date(data.heure).toLocaleTimeString()}</p>
                         <p>Total: ${data.prixTotal.toFixed(2)}€</p>
                     </div>
-
                     <div class="produit-list">
                         <h4>Produits :</h4>
                         ${data.ligneCommandes.map(lc => `
@@ -225,7 +201,6 @@
                             </div>
                         `).join('')}
                     </div>
-
                     <div class="statut-container">
                         <label>Statut : ${currentStatusLabel}</label>
                         <div class="status-buttons" data-commande-id="${commandeId}">
@@ -238,7 +213,7 @@
                                 </button>
                             </div>
                             <div class="bottom-buttons">
-                                <button type="button" class="btn btn-danger statut-btn third-btn">
+                                <button type="button" class="btn btn-danger statut-btn third-btn" style="${thirdButtonStyle}">
                                     ${thirdButtonLabel}
                                 </button>
                             </div>
@@ -252,43 +227,40 @@
                 showPopup(htmlContent);
                 currentPopupCommandeId = commandeId;
 
-                // Bouton "Retour"
                 const firstBtn = document.querySelector('.status-buttons .first-btn');
                 if (firstBtn) {
                     firstBtn.addEventListener('click', function() {
-                        if (currentStatus > 1) {
-                            const newStatus = currentStatus - 1;
-                            updateStatut(commandeId, newStatus);
+                        if (currentStatus === 4) {
+                            updateStatut(commandeId, 3); // Passer la commande à régler
                         }
                     });
                 }
 
-                // Bouton "Suivant"
                 const secondBtn = document.querySelector('.status-buttons .second-btn');
                 if (secondBtn) {
                     secondBtn.addEventListener('click', function() {
-                        if (currentStatus < 5) {
-                            const newStatus = currentStatus + 1;
-                            updateStatut(commandeId, newStatus);
+                        if (currentStatus === 4) {
+                            updateStatut(commandeId, 5); // Passer la commande à annuler
                         }
                     });
                 }
 
-                // Bouton Annulé / Passer la commande en attente
                 const thirdBtn = document.querySelector('.status-buttons .third-btn');
-                thirdBtn.addEventListener('click', function() {
-                    if (currentStatus == 5) {
-                        updateStatut(commandeId, 1);
-                    } else {
-                        updateStatut(commandeId, 5);
-                    }
-                });
+                if (thirdBtn) {
+                    thirdBtn.addEventListener('click', function() {
+                        if (currentStatus === 5) {
+                            updateStatut(commandeId, 1); // Passer la commande en attente
+                        }
+                    });
+                }
 
             } catch (error) {
                 console.error('Erreur:', error);
                 showPopup('<p class="text-danger">Impossible de charger les informations.</p>');
             }
         }
+
+
 
         function closePopup() {
             isPopupOpen = false;
@@ -301,7 +273,7 @@
             currentPopupCommandeId = null;
         }
 
-       function updateStatut(commandeId, statutId) {
+        function updateStatut(commandeId, statutId) {
             fetch("{{ path('update_statut', {'id': 'REPLACE_ID'}) }}".replace('REPLACE_ID', commandeId), {  
                 method: 'POST',
                 headers: {
@@ -316,37 +288,26 @@
             .then(data => {
                 if (data.success) {
                     refreshCommandes(); 
-
-                    // Si le statut est 4 ou 5, fermer la popup
-                    if (statutId === 4 || statutId === 5) {
-                        closePopup();
-                    } else {
-                        setTimeout(() => {
-                            openCommandeModal(commandeId);
-                        }, 200);
-                    }
+                    setTimeout(() => {
+                        openCommandeModal(commandeId);
+                    }, 200);
                 }
             })
             .catch(error => console.error('Error:', error));
         }
 
-
         async function refreshCommandes() {
             try {
-                const response = await fetch("{{ path('commande') }}");
+                const response = await fetch("{{ path('commande_other') }}");
                 const newHTML = await response.text();
-                
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = newHTML;
-                
                 const commandesContainer = tempDiv.querySelector('#commandes-tbody');
                 const currentContainer = document.getElementById('commandes-tbody');
-                
                 if (commandesContainer.innerHTML !== currentContainer.innerHTML) {
                     currentContainer.innerHTML = commandesContainer.innerHTML;
                     console.log('Commandes actualisées');
                 }
-                
             } catch (error) {
                 console.error('Erreur:', error);
             }

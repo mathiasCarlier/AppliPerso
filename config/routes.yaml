@@ -23,6 +23,10 @@ commande:
     path: /commande
     controller: App\Controller\CommandeController::index
 
+commande_other:
+    path: /commande/other
+    controller: App\Controller\CommandeController::other
+
 produit:
     path: /produit
     controller: App\Controller\ProduitController::index

@@ -33,24 +33,8 @@ final class CommandeController extends AbstractController
         usort($commandes, function ($a, $b) {
             $statutA = $a->getStatut()->getId();
             $statutB = $b->getStatut()->getId();
-        
-            // Déplacer le statut 4 en dernier (sauf si l'autre est un 5)
-            if ($statutA === 4 && $statutB !== 4 && $statutB !== 5) {
-                return 1;
-            }
-            if ($statutB === 4 && $statutA !== 4 && $statutA !== 5) {
-                return -1;
-            }
-        
-            // Déplacer le statut 5 après le 4, mais avant les autres
-            if ($statutA === 5 && $statutB !== 5) {
-                return 1;
-            }
-            if ($statutB === 5 && $statutA !== 5) {
-                return -1;
-            }
-        
-            // Sinon, trier par ID croissant
+
+            //trier par statut croissant
             return $a->getId() <=> $b->getId();
         });
             
@@ -65,6 +49,45 @@ final class CommandeController extends AbstractController
         }
 
         return $this->render('commande/index.html.twig', [
+            'commandes' => $commandes,
+            'statuts' => $statuts,
+            'statutId' => $statutId
+        ]);
+    }
+
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    #[Route('/commande/other', name: 'commande_other')]
+    public function other(
+        CommandeRepository $commandeRepository,
+        StatutRepository $statutRepository,
+        Request $request
+    ): Response {
+        $statuts = $statutRepository->findAll();
+        $statutId = $request->query->get('statut');
+
+        $commandes = $statutId ?
+            $commandeRepository->findBy(['Statut' => $statutId], ['id' => 'DESC']) :
+            $commandeRepository->findBy([], ['id' => 'DESC']);
+
+        usort($commandes, function ($a, $b) {
+            $statutA = $a->getStatut()->getId();
+            $statutB = $b->getStatut()->getId();
+
+            //trier par statut croissant
+            return $a->getId() <=> $b->getId();
+        });
+            
+        
+
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('commande/_tableau_commande.html.twig', [
+                'commandes' => $commandes,
+                'statuts' => $statuts,
+                'statutId' => $statutId
+            ]);
+        }
+
+        return $this->render('commande/other.html.twig', [
             'commandes' => $commandes,
             'statuts' => $statuts,
             'statutId' => $statutId
