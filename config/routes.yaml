@@ -62,3 +62,7 @@ add_taille:
     path: /produit/new/add-taille
     controller: App\Controller\AjaxController::addTaille
     methods: POST
+
+report:
+    path: /commande/report
+    controller: App\Controller\ProductReportController::index

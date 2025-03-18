@@ -1,9 +1,24 @@
 {% block stylesheets %}
-    <link rel="stylesheet" href="{{ asset('styles/produit_rapport/styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/report/styles.css') }}">
 {% endblock %}
 
 <body>
+
+    <a href="{{ path('commande') }}" class="btn btn-primary mb-3">Retour</a><br><br>
+    
     <h1>Liste des produits commandés</h1>
+    
+    <!-- Formulaire de filtre par période -->
+    <form method="get" action="{{ path('report') }}">
+        <label for="periode">Filtrer par période :</label>
+        <select name="periode" id="periode" onchange="this.form.submit()">
+            <option value="today" {% if periode == 'today' %}selected{% endif %}>Aujourd'hui</option>
+            <option value="week" {% if periode == 'week' %}selected{% endif %}>Cette semaine</option>
+            <option value="month" {% if periode == 'month' %}selected{% endif %}>Ce mois-ci</option>
+            <option value="year" {% if periode == 'year' %}selected{% endif %}>6 dernier mois</option>
+        </select>
+    </form>
+    
     <table>
         <thead>
             <tr>

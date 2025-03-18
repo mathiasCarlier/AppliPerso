@@ -51,7 +51,7 @@ class InscriptionController extends AbstractController
                 }
 
                 // Envoi d'une notification par email si au moins un administrateur est trouvé
-                if (!empty($adminEmails)) {
+                /*if (!empty($adminEmails)) {
                     $notificationEmail = (new Email())
                         ->from('lefauteuilrougetest@gmail.com') // Adresse d'envoi
                         ->to(...$adminEmails) // Envoi à tous les admins
@@ -66,7 +66,7 @@ class InscriptionController extends AbstractController
                         );
 
                     $mailer->send($notificationEmail);
-                }
+                }*/
 
                 // Message flash de succès et redirection vers la page de login
                 $this->addFlash('success', 'Votre inscription a été réalisée avec succès.');
