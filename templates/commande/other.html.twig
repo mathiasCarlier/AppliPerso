@@ -1,22 +1,21 @@
+<title>{% block title %}Commandes{% endblock %}</title>
+
 {% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('styles/commande/styles.css') }}">
 {% endblock %}
 
 {% block body %}
-    <div id="commande-page">
-        <h1>Liste des Commandes Terminées et Annulées</h1>
 
-        {% if app.user %}
-            <div class="mb-3">
-                <a href="{{ path('app_logout') }}" class="btn btn-secondary">Déconnexion</a>
-            </div>
-        {% endif %}
+    <a href="{{ path('commande') }}" class="btn btn-primary mb-3">Retour</a>
+
+    <div id="commande-page">
+        <h1>Liste des commandes terminées et annulées</h1>
 
         <button id="refresh-commandes" class="btn btn-primary mb-3">
             <i class="bi bi-arrow-clockwise"></i> Rafraîchir
-        </button>
+        </button><br><br>
 
-        <a href="{{ path('commande') }}" class="btn btn-primary mb-3">Retour</a><br><br>
+        <a href="{{ path('report') }}" class="btn btn-primary mb-3">Récap</a>
 
         {# Filtrer les commandes du jour #}
         {% set today = "now"|date("Y-m-d") %}
@@ -41,10 +40,9 @@
                                 <p class="mb-2 text-muted">
                                     <i class="bi bi-clock"></i> {{ commande.heure|date('H:i') }}
                                 </p>
-                                <span class="badge bg-secondary">{{ commande.Statut.libelle }}</span>
                             </div>
                         </div>
-                    </div>
+                    </div><br>
                 {% else %}
                     <p>Aucune commande n'est terminé.</p>
                 {% endfor %}
@@ -67,10 +65,9 @@
                                 <p class="mb-2 text-muted">
                                     <i class="bi bi-clock"></i> {{ commande.heure|date('H:i') }}
                                 </p>
-                                <span class="badge bg-secondary">{{ commande.Statut.libelle }}</span>
                             </div>
                         </div>
-                    </div>
+                    </div><br>
                 {% else %}
                     <p>Aucune commande n'est annlé.</p>
                 {% endfor %}
@@ -155,32 +152,24 @@
                 const statusLabels = {
                     1: "Commande en attente",
                     2: "Commande en préparation",
-                    3: "Commande à régler"
+                    3: "Commande à régler",
+                    4: "Commande terminée",
+                    5: "Commande annulée"
                 };
                 const currentStatusLabel = statusLabels[currentStatus] || "Inconnu";
 
-                // Par défaut, pour les statuts de 1 à 4
-                let firstButtonLabel = "Retour";
-                let secondButtonLabel = "Suivant";
-                let thirdButtonLabel = "Annuler";
-                let firstButtonStyle = "";
-                let secondButtonStyle = "";
-
-                // Masquer le bouton "Retour" si le statut est 1
-                if (currentStatus == 1) {
-                    firstButtonStyle = "display: none;";
-                }
-                
+                // Construction du contenu HTML du popup
                 const htmlContent = `
                     <div class="client-info">
                         <p><strong>${data.client.nom} ${data.client.prenom} / ${new Date(data.heure).toLocaleTimeString()}</strong></p>
-                        <p>Commande #${data.numeroCommande}</p>
+                        <p><strong>Commande #${data.numeroCommande}</strong></p>
                         <div class="total-annule-container">
-                            <p>Total: ${data.prixTotal.toFixed(2)}€</p>
+                            <p><strong>Total: ${data.prixTotal.toFixed(2)}€</strong></p>
                             <button type="button" class="btn btn-danger statut-btn annul-btn">
                                 Annuler
                             </button>
                         </div>
+                        <p><strong>Nombre de produits: ${data.nombreTotalProduits}</strong></p> <!-- Ajouter ici -->
                     </div>
 
                     <div class="produit-list">
@@ -194,7 +183,7 @@
                     </div>
 
                     <div class="statut-container">
-                        <label>STATUT COMMANDE</label>
+                        <label class="statut-label">STATUT COMMANDE</label>
                         <div class="status-buttons" data-commande-id="${commandeId}">
                             <button type="button" class="btn btn-primary statut-btn" id="btnPreparation">
                                 En préparation
@@ -209,40 +198,50 @@
                     </div>
                 `;
 
-
-
+                // Afficher le popup avec le contenu généré
                 document.getElementById('popup-content').innerHTML = htmlContent;
                 const statutClass = 'statut-' + currentStatus;
                 document.getElementById('custom-popup').className = `custom-popup ${statutClass}-popup`;
                 showPopup(htmlContent);
                 currentPopupCommandeId = commandeId;
 
-                // Bouton "En préparation" -> statut = 2
+                // Retirer la classe "statut-active" de tous les boutons statut
+                document.querySelectorAll('.statut-btn').forEach(btn => btn.classList.remove('statut-active'));
+
+                // Appliquer la classe au bouton correspondant au statut
+                if (currentStatus === 2) {
+                    document.getElementById('btnPreparation').classList.add('statut-active');
+                } else if (currentStatus === 3) {
+                    document.getElementById('btnRegler').classList.add('statut-active');
+                } else if (currentStatus === 4) {
+                    document.getElementById('btnTermine').classList.add('statut-active');
+                } else if (currentStatus === 5) {
+                    // Pour le bouton Annuler, qui se trouve dans .annul-btn
+                    document.querySelector('.annul-btn').classList.add('statut-active');
+                }
+
+                // Écouteurs d'événements pour mettre à jour le statut
                 document.getElementById('btnPreparation').addEventListener('click', function() {
                     updateStatut(commandeId, 2);
                 });
 
-                // Bouton "À régler" -> statut = 3
                 document.getElementById('btnRegler').addEventListener('click', function() {
                     updateStatut(commandeId, 3);
                 });
 
-                // Bouton "Terminé" -> statut = 4
                 document.getElementById('btnTermine').addEventListener('click', function() {
                     updateStatut(commandeId, 4);
                 });
 
-                // Bouton "Annulé" -> statut = 5
                 document.querySelector('.annul-btn').addEventListener('click', function() {
                     updateStatut(commandeId, 5);
                 });
+
             } catch (error) {
                 console.error('Erreur:', error);
                 showPopup('<p class="text-danger">Impossible de charger les informations.</p>');
             }
-        }
-
-
+}
 
         function closePopup() {
             isPopupOpen = false;
@@ -270,9 +269,14 @@
             .then(data => {
                 if (data.success) {
                     refreshCommandes(); 
-                    setTimeout(() => {
-                        openCommandeModal(commandeId);
-                    }, 200);
+                    // Si le statut est 1, 2 ou 3, fermer la popup
+                    if (statutId === 1 || statutId === 2 || statutId === 3) {
+                        closePopup();
+                    } else {
+                        setTimeout(() => {
+                            openCommandeModal(commandeId);
+                        }, 200);
+                    }
                 }
             })
             .catch(error => console.error('Error:', error));

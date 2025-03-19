@@ -137,6 +137,8 @@ final class CommandeController extends AbstractController
         }
 
         $ligneCommandes = [];
+        $totalProduits = 0; // Initialiser la variable pour compter les produits
+
         foreach ($commande->getLigneCommandes() as $ligne) {
             $produit = $ligne->getProduit();
             $taille = $ligne->getTaille();
@@ -150,6 +152,12 @@ final class CommandeController extends AbstractController
                 ] : null,
                 'quantite' => $ligne->getQuantite()
             ];
+
+        }
+
+        $nombreTotalProduits = 0;
+        foreach ($commande->getLigneCommandes() as $ligne) {
+            $nombreTotalProduits += $ligne->getQuantite();
         }
 
         $response = $this->json([
@@ -157,6 +165,7 @@ final class CommandeController extends AbstractController
             'numeroCommande' => $commande->getNumeroCommande(),
             'heure' => $commande->getHeure()->format('Y-m-d H:i:s'),
             'prixTotal' => $commande->getPrixTotal(),
+            'nombreTotalProduits' => $nombreTotalProduits,
             'client' => [
                 'nom' => $commande->getClient()->getNom(),
                 'prenom' => $commande->getClient()->getPrenom()
@@ -171,10 +180,11 @@ final class CommandeController extends AbstractController
                     'libelle' => $statut->getLibelle()
                 ];
             }, $statutRepository->findAll()),
-            'ligneCommandes' => $ligneCommandes
+            'ligneCommandes' => $ligneCommandes,
         ]);
 
         $response->headers->set('Cache-Control', 'no-store, max-age=0');
         return $response;
     }
+
 }

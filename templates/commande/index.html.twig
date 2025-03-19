@@ -1,25 +1,23 @@
+<title>{% block title %}Commandes{% endblock %}</title>
+
 {% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('styles/commande/styles.css') }}">
 {% endblock %}
 
 {% block body %}
-    <div id="commande-page">
-        <h1>Liste des Commandes</h1>
 
-        {% if app.user %}
-            <div class="mb-3">
-                <a href="{{ path('app_logout') }}" class="btn btn-secondary">Déconnexion</a>
-            </div>
-        {% endif %}
+    
+    <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a>
+
+    <div id="commande-page">
+        <h1>Liste des commandes</h1>
 
         <button id="refresh-commandes" class="btn btn-primary mb-3">
             <i class="bi bi-arrow-clockwise"></i> Rafraîchir
         </button><br><br>
 
         <a href="{{ path('commande_other') }}" class="btn btn-primary mb-3">Terminés</a>
-        <a href="{{ path('report') }}" class="btn btn-primary mb-3">Récap</a>
-        <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a><br><br>
-
+        
         {# Filtrer les commandes du jour #}
         {% set today = "now"|date("Y-m-d") %}
         {% set commandes_today = commandes|filter(command => command.heure|date("Y-m-d") == today) %}
@@ -28,7 +26,7 @@
         <div id="commandes-tbody" class="row">
             <!-- Colonne pour le statut 1 -->
             <div class="col-12 col-md-4">
-                <h3>En Attente</h3>
+                <h3>En attente</h3>
                 {% set commandesStatut1 = commandes_sorted|filter(c => c.Statut.id == 1) %}
                 {% for commande in commandesStatut1 %}
                     {% set statut_class = 'statut-' ~ commande.Statut.id %}
@@ -43,10 +41,9 @@
                                 <p class="mb-2 text-muted">
                                     <i class="bi bi-clock"></i> {{ commande.heure|date('H:i') }}
                                 </p>
-                                <span class="badge bg-secondary">{{ commande.Statut.libelle }}</span>
                             </div>
                         </div>
-                    </div>
+                    </div><br>
                 {% else %}
                     <p>Aucune commande est en attente.</p>
                 {% endfor %}
@@ -69,10 +66,9 @@
                                 <p class="mb-2 text-muted">
                                     <i class="bi bi-clock"></i> {{ commande.heure|date('H:i') }}
                                 </p>
-                                <span class="badge bg-secondary">{{ commande.Statut.libelle }}</span>
                             </div>
                         </div>
-                    </div>
+                    </div><br>
                 {% else %}
                     <p>Aucune commande est en préparation.</p>
                 {% endfor %}
@@ -95,10 +91,9 @@
                                 <p class="mb-2 text-muted">
                                     <i class="bi bi-clock"></i> {{ commande.heure|date('H:i') }}
                                 </p>
-                                <span class="badge bg-secondary">{{ commande.Statut.libelle }}</span>
                             </div>
                         </div>
-                    </div>
+                    </div><br>
                 {% else %}
                     <p>Aucune commande est à régler.</p>
                 {% endfor %}
@@ -190,22 +185,13 @@
                 const statusLabels = {
                     1: "Commande en attente",
                     2: "Commande en préparation",
-                    3: "Commande à régler"
+                    3: "Commande à régler",
+                    4: "Commande terminée",
+                    5: "Commande annulée"
                 };
                 const currentStatusLabel = statusLabels[currentStatus] || "Inconnu";
 
-                // Par défaut, pour les statuts de 1 à 4
-                let firstButtonLabel = "Retour";
-                let secondButtonLabel = "Suivant";
-                let thirdButtonLabel = "Annuler";
-                let firstButtonStyle = "";
-                let secondButtonStyle = "";
-
-                // Masquer le bouton "Retour" si le statut est 1
-                if (currentStatus == 1) {
-                    firstButtonStyle = "display: none;";
-                }
-                
+                // Construction du contenu HTML du popup
                 const htmlContent = `
                     <div class="client-info">
                         <p><strong>${data.client.nom} ${data.client.prenom} / ${new Date(data.heure).toLocaleTimeString()}</strong></p>
@@ -216,6 +202,7 @@
                                 Annuler
                             </button>
                         </div>
+                        <p><strong>Nombre de produits: ${data.nombreTotalProduits}</strong></p> <!-- Ajouter ici -->
                     </div>
 
                     <div class="produit-list">
@@ -227,7 +214,6 @@
                             </div>
                         `).join('')}
                     </div>
-
 
                     <div class="statut-container">
                         <label class="statut-label">STATUT COMMANDE</label>
@@ -245,41 +231,50 @@
                     </div>
                 `;
 
-
-
+                // Afficher le popup avec le contenu généré
                 document.getElementById('popup-content').innerHTML = htmlContent;
                 const statutClass = 'statut-' + currentStatus;
                 document.getElementById('custom-popup').className = `custom-popup ${statutClass}-popup`;
                 showPopup(htmlContent);
                 currentPopupCommandeId = commandeId;
 
-                // Bouton "En préparation" -> statut = 2
+                // Retirer la classe "statut-active" de tous les boutons statut
+                document.querySelectorAll('.statut-btn').forEach(btn => btn.classList.remove('statut-active'));
+
+                // Appliquer la classe au bouton correspondant au statut
+                if (currentStatus === 2) {
+                    document.getElementById('btnPreparation').classList.add('statut-active');
+                } else if (currentStatus === 3) {
+                    document.getElementById('btnRegler').classList.add('statut-active');
+                } else if (currentStatus === 4) {
+                    document.getElementById('btnTermine').classList.add('statut-active');
+                } else if (currentStatus === 5) {
+                    // Pour le bouton Annuler, qui se trouve dans .annul-btn
+                    document.querySelector('.annul-btn').classList.add('statut-active');
+                }
+
+                // Écouteurs d'événements pour mettre à jour le statut
                 document.getElementById('btnPreparation').addEventListener('click', function() {
                     updateStatut(commandeId, 2);
                 });
 
-                // Bouton "À régler" -> statut = 3
                 document.getElementById('btnRegler').addEventListener('click', function() {
                     updateStatut(commandeId, 3);
                 });
 
-                // Bouton "Terminé" -> statut = 4
                 document.getElementById('btnTermine').addEventListener('click', function() {
                     updateStatut(commandeId, 4);
                 });
 
-                // Bouton "Annulé" -> statut = 5
                 document.querySelector('.annul-btn').addEventListener('click', function() {
                     updateStatut(commandeId, 5);
                 });
-
-
 
             } catch (error) {
                 console.error('Erreur:', error);
                 showPopup('<p class="text-danger">Impossible de charger les informations.</p>');
             }
-        }
+}
 
         function closePopup() {
             isPopupOpen = false;

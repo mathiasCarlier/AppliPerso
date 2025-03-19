@@ -1,10 +1,12 @@
+<title>{% block title %}Produits{% endblock %}</title>
+
 {% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('styles/report/styles.css') }}">
 {% endblock %}
 
 <body>
 
-    <a href="{{ path('commande') }}" class="btn btn-primary mb-3">Retour</a><br><br>
+    <a href="{{ path('commande_other') }}" class="btn btn-primary mb-3">Retour</a><br><br>
     
     <h1>Liste des produits commandés</h1>
     

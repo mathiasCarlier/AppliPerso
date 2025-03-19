@@ -1,91 +1,110 @@
-        /* Style général */
-        body {
-            background-color: #f5f5f5;
-            /* Fond clair */
-            color: #333;
-            /* Texte sombre */
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
+/* styles.css pour Liste des Responsables */
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            /* Fond blanc pour le contenu */
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
+/* Style général de la page */
+body {
+    background-color: #f5f5f5;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 20px;
+}
 
-        h1 {
-            color: #ff4444;
-            /* Rouge vif */
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 2em;
-        }
+/* Conteneur principal */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
-        /* Style du tableau */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+/* Titre principal */
+h1 {
+    text-align: center;
+    color: #ff4444;
+    margin-bottom: 30px;
+}
 
-        th,
-        td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
+/* Bouton Retour */
+.btn.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 20px;
+    transition: background-color 0.3s ease;
+}
 
-        th {
-            background-color: #ff4444;
-            /* Rouge vif */
-            color: #fff;
-            /* Texte blanc */
-            font-weight: bold;
-        }
+.btn.btn-secondary:hover {
+    background-color: #5a6268;
+}
 
-        tr:hover {
-            background-color: #f9f9f9;
-            /* Fond gris clair au survol */
-        }
+/* Tableau des Responsables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
 
-        /* Style du lien de déconnexion */
-        .logout-container {
-            text-align: right;
-            margin-bottom: 20px;
-        }
+table thead th {
+    background-color: #ff4444;
+    color: #fff;
+    padding: 12px 15px;
+    text-align: left;
+}
 
-        .logout-link {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #ff4444;
-            /* Rouge vif */
-            color: #fff;
-            /* Texte blanc */
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
+table tbody td {
+    padding: 12px 15px;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+}
 
-        .logout-link:hover {
-            background-color: #cc0000;
-            /* Rouge plus foncé au survol */
-        }
+table tbody tr:hover {
+    background-color: #f9f9f9;
+}
 
-        /* Style des liens dans le tableau */
-        a {
-            color: #ff4444;
-            /* Rouge vif */
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
+/* Lien sur le nom du responsable */
+table tbody td a {
+    color: #ff4444;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
 
-        a:hover {
-            color: #cc0000;
-            /* Rouge plus foncé au survol */
-        }
+table tbody td a:hover {
+    color: #cc0000;
+}
+
+/* Adaptation pour mobile */
+@media (max-width: 768px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+    
+    table thead {
+        display: none;
+    }
+    
+    table tbody tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 10px;
+    }
+    
+    table tbody td {
+        padding: 10px;
+        text-align: right;
+        position: relative;
+    }
+    
+    table tbody td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        text-align: left;
+        font-weight: bold;
+    }
+}

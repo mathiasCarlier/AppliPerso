@@ -1,6 +1,7 @@
 /* Style général de la page */
 #commande-page {
     background-color: #f5f5f5;
+    font-family: 'Arial', sans-serif;
     padding: 20px;
     border-radius: 10px;
     max-width: 1200px;
@@ -9,6 +10,12 @@
 
 /* Style du titre */
 h1 {
+    text-align: center;
+    color: #ff4444;
+    margin-bottom: 20px;
+}
+
+h3 {
     text-align: center;
     color: #ff4444;
     margin-bottom: 20px;
@@ -47,8 +54,8 @@ h1 {
     margin-top: 20px;
     display: flex;
     flex-wrap: wrap;
-    gap: 200px;
-    justify-content: center;
+    gap: 200px;  /* Réduit l'écart entre les cartes */
+    justify-content: center; /* Centre les éléments horizontalement */
 }
 
 /* Élément de commande individuelle (carte) */
@@ -59,8 +66,10 @@ h1 {
     box-shadow: 0 4px 10px #f5f5f5;
     transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
-    background-color: #f5f5f5; /* Supprime le fond blanc */
+    background-color: #f5f5f5;
+    margin: -10px;  /* Utilise un margin pour mieux espacer les cartes */
 }
+
 
 /* Centrage vertical et horizontal du contenu de la carte */
 .commande-card .card-body {
@@ -184,12 +193,16 @@ h1 {
     text-align: center;
 }
 
-/* Style du label */
 .statut-label {
     font-weight: bold;
     font-size: 1.2rem;
     margin-bottom: 10px;
+    background-color: #70abe6;
+    border-radius: 10px; /* Ajuste la valeur selon l'arrondi souhaité */
+    padding: 5px 10px; /* Ajoute du padding pour mieux voir l'effet */
+    display: inline-block; /* Permet d'éviter que le label prenne toute la largeur */
 }
+
 
 /* Centrage et espacement des boutons */
 .status-buttons {
@@ -221,3 +234,10 @@ h1 {
     border-radius: 5px;
     margin-top: 15px;
 }
+
+.statut-active {
+    background-color: #70abe6 !important;
+    border-color: #70abe6 !important;
+    color: #fff; /* Si vous souhaitez forcer le texte en blanc */
+}
+
