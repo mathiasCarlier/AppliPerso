@@ -151,75 +151,65 @@
                 const data = await response.json();
                 const currentStatus = data.statut.id;
 
-                // Vérification si le statut est autre que 4 ou 5
-                if (currentStatus !== 4 && currentStatus !== 5) {
-                    closePopup(); // Fermer immédiatement le popup
-                    return; // Quitter la fonction
-                }
-
-                // Mapping des statuts pour cette page
+                // Mapping des statuts et leurs libellés correspondants
                 const statusLabels = {
-                    4: "Commande terminé",
-                    5: "Commande annulé"
+                    1: "Commande en attente",
+                    2: "Commande en préparation",
+                    3: "Commande à régler"
                 };
                 const currentStatusLabel = statusLabels[currentStatus] || "Inconnu";
 
-                // Paramètres des boutons selon le statut
+                // Par défaut, pour les statuts de 1 à 4
                 let firstButtonLabel = "Retour";
                 let secondButtonLabel = "Suivant";
-                let thirdButtonLabel = "Passer la commande annulé";
+                let thirdButtonLabel = "Annuler";
                 let firstButtonStyle = "";
                 let secondButtonStyle = "";
-                let thirdButtonStyle = "";
 
-                if (currentStatus === 4) {
-                    firstButtonLabel = "Passer la commande à régler";
-                    secondButtonLabel = "Passer la commande à annuler";
-                    firstButtonStyle = ""; // Afficher le bouton
-                    secondButtonStyle = ""; // Afficher le bouton
-                    thirdButtonStyle = "display: none;"; // Cacher le troisième bouton
-                } else if (currentStatus === 5) {
-                    firstButtonStyle = "display: none;"; // Cacher le premier bouton
-                    secondButtonStyle = "display: none;"; // Cacher le second bouton
-                    thirdButtonLabel = "Passer la commande en attente";
+                // Masquer le bouton "Retour" si le statut est 1
+                if (currentStatus == 1) {
+                    firstButtonStyle = "display: none;";
                 }
-
+                
                 const htmlContent = `
                     <div class="client-info">
-                        <p><strong>${data.client.nom} ${data.client.prenom}</strong></p>
+                        <p><strong>${data.client.nom} ${data.client.prenom} / ${new Date(data.heure).toLocaleTimeString()}</strong></p>
                         <p>Commande #${data.numeroCommande}</p>
-                        <p>Heure: ${new Date(data.heure).toLocaleTimeString()}</p>
-                        <p>Total: ${data.prixTotal.toFixed(2)}€</p>
+                        <div class="total-annule-container">
+                            <p>Total: ${data.prixTotal.toFixed(2)}€</p>
+                            <button type="button" class="btn btn-danger statut-btn annul-btn">
+                                Annuler
+                            </button>
+                        </div>
                     </div>
+
                     <div class="produit-list">
-                        <h4>Produits :</h4>
+                        <h3>Commande à préparer :</h3>
                         ${data.ligneCommandes.map(lc => `
                             <div class="produit-item">
-                                ${lc.produit.nom} 
+                                ${lc.produit.nom} : ${lc.quantite}
                                 ${lc.taille && lc.taille.unite ? `- ${lc.taille.unite}` : ''} 
-                                x ${lc.quantite}
                             </div>
                         `).join('')}
                     </div>
+
                     <div class="statut-container">
-                        <label>Statut : ${currentStatusLabel}</label>
+                        <label>STATUT COMMANDE</label>
                         <div class="status-buttons" data-commande-id="${commandeId}">
-                            <div class="top-buttons">
-                                <button type="button" class="btn btn-primary statut-btn first-btn" style="${firstButtonStyle}">
-                                    ${firstButtonLabel}
-                                </button>
-                                <button type="button" class="btn btn-primary statut-btn second-btn" style="${secondButtonStyle}">
-                                    ${secondButtonLabel}
-                                </button>
-                            </div>
-                            <div class="bottom-buttons">
-                                <button type="button" class="btn btn-danger statut-btn third-btn" style="${thirdButtonStyle}">
-                                    ${thirdButtonLabel}
-                                </button>
-                            </div>
+                            <button type="button" class="btn btn-primary statut-btn" id="btnPreparation">
+                                En préparation
+                            </button>
+                            <button type="button" class="btn btn-primary statut-btn" id="btnRegler">
+                                À régler
+                            </button>
+                            <button type="button" class="btn btn-primary statut-btn" id="btnTermine">
+                                Terminé
+                            </button>
                         </div>
                     </div>
                 `;
+
+
 
                 document.getElementById('popup-content').innerHTML = htmlContent;
                 const statutClass = 'statut-' + currentStatus;
@@ -227,33 +217,25 @@
                 showPopup(htmlContent);
                 currentPopupCommandeId = commandeId;
 
-                const firstBtn = document.querySelector('.status-buttons .first-btn');
-                if (firstBtn) {
-                    firstBtn.addEventListener('click', function() {
-                        if (currentStatus === 4) {
-                            updateStatut(commandeId, 3); // Passer la commande à régler
-                        }
-                    });
-                }
+                // Bouton "En préparation" -> statut = 2
+                document.getElementById('btnPreparation').addEventListener('click', function() {
+                    updateStatut(commandeId, 2);
+                });
 
-                const secondBtn = document.querySelector('.status-buttons .second-btn');
-                if (secondBtn) {
-                    secondBtn.addEventListener('click', function() {
-                        if (currentStatus === 4) {
-                            updateStatut(commandeId, 5); // Passer la commande à annuler
-                        }
-                    });
-                }
+                // Bouton "À régler" -> statut = 3
+                document.getElementById('btnRegler').addEventListener('click', function() {
+                    updateStatut(commandeId, 3);
+                });
 
-                const thirdBtn = document.querySelector('.status-buttons .third-btn');
-                if (thirdBtn) {
-                    thirdBtn.addEventListener('click', function() {
-                        if (currentStatus === 5) {
-                            updateStatut(commandeId, 1); // Passer la commande en attente
-                        }
-                    });
-                }
+                // Bouton "Terminé" -> statut = 4
+                document.getElementById('btnTermine').addEventListener('click', function() {
+                    updateStatut(commandeId, 4);
+                });
 
+                // Bouton "Annulé" -> statut = 5
+                document.querySelector('.annul-btn').addEventListener('click', function() {
+                    updateStatut(commandeId, 5);
+                });
             } catch (error) {
                 console.error('Erreur:', error);
                 showPopup('<p class="text-danger">Impossible de charger les informations.</p>');

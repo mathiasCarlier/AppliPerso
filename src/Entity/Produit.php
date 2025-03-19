@@ -7,6 +7,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: ProduitRepository::class)]
 class Produit
@@ -17,10 +20,6 @@ class Produit
     private ?int $id = null;
 
     #[Assert\NotBlank()]
-    #[Assert\Regex(
-        pattern: "/^[A-ZÀ-Ÿ\s-]+$/",
-        message: "Le nom ne doit contenir que des majuscules, des espaces ou des traits d’union."
-    )]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
@@ -74,7 +73,15 @@ class Produit
     #[ORM\Column]
     private ?int $valeur = 0;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[Vich\UploadableField(mapping: 'produits_images', fileNameProperty: 'ref_produit')]
+    #[Assert\File(
+        maxSize: '2M',
+        mimeTypes: ['image/jpeg', 'image/png'],
+        mimeTypesMessage: 'Veuillez uploader une image au format JPEG ou PNG.'
+    )]
+    private ?File $imageFile = null;
+
+    #[ORM\Column]
     private ?string $ref_produit = null;
 
     public function __construct()
@@ -316,6 +323,19 @@ class Produit
         $this->ref_produit = $ref_produit;
 
         return $this;
+    }
+
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+        if ($imageFile) {
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
     }
 
 }

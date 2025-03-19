@@ -197,7 +197,7 @@
                 // Par défaut, pour les statuts de 1 à 4
                 let firstButtonLabel = "Retour";
                 let secondButtonLabel = "Suivant";
-                let thirdButtonLabel = "Passer la commande annulé";
+                let thirdButtonLabel = "Annuler";
                 let firstButtonStyle = "";
                 let secondButtonStyle = "";
 
@@ -205,47 +205,47 @@
                 if (currentStatus == 1) {
                     firstButtonStyle = "display: none;";
                 }
-
                 
-
                 const htmlContent = `
                     <div class="client-info">
-                        <p><strong>${data.client.nom} ${data.client.prenom}</strong></p>
-                        <p>Commande #${data.numeroCommande}</p>
-                        <p>Heure: ${new Date(data.heure).toLocaleTimeString()}</p>
-                        <p>Total: ${data.prixTotal.toFixed(2)}€</p>
+                        <p><strong>${data.client.nom} ${data.client.prenom} / ${new Date(data.heure).toLocaleTimeString()}</strong></p>
+                        <p><strong>Commande #${data.numeroCommande}</strong></p>
+                        <div class="total-annule-container">
+                            <p><strong>Total: ${data.prixTotal.toFixed(2)}€</strong></p>
+                            <button type="button" class="btn btn-danger statut-btn annul-btn">
+                                Annuler
+                            </button>
+                        </div>
                     </div>
 
                     <div class="produit-list">
-                        <h4>Produits :</h4>
+                        <h3>Commande à préparer :</h3>
                         ${data.ligneCommandes.map(lc => `
                             <div class="produit-item">
-                                ${lc.produit.nom} 
+                                ${lc.produit.nom} : ${lc.quantite}
                                 ${lc.taille && lc.taille.unite ? `- ${lc.taille.unite}` : ''} 
-                                x ${lc.quantite}
                             </div>
                         `).join('')}
                     </div>
 
+
                     <div class="statut-container">
-                        <label>Statut : ${currentStatusLabel}</label>
+                        <label class="statut-label">STATUT COMMANDE</label>
                         <div class="status-buttons" data-commande-id="${commandeId}">
-                            <div class="top-buttons">
-                                <button type="button" class="btn btn-primary statut-btn first-btn" style="${firstButtonStyle}">
-                                    ${firstButtonLabel}
-                                </button>
-                                <button type="button" class="btn btn-primary statut-btn second-btn" style="${secondButtonStyle}">
-                                    ${secondButtonLabel}
-                                </button>
-                            </div>
-                            <div class="bottom-buttons">
-                                <button type="button" class="btn btn-danger statut-btn third-btn">
-                                    ${thirdButtonLabel}
-                                </button>
-                            </div>
+                            <button type="button" class="btn btn-primary statut-btn" id="btnPreparation">
+                                En préparation
+                            </button>
+                            <button type="button" class="btn btn-primary statut-btn" id="btnRegler">
+                                À régler
+                            </button>
+                            <button type="button" class="btn btn-primary statut-btn" id="btnTermine">
+                                Terminé
+                            </button>
                         </div>
                     </div>
                 `;
+
+
 
                 document.getElementById('popup-content').innerHTML = htmlContent;
                 const statutClass = 'statut-' + currentStatus;
@@ -253,37 +253,27 @@
                 showPopup(htmlContent);
                 currentPopupCommandeId = commandeId;
 
-                // Bouton "Retour"
-                const firstBtn = document.querySelector('.status-buttons .first-btn');
-                if (firstBtn) {
-                    firstBtn.addEventListener('click', function() {
-                        if (currentStatus > 1) {
-                            const newStatus = currentStatus - 1;
-                            updateStatut(commandeId, newStatus);
-                        }
-                    });
-                }
-
-                // Bouton "Suivant"
-                const secondBtn = document.querySelector('.status-buttons .second-btn');
-                if (secondBtn) {
-                    secondBtn.addEventListener('click', function() {
-                        if (currentStatus < 5) {
-                            const newStatus = currentStatus + 1;
-                            updateStatut(commandeId, newStatus);
-                        }
-                    });
-                }
-
-                // Bouton Annulé / Passer la commande en attente
-                const thirdBtn = document.querySelector('.status-buttons .third-btn');
-                thirdBtn.addEventListener('click', function() {
-                    if (currentStatus == 5) {
-                        updateStatut(commandeId, 1);
-                    } else {
-                        updateStatut(commandeId, 5);
-                    }
+                // Bouton "En préparation" -> statut = 2
+                document.getElementById('btnPreparation').addEventListener('click', function() {
+                    updateStatut(commandeId, 2);
                 });
+
+                // Bouton "À régler" -> statut = 3
+                document.getElementById('btnRegler').addEventListener('click', function() {
+                    updateStatut(commandeId, 3);
+                });
+
+                // Bouton "Terminé" -> statut = 4
+                document.getElementById('btnTermine').addEventListener('click', function() {
+                    updateStatut(commandeId, 4);
+                });
+
+                // Bouton "Annulé" -> statut = 5
+                document.querySelector('.annul-btn').addEventListener('click', function() {
+                    updateStatut(commandeId, 5);
+                });
+
+
 
             } catch (error) {
                 console.error('Erreur:', error);

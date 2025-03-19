@@ -11,6 +11,9 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Image;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 
 class ProduitType extends AbstractType
 {
@@ -19,8 +22,17 @@ class ProduitType extends AbstractType
         $builder
             ->add('nom')
             ->add('en_ligne')
-            ->add('ref_produit', null, [
-                'label' => 'Url de l\'image'
+            ->add('ref_produit', FileType::class, [
+                'label' => 'Image (PNG ou JPEG)',
+                'mapped' => false, // Ne pas lier directement à l'entité
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '2M',
+                        'mimeTypes' => ['image/jpeg', 'image/png'],
+                        'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPEG ou PNG)',
+                    ])
+                ],
             ])
 
             ->add('Categorie', EntityType::class, [

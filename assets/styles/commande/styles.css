@@ -47,7 +47,7 @@ h1 {
     margin-top: 20px;
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 200px;
     justify-content: center;
 }
 
@@ -167,3 +167,57 @@ h1 {
 .custom-popup.statut-3-popup { border-color: #b35226; }
 .custom-popup.statut-4-popup { border-color: #5cb85c; }
 .custom-popup.statut-5-popup { border-color: #e60800; }
+
+
+.total-annule-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+/* Centrage du label */
+.statut-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Style du label */
+.statut-label {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+/* Centrage et espacement des boutons */
+.status-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 70px; /* Augmente l'espace entre les boutons */
+}
+
+/* Uniformisation de la taille des boutons */
+.status-buttons .statut-btn {
+    flex: 1;
+    max-width: 1000px; /* Augmente la largeur des boutons */
+    text-align: center;
+    padding: 10px 15px; /* Augmente le padding pour plus de confort visuel */
+}
+
+/* Section Client Info : fond gris clair */
+.client-info {
+    background-color: #e9ecef; /* Gris très clair */
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+/* Section Produit List : fond jaune pâle */
+.produit-list {
+    background-color: #fff3cd; /* Jaune pâle */
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+}

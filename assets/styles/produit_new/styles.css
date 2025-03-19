@@ -1,62 +1,47 @@
-/* Style général de la page */
-.container {
+/* Styles généraux */
+body {
     background-color: #f5f5f5;
+    font-family: 'Arial', sans-serif;
     padding: 20px;
-    border-radius: 10px;
+    margin: 0;
+}
+
+.container {
     max-width: 800px;
     margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
     text-align: center;
     color: #ff4444;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
-/* Boutons */
-.btn {
-    display: inline-block;
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    border: none;
-    cursor: pointer;
-}
-
-.btn-primary {
-    background-color: #ff4444;
-    color: #fff;
-}
-
-.btn-primary:hover {
-    background-color: #cc0000;
-}
-
-.btn-secondary {
-    background-color: #2c2c2c;
-    color: #fff;
-}
-
-.btn-secondary:hover {
-    background-color: #1a1a1a;
-}
-
-/* Champs de formulaire */
+/* Formulaire */
 .form-group {
     margin-bottom: 15px;
 }
 
-.form-control {
+.form-group label {
+    font-size: 16px;
+    color: #666;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-control,
+.form-control-file {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    background-color: #fff;
-    color: #333;
     font-size: 14px;
+    transition: border-color 0.3s ease;
 }
 
 .form-control:focus {
@@ -72,13 +57,40 @@ h1 {
 
 .input-group .btn {
     margin-left: 10px;
-    padding: 8px 15px;
-    font-size: 14px;
 }
 
-/* Checkbox */
-.form-check-input {
-    margin-right: 5px;
+/* Boutons */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    max-width:120px;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: #ff4444;
+    color: #fff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #cc0000;
+}
+
+.btn-outline-secondary {
+    border: 1px solid #666;
+    color: #666;
+    background-color: transparent;
+    padding: 8px 12px;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #ddd;
 }
 
 /* Popups */
@@ -90,18 +102,17 @@ h1 {
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
-    align-items: center;
     justify-content: center;
-    z-index: 1000;
+    align-items: center;
 }
 
 .popup-content {
     background: #fff;
     padding: 20px;
     border-radius: 10px;
-    width: 300px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .popup-content h4 {
@@ -109,7 +120,15 @@ h1 {
     color: #ff4444;
 }
 
+.popup-content input,
+.popup-content select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
 .popup-content .btn {
-    margin-top: 10px;
     width: 100%;
 }

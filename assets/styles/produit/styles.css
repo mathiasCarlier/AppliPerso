@@ -1,19 +1,117 @@
+/* styles.css */
+
 /* Style général de la page */
-#produit-page {
+body {
     background-color: #f5f5f5;
+    font-family: 'Arial', sans-serif;
     padding: 20px;
-    border-radius: 10px;
+    margin: 0;
+}
+
+/* Conteneur de la page */
+#produit-page {
     max-width: 1200px;
     margin: 0 auto;
 }
 
+/* Titre principal */
 h1 {
     text-align: center;
     color: #ff4444;
+    margin-bottom: 30px;
+}
+
+/* Formulaire de filtrage et tri */
+form,
+.form-group {
+    text-align: center;
     margin-bottom: 20px;
 }
 
-/* Boutons (conservés identiques) */
+form label,
+.form-label {
+    font-size: 16px;
+    color: #666;
+    margin-right: 10px;
+}
+
+form select,
+.form-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+form select:focus,
+.form-select:focus {
+    border-color: #ff4444;
+    outline: none;
+    box-shadow: 0 0 5px rgba(255, 68, 68, 0.3);
+}
+
+/* Tableau des produits */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+table th,
+table td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+table th {
+    background-color: #ff4444;
+    color: #fff;
+    font-weight: bold;
+}
+
+table td {
+    color: #333;
+    border-bottom: 1px solid #ddd;
+}
+
+table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+table th:first-child,
+table td:first-child {
+    border-top-left-radius: 10px;
+}
+
+table th:last-child,
+table td:last-child {
+    border-top-right-radius: 10px;
+}
+
+/* Message d'absence de produit */
+.text-center {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+}
+
+/* Total global */
+h2 {
+    text-align: right;
+    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 20px 0;
+}
+
+/* Styles des boutons */
 .btn {
     display: inline-block;
     padding: 10px 20px;
@@ -33,152 +131,71 @@ h1 {
 }
 
 .btn-secondary {
-    background-color: #2c2c2c;
+    background-color: #6c757d;
     color: #fff;
 }
 
 .btn-secondary:hover {
-    background-color: #1a1a1a;
+    background-color: #5a6268;
 }
 
-/* Tableau des produits */
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+.btn-warning {
+    background-color: #ffc107;
+    color: #333;
+    border: none;
 }
 
-.table th,
-.table td {
-    padding: 12px 15px;
-    text-align: left;
+.btn-warning:hover {
+    background-color: #e0a800;
 }
 
-.table th {
-    background-color: #ff4444;
+.btn-danger {
+    background-color: #dc3545;
     color: #fff;
-    font-weight: bold;
+    border: none;
 }
 
-.table td {
-    color: #333;
-    border-bottom: 1px solid #ddd;
+.btn-danger:hover {
+    background-color: #c82333;
 }
 
-.table tbody tr:hover {
-    background-color: #f9f9f9;
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.875rem;
 }
 
-/* Arrondi pour la première et dernière colonne */
-.table th:first-child,
-.table td:first-child {
-    border-top-left-radius: 10px;
-}
-
-.table th:last-child,
-.table td:last-child {
-    border-top-right-radius: 10px;
-}
-
-/* Ajout de l'arrondi à la colonne 6 */
-.table th:nth-child(6),
-.table td:nth-child(6) {
-    border-top-right-radius: 10px;
-}
-
-/* Correction si la colonne 7 a un arrondi */
-.table th:nth-child(7),
-.table td:nth-child(7) {
-    border-top-right-radius: 10px;
-}
-
-/* Styles pour les contrôles de formulaire */
-.form-select {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #fff;
-    color: #333;
-    font-size: 14px;
-}
-
-.form-select:focus {
-    border-color: #ff4444;
-    outline: none;
-    box-shadow: 0 0 5px rgba(255, 68, 68, 0.3);
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 5px;
-    color: #666;
-    font-weight: 500;
-}
-
-/* Liste des prix */
-.list-unstyled {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.list-unstyled li {
-    padding: 2px 0;
-}
-
-/* Message "Aucun produit trouvé" */
-.text-center {
-    text-align: center;
-    color: #666;
-}
-
-/* Alignement spécifique pour les sélecteurs d'état */
-.en-ligne-select {
-    max-width: 100px;
-    margin: 0 auto;
-}
-
-/* Espacement des colonnes de filtre */
-.col-md-4 {
-    margin-bottom: 15px;
-}
-
-/* styles.css */
+/* Utilitaires */
 .d-none {
     display: none !important;
 }
 
-/* Pour une transition fluide */
-[class*="btn-"] {
-    transition: opacity 0.3s ease;
+.list-unstyled {
+    list-style: none;
+    padding-left: 0;
 }
 
-/* Alignement spécifique pour les prix */
-.list-unstyled li {
-    display: flex !important;
+/* Classes flex */
+.d-flex {
+    display: flex;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.align-items-center {
     align-items: center;
-    justify-content: space-between;
 }
 
-.list-unstyled li > span,
-.list-unstyled li > input {
-    flex-grow: 1;
-    margin-right: 10px;
-    text-align: left !important;
+.gap-2 {
+    gap: 0.5rem;
 }
 
-.btn-sm {
-    padding: 0.15rem 0.4rem !important;
-    font-size: 0.75rem !important;
-    line-height: 1.2;
-    margin-left: auto;
-
+/* Marges utilitaires */
+.mb-3 {
+    margin-bottom: 1rem;
 }
 
-.btn-sm .btn-warning {
-    padding-left: 0.3rem !important;
-    padding-right: 0.3rem !important;
+.mb-2 {
+    margin-bottom: 0.5rem;
 }

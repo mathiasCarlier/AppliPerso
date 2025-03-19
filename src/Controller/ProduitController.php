@@ -13,9 +13,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 final class ProduitController extends AbstractController
 {
@@ -58,7 +59,7 @@ final class ProduitController extends AbstractController
         $categories = $categorieRepository->findAll();
 
         return $this->render('produit/index.html.twig', [
-            'produits' => $produits,
+            'produits'   => $produits,
             'categories' => $categories,
         ]);
     }
@@ -83,16 +84,46 @@ final class ProduitController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Récupérer le fichier uploadé
+            $file = $form->get('ref_produit')->getData();
+            
+            if ($file) {
+                // Vérifier que c'est bien un fichier
+                if (!$file instanceof UploadedFile) {
+                    $this->addFlash('error', "Le fichier uploadé est invalide.");
+                    return $this->redirectToRoute('produit_new');
+                }
+
+                // Générer un nom unique pour le fichier
+                $newFilename = uniqid() . '.' . $file->guessExtension();
+
+                // Définir le dossier d'upload (configuré dans services.yaml)
+                $uploadDir = $this->getParameter('images_directory');
+
+                // Vérifier si le dossier existe, sinon le créer
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+
+                try {
+                    // Déplacer le fichier vers le dossier d'upload
+                    $file->move($uploadDir, $newFilename);
+                    $produit->setRefProduit($newFilename); // Enregistrer le nom du fichier en base
+                } catch (FileException $e) {
+                    $this->addFlash('error', "Erreur lors de l'upload de l'image : " . $e->getMessage());
+                    return $this->redirectToRoute('produit_new');
+                }
+            }
+
             try {
-                // Persiste le produit
+                // Persister le produit
                 $em->persist($produit);
                 $em->flush();
 
-                // Récupère les données du formulaire
+                // Création de l'entité Avoir (relation avec taille et prix)
                 $taille = $form->get('taille')->getData();
                 $prix = $form->get('prix')->getData();
 
-                // Crée et persiste l'Avoir
                 $avoir = new Avoir();
                 $avoir->setProduit($produit);
                 $avoir->setTaille($taille);
@@ -113,10 +144,11 @@ final class ProduitController extends AbstractController
         }
 
         return $this->render('produit/new.html.twig', [
-            'form' => $form->createView(),
+            'form'       => $form->createView(),
             'categories' => $categorieRepository->findAll(),
         ]);
     }
+
 
     #[Route('/api/sous-categories/{categorieId}', name: 'api_sous_categories')]
     public function getSousCategories($categorieId, CategorieRepository $categorieRepository): JsonResponse
@@ -129,7 +161,7 @@ final class ProduitController extends AbstractController
         $sousCategories = [];
         foreach ($categorie->getSousCategories() as $sousCategorie) {
             $sousCategories[] = [
-                'id' => $sousCategorie->getId(),
+                'id'      => $sousCategorie->getId(),
                 'libelle' => $sousCategorie->getLibelle()
             ];
         }
@@ -151,7 +183,6 @@ final class ProduitController extends AbstractController
             $em->remove($produit);
             $em->flush();
 
-            // Ajout d'un message flash correct
             $this->addFlash('success', 'Produit supprimé avec succès.');
         } catch (\Exception $e) {
             $this->addFlash('error', 'Erreur lors de la suppression du produit.');

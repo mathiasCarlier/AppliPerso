@@ -5,20 +5,13 @@
 <title>{% block title %}Liste des Produits{% endblock %}</title>
 
 {% block body %}
+    {# Bouton de retour à l'accueil #}
+    <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a><br><br>
+    
     <div id="produit-page">
         <h1>Liste des Produits</h1>
 
-        {# Lien de déconnexion pour les utilisateurs connectés #}
-        {% if app.user %}
-            <div class="mb-3">
-                <a href="{{ path('app_logout') }}" class="btn btn-secondary">Déconnexion</a>
-            </div>
-        {% endif %}
-
         <a href="{{ path('produit_new') }}" class="btn btn-primary">Ajouter un produit</a><br><br>
-
-        {# Bouton de retour à l'accueil #}
-        <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a><br><br>
 
         {# Formulaire de filtrage par catégorie#}
         <div class="col-12 col-md-4 mb-2">

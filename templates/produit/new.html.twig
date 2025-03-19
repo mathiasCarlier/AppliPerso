@@ -5,10 +5,13 @@
 <title>{% block title %}Ajouter un Produit{% endblock %}</title>
 
 {% block body %}
+
+    <a href="{{ path('produit') }}" class="btn btn-primary mb-3">Retour</a><br><br>
+    
     <div class="container">
         <h1 class="my-4">Ajouter un Produit</h1>
 
-        {{ form_start(form) }}
+        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
             <div class="form-group">
                 {{ form_label(form.nom) }}
                 {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
@@ -44,19 +47,18 @@
             </div>
 
             <div class="form-group">
-                {{ form_label(form.en_ligne) }}
                 {{ form_widget(form.en_ligne, {'attr': {'class': 'form-check-input'}}) }}
+                {{ form_label(form.en_ligne) }}
             </div>
 
+            {# Bouton "Parcourir mes fichiers" pour l'upload de l'image (PNG ou JPEG) #}
             <div class="form-group">
-                {{ form_label(form.ref_produit, 'Url de l\'image') }}
-                {{ form_widget(form.ref_produit, {'attr': {'class': 'form-control'}}) }}
+                {{ form_label(form.ref_produit, 'Image (PNG ou JPEG)') }}
+                {{ form_widget(form.ref_produit, {'attr': {'class': 'form-control-file'}}) }}
             </div>
 
             <button type="submit" class="btn btn-primary">Enregistrer</button>
         {{ form_end(form) }}
-
-        <a href="{{ path('produit') }}" class="btn">Retour</a>
 
         <!-- Popups -->
         <div id="popupOverlay" class="popup-overlay" style="display: none;">
@@ -94,7 +96,6 @@
     </div>
 
     <script>
-
         function showPopup(type) {
             document.getElementById('popupOverlay').style.display = 'flex';
             document.getElementById(`${type}Popup`).style.display = 'block';
@@ -162,6 +163,7 @@
                 alert('Erreur de connexion');
             }
         }
+
         document.addEventListener('DOMContentLoaded', function () {
             const categorieSelect = document.querySelector('#{{ form.Categorie.vars.id }}');
             const sousCategorieContainer = document.getElementById('sousCategorieContainer');
