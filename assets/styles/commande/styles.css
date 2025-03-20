@@ -140,6 +140,7 @@ h3 {
     overflow-y: auto;
     border-left: 20px solid transparent;
     transition: border-left-color 0.3s ease;
+    font-family: 'Arial', sans-serif;
 }
 .popup-header {
     display: flex;
@@ -183,6 +184,13 @@ h3 {
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.client-info p {
+    margin-bottom: 1px; /* Même espace entre les paragraphes */
+    margin-top: 13px; /* Même espace que les paragraphes */
 }
 
 /* Centrage du label */
@@ -225,6 +233,7 @@ h3 {
     padding: 15px;
     border-radius: 5px;
     margin-bottom: 15px;
+    font-size: 1.1em; /* Augmente légèrement la taille du texte */
 }
 
 /* Section Produit List : fond jaune pâle */

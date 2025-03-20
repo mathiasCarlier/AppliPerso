@@ -68,7 +68,7 @@ class Produit
     private ?bool $est_remise = false;
 
     #[ORM\Column]
-    private ?bool $est_menu = false;
+    private ?bool $est_menu = null;
 
     #[ORM\Column]
     private ?int $valeur = 0;
@@ -83,6 +83,9 @@ class Produit
 
     #[ORM\Column]
     private ?string $ref_produit = null;
+
+    #[ORM\Column]
+    private ?bool $est_menu_boisson = null;
 
     public function __construct()
     {
@@ -336,6 +339,18 @@ class Produit
     public function getImageFile(): ?File
     {
         return $this->imageFile;
+    }
+
+    public function isEstMenuBoisson(): ?bool
+    {
+        return $this->est_menu_boisson;
+    }
+
+    public function setEstMenuBoisson(bool $est_menu_boisson): static
+    {
+        $this->est_menu_boisson = $est_menu_boisson;
+
+        return $this;
     }
 
 }

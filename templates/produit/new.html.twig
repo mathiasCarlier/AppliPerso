@@ -11,7 +11,7 @@
     <div class="container">
         <h1 class="my-4">Ajouter un Produit</h1>
 
-        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+        <form method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 {{ form_label(form.nom) }}
                 {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
@@ -51,6 +51,19 @@
                 {{ form_label(form.en_ligne) }}
             </div>
 
+            {# Nouveau champ pour la checkbox Menu (non relié à un form widget si vous le gérez manuellement) #}
+            <div class="form-group form-check">
+                <input type="checkbox" id="menuCheckbox" class="form-check-input">
+                <label class="form-check-label" for="menuCheckbox">Menu</label>
+            </div>
+
+            {# Champ pour saisir la réduction, à afficher seulement si c'est une boisson et que le checkbox est coché #}
+            <div class="form-group" id="reductionContainer" style="display: none;">
+                <label for="reduction">Quelle sera la réduction pour cet article ?</label>
+                <input type="text" id="reduction" name="reduction" class="form-control">
+            </div>
+
+
             {# Bouton "Parcourir mes fichiers" pour l'upload de l'image (PNG ou JPEG) #}
             <div class="form-group">
                 {{ form_label(form.ref_produit, 'Image (PNG ou JPEG)') }}
@@ -58,7 +71,8 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Enregistrer</button>
-        {{ form_end(form) }}
+        </form>
+
 
         <!-- Popups -->
         <div id="popupOverlay" class="popup-overlay" style="display: none;">
@@ -165,9 +179,12 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            const categorieSelect = document.querySelector('#{{ form.Categorie.vars.id }}');
+            const categorieSelect      = document.querySelector('#{{ form.Categorie.vars.id }}');
             const sousCategorieContainer = document.getElementById('sousCategorieContainer');
-            const sousCategorieSelect = document.querySelector('#{{ form.sous_categorie.vars.id }}');
+            const sousCategorieSelect  = document.querySelector('#{{ form.sous_categorie.vars.id }}');
+            const tailleSelect         = document.getElementById('{{ form.taille.vars.id }}');
+            const menuCheckbox         = document.getElementById('menuCheckbox');
+            const reductionContainer   = document.getElementById('reductionContainer');
 
             // Supprimer l'option catégorie avec id 7
             Array.from(categorieSelect.options).forEach(option => {
@@ -178,14 +195,14 @@
 
             function chargerSousCategories(categorieId) {
                 sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
-                sousCategorieSelect.required = false; // Reset à chaque changement
+                sousCategorieSelect.required = false;
                 if (categorieId) {
                     fetch(`/api/sous-categories/${categorieId}`)
                         .then(response => response.json())
                         .then(data => {
                             if (data.length > 0) {
                                 sousCategorieContainer.style.display = 'block';
-                                sousCategorieSelect.required = true; // Rendre obligatoire
+                                sousCategorieSelect.required = true;
                                 data.forEach(sousCategorie => {
                                     const option = document.createElement('option');
                                     option.value = sousCategorie.id;
@@ -202,6 +219,25 @@
                 }
             }
 
+            // Met à jour l'affichage du champ réduction
+            function updateReductionDisplay() {
+                // Si la checkbox "Menu" est cochée et que la catégorie sélectionnée est "Boissons" (id = "1")
+                if (menuCheckbox.checked && categorieSelect.value === "1") {
+                    reductionContainer.style.display = 'block';
+                } else {
+                    reductionContainer.style.display = 'none';
+                }
+            }
+
+            // Écouteur sur la checkbox "Menu"
+            menuCheckbox.addEventListener('change', updateReductionDisplay);
+
+            // Écouteur sur le changement de catégorie
+            categorieSelect.addEventListener('change', function () {
+                chargerSousCategories(this.value);
+                updateReductionDisplay();
+            });
+
             // Vérifier s'il y a une catégorie sélectionnée au chargement de la page
             if (categorieSelect.value) {
                 chargerSousCategories(categorieSelect.value);
@@ -209,13 +245,7 @@
                 sousCategorieContainer.style.display = 'none';
             }
 
-            // Écouter les changements sur la catégorie
-            categorieSelect.addEventListener('change', function () {
-                chargerSousCategories(this.value);
-            });
-
             // Modification de l'affichage pour le select "taille"
-            const tailleSelect = document.getElementById('{{ form.taille.vars.id }}');
             if (tailleSelect) {
                 Array.from(tailleSelect.options).forEach(option => {
                     if (option.value === "18") {
@@ -224,5 +254,6 @@
                 });
             }
         });
+
     </script>
 {% endblock %}

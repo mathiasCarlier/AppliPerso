@@ -169,7 +169,6 @@
                                 Annuler
                             </button>
                         </div>
-                        <p><strong>Nombre de produits: ${data.nombreTotalProduits}</strong></p> <!-- Ajouter ici -->
                     </div>
 
                     <div class="produit-list">
@@ -180,6 +179,8 @@
                                 ${lc.taille && lc.taille.unite ? `- ${lc.taille.unite}` : ''} 
                             </div>
                         `).join('')}
+                        <p>Nombre de produits: ${data.nombreTotalProduits}</p> <!-- Ajouter ici -->
+
                     </div>
 
                     <div class="statut-container">

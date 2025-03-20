@@ -14,9 +14,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Csrf\CsrfToken;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class ProduitController extends AbstractController
 {
@@ -80,38 +79,52 @@ final class ProduitController extends AbstractController
     public function new(Request $request, EntityManagerInterface $em, CategorieRepository $categorieRepository): Response
     {
         $produit = new Produit();
-        $form = $this->createForm(ProduitType::class, $produit);
+        $form = $this->createForm(ProduitType::class, $produit, [
+            // Désactivation de la protection CSRF sur ce formulaire si souhaité
+            'csrf_protection' => false,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Récupérer le fichier uploadé
+            // Gestion de l'upload de l'image
             $file = $form->get('ref_produit')->getData();
-            
             if ($file) {
-                // Vérifier que c'est bien un fichier
                 if (!$file instanceof UploadedFile) {
                     $this->addFlash('error', "Le fichier uploadé est invalide.");
                     return $this->redirectToRoute('produit_new');
                 }
 
-                // Générer un nom unique pour le fichier
                 $newFilename = uniqid() . '.' . $file->guessExtension();
-
-                // Définir le dossier d'upload (configuré dans services.yaml)
                 $uploadDir = $this->getParameter('images_directory');
-
-                // Vérifier si le dossier existe, sinon le créer
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
 
                 try {
-                    // Déplacer le fichier vers le dossier d'upload
                     $file->move($uploadDir, $newFilename);
-                    $produit->setRefProduit($newFilename); // Enregistrer le nom du fichier en base
+                    $produit->setRefProduit($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('error', "Erreur lors de l'upload de l'image : " . $e->getMessage());
                     return $this->redirectToRoute('produit_new');
+                }
+            }
+
+            // Traitement des champs supplémentaires "Menu" et "Réduction"
+            // Ces champs ne sont pas intégrés dans le form type et sont récupérés manuellement
+            $menuCheckbox = $request->request->get('menuCheckbox'); // "on" si coché, sinon null
+            $reduction     = $request->request->get('reduction');     // Valeur saisie pour la réduction
+
+            $categorie = $form->get('Categorie')->getData();
+            if ($categorie && $categorie->getId() == 1) { // Boissons
+                if ($menuCheckbox) {
+                    $produit->setEstMenuBoisson(1);
+                    if (!empty($reduction)) {
+                        $produit->setValeur($reduction);
+                    }
+                }
+            } else {
+                if ($menuCheckbox) {
+                    $produit->setEstMenu(1);
                 }
             }
 
@@ -120,9 +133,9 @@ final class ProduitController extends AbstractController
                 $em->persist($produit);
                 $em->flush();
 
-                // Création de l'entité Avoir (relation avec taille et prix)
+                // Création de l'entité Avoir (relation taille et prix)
                 $taille = $form->get('taille')->getData();
-                $prix = $form->get('prix')->getData();
+                $prix   = $form->get('prix')->getData();
 
                 $avoir = new Avoir();
                 $avoir->setProduit($produit);
@@ -149,7 +162,6 @@ final class ProduitController extends AbstractController
         ]);
     }
 
-
     #[Route('/api/sous-categories/{categorieId}', name: 'api_sous_categories')]
     public function getSousCategories($categorieId, CategorieRepository $categorieRepository): JsonResponse
     {
@@ -170,10 +182,8 @@ final class ProduitController extends AbstractController
     }
 
     #[Route('/produit/{id}/delete', name: 'produit_delete', methods: ['POST'])]
-    public function delete(Produit $produit, EntityManagerInterface $em, Request $request, CsrfTokenManagerInterface $csrfTokenManager): Response
+    public function delete(Produit $produit, EntityManagerInterface $em): Response
     {
-        $token = $request->request->get('_token');
-
         if (!$csrfTokenManager->isTokenValid(new CsrfToken('delete' . $produit->getId(), $token))) {
             $this->addFlash('error', 'Token CSRF invalide.');
             return $this->redirectToRoute('produit');
