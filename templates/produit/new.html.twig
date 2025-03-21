@@ -7,7 +7,7 @@
 {% block body %}
 
     <a href="{{ path('produit') }}" class="btn btn-primary mb-3">Retour</a><br><br>
-    
+   
     <div class="container">
         <h1 class="my-4">Ajouter un Produit</h1>
 
@@ -51,20 +51,18 @@
                 {{ form_label(form.en_ligne) }}
             </div>
 
-            {# Nouveau champ pour la checkbox Menu (non relié à un form widget si vous le gérez manuellement) #}
+            {# Nouveau champ pour la checkbox Menu #}
             <div class="form-group form-check">
-                <input type="checkbox" id="menuCheckbox" class="form-check-input">
+                <input type="checkbox" id="menuCheckbox" name="menuCheckbox" class="form-check-input">
                 <label class="form-check-label" for="menuCheckbox">Menu</label>
             </div>
 
-            {# Champ pour saisir la réduction, à afficher seulement si c'est une boisson et que le checkbox est coché #}
+            {# Champ pour saisir la réduction (affiché uniquement si c'est une boisson et que Menu est coché) #}
             <div class="form-group" id="reductionContainer" style="display: none;">
                 <label for="reduction">Quelle sera la réduction pour cet article ?</label>
                 <input type="text" id="reduction" name="reduction" class="form-control">
             </div>
 
-
-            {# Bouton "Parcourir mes fichiers" pour l'upload de l'image (PNG ou JPEG) #}
             <div class="form-group">
                 {{ form_label(form.ref_produit, 'Image (PNG ou JPEG)') }}
                 {{ form_widget(form.ref_produit, {'attr': {'class': 'form-control-file'}}) }}
@@ -72,7 +70,6 @@
 
             <button type="submit" class="btn btn-primary">Enregistrer</button>
         </form>
-
 
         <!-- Popups -->
         <div id="popupOverlay" class="popup-overlay" style="display: none;">

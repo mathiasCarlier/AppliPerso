@@ -115,17 +115,25 @@ final class ProduitController extends AbstractController
             $reduction     = $request->request->get('reduction');     // Valeur saisie pour la réduction
 
             $categorie = $form->get('Categorie')->getData();
-            if ($categorie && $categorie->getId() == 1) { // Boissons
+            if ($categorie && $categorie->getId() == 1) { // Si la catégorie est "boisson"
                 if ($menuCheckbox) {
                     $produit->setEstMenuBoisson(1);
                     if (!empty($reduction)) {
                         $produit->setValeur($reduction);
                     }
+                } else {
+                    $produit->setEstMenuBoisson(0);
                 }
-            } else {
+                // Ici, éventuellement, on peut s'assurer que est_menu est à 0 pour les boissons
+                $produit->setEstMenu(0);
+            } else { // Pour les autres catégories
                 if ($menuCheckbox) {
                     $produit->setEstMenu(1);
+                } else {
+                    $produit->setEstMenu(0);
                 }
+                // S'assurer que pour les non-boissons, est_menu_boisson reste à 0
+                $produit->setEstMenuBoisson(0);
             }
 
             try {
@@ -184,10 +192,6 @@ final class ProduitController extends AbstractController
     #[Route('/produit/{id}/delete', name: 'produit_delete', methods: ['POST'])]
     public function delete(Produit $produit, EntityManagerInterface $em): Response
     {
-        if (!$csrfTokenManager->isTokenValid(new CsrfToken('delete' . $produit->getId(), $token))) {
-            $this->addFlash('error', 'Token CSRF invalide.');
-            return $this->redirectToRoute('produit');
-        }
 
         try {
             $em->remove($produit);

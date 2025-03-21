@@ -185,11 +185,11 @@ h3 {
     justify-content: space-between;
     width: 100%;
     font-weight: bold;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 .client-info p {
-    margin-bottom: 1px; /* Même espace entre les paragraphes */
+    margin-bottom: 0px; /* Même espace entre les paragraphes */
     margin-top: 13px; /* Même espace que les paragraphes */
 }
 
