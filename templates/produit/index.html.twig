@@ -173,25 +173,63 @@
          */
         async function savePrix(avoirId) {
             const input = document.getElementById(`input-prix-${avoirId}`);
-            const prix = parseFloat(input.value).toFixed(2);
+            const prix = parseFloat(input.value);
+
+            // Validation du prix
+            if (isNaN(prix) || prix < 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Prix invalide',
+                    text: 'Veuillez entrer un prix valide'
+                });
+                return;
+            }
+
+            // Token CSRF
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
             try {
                 const response = await fetch(`/avoir/${avoirId}/update-prix`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': token
                     },
-                    body: JSON.stringify({ prix: prix })
+                    body: JSON.stringify({ prix: prix.toFixed(2) })
                 });
 
-                if (response.ok) {
-                    document.getElementById(`prix-${avoirId}`).textContent = `${prix}€`;
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error('Accès non autorisé');
+                    } else if (response.status === 404) {
+                        throw new Error('Prix non trouvé');
+                    } else {
+                        throw new Error('Erreur serveur');
+                    }
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById(`prix-${avoirId}`).textContent = `${prix.toFixed(2)}€`;
                     toggleEdit(avoirId);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Succès',
+                        text: 'Prix mis à jour avec succès',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    throw new Error(data.message || 'Erreur lors de la mise à jour du prix');
                 }
             } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: error.message || 'Une erreur est survenue lors de la mise à jour du prix'
+                });
                 console.error('Erreur:', error);
-                alert('Une erreur est survenue');
             }
         }
 
@@ -237,24 +275,50 @@
                 select.addEventListener('change', async function () {
                     const produitId = this.getAttribute('data-id');
                     const newValue = this.value;
+                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
                     try {
                         const response = await fetch(`/produit/${produitId}/update-en-ligne`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': token
                             },
                             body: JSON.stringify({ enLigne: newValue })
                         });
+
+                        if (!response.ok) {
+                            if (response.status === 403) {
+                                throw new Error('Accès non autorisé');
+                            } else if (response.status === 404) {
+                                throw new Error('Produit non trouvé');
+                            } else {
+                                throw new Error('Erreur serveur');
+                            }
+                        }
+
                         const data = await response.json();
                         if (data.success) {
-                            console.log('Statut "En Ligne" mis à jour avec succès');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Succès',
+                                text: 'Statut mis à jour avec succès',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
                         } else {
-                            console.error('Erreur lors de la mise à jour');
+                            throw new Error(data.message || 'Erreur lors de la mise à jour du statut');
                         }
                     } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erreur',
+                            text: error.message || 'Une erreur est survenue lors de la mise à jour du statut'
+                        });
                         console.error('Erreur AJAX :', error);
+                        // Rétablir l'ancienne valeur en cas d'erreur
+                        this.value = this.value === "1" ? "0" : "1";
                     }
                 });
             });

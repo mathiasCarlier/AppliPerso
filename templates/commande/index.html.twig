@@ -275,22 +275,62 @@
         }
 
         function updateStatut(commandeId, statutId) {
+            // Validation des paramètres
+            if (!commandeId || !statutId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: 'Paramètres invalides pour la mise à jour du statut'
+                });
+                return;
+            }
+
+            // Validation du statut
+            const validStatuts = [1, 2, 3, 4, 5];
+            if (!validStatuts.includes(statutId)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: 'Statut invalide'
+                });
+                return;
+            }
+
+            // Token CSRF
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
             fetch("{{ path('update_statut', {'id': 'REPLACE_ID'}) }}".replace('REPLACE_ID', commandeId), {  
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': token
                 },
                 body: JSON.stringify({ statutId: statutId })
             })
             .then(response => {
-                if (!response.ok) throw new Error('Erreur de mise à jour');
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error('Accès non autorisé');
+                    } else if (response.status === 404) {
+                        throw new Error('Commande non trouvée');
+                    } else {
+                        throw new Error('Erreur serveur');
+                    }
+                }
                 return response.json();
             })
             .then(data => {
                 if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Succès',
+                        text: 'Statut mis à jour avec succès',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
                     refreshCommandes(); 
 
-                    // Si le statut est 4 ou 5, fermer la popup
                     if (statutId === 4 || statutId === 5) {
                         closePopup();
                     } else {
@@ -298,9 +338,18 @@
                             openCommandeModal(commandeId);
                         }, 200);
                     }
+                } else {
+                    throw new Error(data.message || 'Erreur lors de la mise à jour');
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: error.message || 'Une erreur est survenue lors de la mise à jour du statut'
+                });
+                console.error('Error:', error);
+            });
         }
 
         async function refreshCommandes() {
