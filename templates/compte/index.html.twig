@@ -1,7 +1,21 @@
+{# 
+   Template de gestion du compte utilisateur
+   Ce template permet aux utilisateurs de :
+   - Modifier leurs informations personnelles
+   - Mettre à jour leur mot de passe
+   - Gérer leurs coordonnées
+   
+   Fonctionnalités :
+   - Formulaire de modification des informations
+   - Section dédiée au changement de mot de passe
+   - Gestion des erreurs de validation
+   - Persistance de l'affichage en cas d'erreur
+#}
 
 <title>{% block title %}Modifier vos informations{% endblock %}</title>
 
 {% block stylesheets %}
+    {# Styles spécifiques à la page de gestion du compte #}
     <link rel="stylesheet" href="{{ asset('styles/compte/styles.css') }}">
 {% endblock %}
 
@@ -9,16 +23,22 @@
     <div class="example-wrapper">
         <h1>{{ message }}</h1>
 
+        {# Formulaire principal de modification des informations #}
         {{ form_start(form) }}
+            {# Informations personnelles #}
             <div class="form-row">
                 {{ form_row(form.nom, { label: 'Nom :' }) }}
             </div>
             <div class="form-row">
                 {{ form_row(form.prenom, { label: 'Prénom :' }) }}
             </div>
+
+            {# Informations de connexion #}
             <div class="form-row">
                 {{ form_row(form.login, { label: 'Login :' }) }}
             </div>
+
+            {# Coordonnées #}
             <div class="form-row">
                 {{ form_row(form.mail, { label: 'Mail :' }) }}
             </div>
@@ -26,9 +46,12 @@
                 {{ form_row(form.telephone, { label: 'Téléphone :' }) }}
             </div>
 
+            {# Bouton pour afficher/masquer le formulaire de changement de mot de passe #}
             <button type="button" id="toggle-password-form" class="btn btn-secondary">Modifier le mot de passe</button><br>
 
+            {# Section de modification du mot de passe (masquée par défaut) #}
             <div id="password-form" style="display: none; margin-top:15px;" data-is-open="false">
+                {# Ancien mot de passe avec gestion des erreurs #}
                 <div class="form-row">
                     {{ form_row(form.oldPassword, { label: 'Ancien mot de passe :' }) }}
                     {% if form.oldPassword.vars.errors|length > 0 %}
@@ -37,12 +60,16 @@
                                 <p>{{ error.message }}</p>
                             {% endfor %}
                         </div>
-                        <div class="form-error-border"></div> {# Ajouter une bordure rouge pour l'erreur #}
+                        <div class="form-error-border"></div>
                     {% endif %}
                 </div>
+
+                {# Nouveau mot de passe #}
                 <div class="form-row">
                     {{ form_row(form.newPassword, { label: 'Nouveau mot de passe :' }) }}
                 </div>
+
+                {# Confirmation du nouveau mot de passe avec gestion des erreurs #}
                 <div class="form-row">
                     {{ form_row(form.confirmNewPassword, { label: 'Confirmer le nouveau mot de passe :' }) }}
                     {% if form.confirmNewPassword.vars.errors|length > 0 %}
@@ -51,23 +78,26 @@
                                 <p>{{ error.message }}</p>
                             {% endfor %}
                         </div>
-                        <div class="form-error-border"></div> {# Ajouter une bordure rouge pour l'erreur #}
+                        <div class="form-error-border"></div>
                     {% endif %}
                 </div>
             </div>
 
+            {# Bouton de soumission du formulaire #}
             <button type="submit" class="btn btn-primary">Enregistrer</button>
         {{ form_end(form) }}
 
+        {# Lien de retour vers l'accueil #}
         <a href="{{ path('accueil') }}" class="btn btn-secondary">Retour</a>
     </div>
 
+    {# Scripts pour la gestion du formulaire de mot de passe #}
     <script>
+        // Gestion de l'affichage/masquage du formulaire de mot de passe
         document.getElementById('toggle-password-form').addEventListener('click', function() {
             var passwordForm = document.getElementById('password-form');
-            var isOpen = passwordForm.getAttribute('data-is-open') === 'true'; // Vérifie si la modal est ouverte
+            var isOpen = passwordForm.getAttribute('data-is-open') === 'true';
 
-            // Si la modal est ouverte, la fermer, sinon l'ouvrir
             if (isOpen) {
                 passwordForm.style.display = 'none';
                 passwordForm.setAttribute('data-is-open', 'false');
@@ -77,15 +107,13 @@
             }
         });
 
-        // Empêche la fermeture de la modal après un échec de validation
+        // Gestion de l'affichage du formulaire en cas d'erreurs de validation
         window.addEventListener('load', function() {
             var passwordForm = document.getElementById('password-form');
-            // Si des erreurs existent, la modal ne doit pas se fermer
             {% if form.oldPassword.vars.errors|length > 0 or form.confirmNewPassword.vars.errors|length > 0 %}
                 passwordForm.style.display = 'block';
                 passwordForm.setAttribute('data-is-open', 'true');
             {% endif %}
         });
-
     </script>
 {% endblock %}

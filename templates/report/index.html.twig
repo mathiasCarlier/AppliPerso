@@ -1,16 +1,26 @@
+{# 
+   Template de rapport des ventes de produits
+   Ce template affiche les statistiques de vente avec :
+   - Filtrage par période (jour, semaine, mois, semestre)
+   - Liste détaillée des produits vendus
+   - Quantités et montants par produit
+   - Total global des ventes
+#}
+
 <title>{% block title %}Produits{% endblock %}</title>
 
 {% block stylesheets %}
+    {# Styles spécifiques à la page de rapport #}
     <link rel="stylesheet" href="{{ asset('styles/report/styles.css') }}">
 {% endblock %}
 
 <body>
-
+    {# Bouton de retour à la liste des commandes #}
     <a href="{{ path('commande_other') }}" class="btn btn-primary mb-3">Retour</a><br><br>
     
     <h1>Liste des produits commandés</h1>
     
-    <!-- Formulaire de filtre par période -->
+    {# Sélecteur de période avec mise à jour automatique #}
     <form method="get" action="{{ path('report') }}">
         <label for="periode">Filtrer par période :</label>
         <select name="periode" id="periode" onchange="this.form.submit()">
@@ -21,6 +31,7 @@
         </select>
     </form>
     
+    {# Tableau des statistiques de vente #}
     <table>
         <thead>
             <tr>
@@ -31,11 +42,13 @@
             </tr>
         </thead>
         <tbody>
+            {# Liste des produits avec leurs statistiques #}
             {% for product in products %}
                 <tr>
                     <td>{{ product.productName }}</td>
                     <td>{{ product.taille }}</td>
                     <td>{{ product.totalQuantity }}</td>
+                    {# Formatage du prix avec séparateurs de milliers et décimales #}
                     <td>{{ product.totalPrice | number_format(2, ',', ' ') }} €</td>
                 </tr>
             {% else %}
@@ -45,5 +58,7 @@
             {% endfor %}
         </tbody>
     </table>
+
+    {# Affichage du chiffre d'affaires total #}
     <h2>Total global: {{ globalTotal | number_format(2, ',', ' ') }} €</h2>
 </body>

@@ -1,28 +1,45 @@
+{# 
+   Template d'inscription des responsables
+   Ce template gère le formulaire d'inscription avec :
+   - Informations personnelles (nom, prénom)
+   - Informations de connexion (login, mot de passe)
+   - Informations de contact (email, téléphone)
+   - Validation et soumission du formulaire
+#}
+
 <title>{% block title %}Inscription{% endblock %}</title>
 
 {% block stylesheets %}
+    {# Styles spécifiques à la page d'inscription #}
     <link rel="stylesheet" href="{{ asset('styles/inscription/styles.css') }}">
 {% endblock %}
 
 {% block body %}
     <div class="container">
+        {# Carte contenant le formulaire d'inscription #}
         <div class="card">
             <h1>{{ message }}</h1>
 
+            {# Début du formulaire avec protection CSRF automatique #}
             {{ form_start(form) }}
 
+                {# Champs d'informations personnelles #}
                 <div class="form-row">
                     {{ form_row(form.nom, { 'label': 'Nom :' }) }}
                 </div>
                 <div class="form-row">
                     {{ form_row(form.prenom, { 'label': 'Prénom :' }) }}
                 </div>
+
+                {# Champs d'authentification #}
                 <div class="form-row">
                     {{ form_row(form.login, { 'label': 'Login :' }) }}
                 </div>
                 <div class="form-row">
                     {{ form_row(form.mdp, { 'label': 'Mot de passe :' }) }}
                 </div>
+
+                {# Champs de contact #}
                 <div class="form-row">
                     {{ form_row(form.mail, { 'label': 'Mail :' }) }}
                 </div>
@@ -30,10 +47,13 @@
                     {{ form_row(form.telephone, { 'label': 'Téléphone :' }) }}
                 </div>
 
+                {# Bouton de soumission du formulaire #}
                 <button type="submit" class="btn-primary">Envoyer</button>
 
+            {# Fin du formulaire avec rendu des champs restants non affichés #}
             {{ form_end(form) }}
 
+            {# Lien de retour vers la page de connexion #}
             <a href="{{ path('app_login') }}" class="btn-secondary">Retour</a>
         </div>
     </div>

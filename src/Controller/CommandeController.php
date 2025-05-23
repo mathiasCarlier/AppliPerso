@@ -14,8 +14,25 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\SecurityBundle\Attribute\IsGranted;
 
+/**
+ * Contrôleur gérant toutes les opérations liées aux commandes
+ * 
+ * Ce contrôleur permet de :
+ * - Afficher la liste des commandes
+ * - Filtrer les commandes par statut
+ * - Mettre à jour le statut d'une commande
+ * - Consulter les détails d'une commande
+ */
 final class CommandeController extends AbstractController
 {
+    /**
+     * Affiche la page principale des commandes avec possibilité de filtrage par statut
+     * 
+     * @param CommandeRepository $commandeRepository Repository pour accéder aux commandes
+     * @param StatutRepository $statutRepository Repository pour accéder aux statuts
+     * @param Request $request Requête HTTP
+     * @return Response Page des commandes avec filtres
+     */
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[Route('/commande', name: 'commande')]
     public function index(
@@ -41,12 +58,13 @@ final class CommandeController extends AbstractController
         
 
         if ($request->isXmlHttpRequest()) {
-            return $this->render('commande/_tableau_commande.html.twig', [
+            return $this->render('commande/index.html.twig', [
                 'commandes' => $commandes,
                 'statuts' => $statuts,
                 'statutId' => $statutId
             ]);
         }
+        
 
         return $this->render('commande/index.html.twig', [
             'commandes' => $commandes,
@@ -55,6 +73,14 @@ final class CommandeController extends AbstractController
         ]);
     }
 
+    /**
+     * Affiche une vue alternative des commandes (utilisée pour les mises à jour AJAX)
+     * 
+     * @param CommandeRepository $commandeRepository Repository pour accéder aux commandes
+     * @param StatutRepository $statutRepository Repository pour accéder aux statuts
+     * @param Request $request Requête HTTP
+     * @return Response Vue alternative des commandes
+     */
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[Route('/commande/other', name: 'commande_other')]
     public function other(
@@ -94,6 +120,14 @@ final class CommandeController extends AbstractController
         ]);
     }
 
+    /**
+     * Met à jour le statut d'une commande via une requête AJAX
+     * 
+     * @param Request $request Requête HTTP contenant le nouveau statut
+     * @param Commande $commande La commande à mettre à jour
+     * @param EntityManagerInterface $em Gestionnaire d'entités Doctrine
+     * @return JsonResponse Réponse JSON avec le résultat de la mise à jour
+     */
     #[Route('/commande/{id}/update-statut', name: 'update_statut', methods: ['POST'])]
     public function updateStatut(
         Request $request,
@@ -125,6 +159,19 @@ final class CommandeController extends AbstractController
         ]);
     }
 
+    /**
+     * Récupère les détails d'une commande spécifique
+     * 
+     * Retourne toutes les informations détaillées d'une commande incluant :
+     * - Informations générales (numéro, date, prix total)
+     * - Informations du client
+     * - Liste des produits commandés
+     * - Statut actuel et liste des statuts possibles
+     * 
+     * @param Commande $commande La commande dont on veut les détails
+     * @param StatutRepository $statutRepository Repository pour accéder aux statuts
+     * @return JsonResponse Détails de la commande au format JSON
+     */
     #[Route('/commande/details/{id}', name: 'commande_details', methods: ['GET'])]
     public function getDetails(
         Commande $commande,

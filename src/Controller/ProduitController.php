@@ -17,8 +17,27 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * Contrôleur gérant toutes les opérations liées aux produits du cinéma
+ * 
+ * Ce contrôleur permet de :
+ * - Lister les produits avec filtrage et tri
+ * - Créer de nouveaux produits
+ * - Modifier l'état en ligne/hors ligne des produits
+ * - Gérer les prix des produits
+ * - Supprimer des produits
+ * - Gérer les catégories et sous-catégories
+ */
 final class ProduitController extends AbstractController
 {
+    /**
+     * Affiche la liste des produits avec options de filtrage et tri
+     * 
+     * @param ProduitRepository $produitRepository Repository pour accéder aux produits
+     * @param CategorieRepository $categorieRepository Repository pour accéder aux catégories
+     * @param Request $request Requête HTTP contenant les paramètres de filtrage et tri
+     * @return Response Vue de la liste des produits
+     */
     #[Route('/produit', name: 'produit')]
     public function index(ProduitRepository $produitRepository, CategorieRepository $categorieRepository, Request $request): Response
     {
@@ -63,6 +82,14 @@ final class ProduitController extends AbstractController
         ]);
     }
 
+    /**
+     * Met à jour le statut en ligne/hors ligne d'un produit via AJAX
+     * 
+     * @param Request $request Requête HTTP contenant le nouveau statut
+     * @param Produit $produit Le produit à mettre à jour
+     * @param EntityManagerInterface $em Gestionnaire d'entités Doctrine
+     * @return JsonResponse Confirmation de la mise à jour
+     */
     #[Route('/produit/{id}/update-en-ligne', name: 'update_en_ligne', methods: ['POST'])]
     public function updateEnLigne(Request $request, Produit $produit, EntityManagerInterface $em): JsonResponse
     {
@@ -75,6 +102,20 @@ final class ProduitController extends AbstractController
         return $this->json(['success' => true]);
     }
 
+    /**
+     * Affiche et traite le formulaire de création d'un nouveau produit
+     * 
+     * Cette méthode gère :
+     * - L'upload de l'image du produit
+     * - La création du produit avec ses attributs
+     * - La gestion des menus et réductions
+     * - L'association avec les tailles et prix
+     * 
+     * @param Request $request Requête HTTP
+     * @param EntityManagerInterface $em Gestionnaire d'entités Doctrine
+     * @param CategorieRepository $categorieRepository Repository pour accéder aux catégories
+     * @return Response Vue du formulaire ou redirection
+     */
     #[Route('/produit/new', name: 'produit_new')]
     public function new(Request $request, EntityManagerInterface $em, CategorieRepository $categorieRepository): Response
     {
@@ -170,6 +211,13 @@ final class ProduitController extends AbstractController
         ]);
     }
 
+    /**
+     * Récupère la liste des sous-catégories pour une catégorie donnée (API)
+     * 
+     * @param int $categorieId ID de la catégorie parent
+     * @param CategorieRepository $categorieRepository Repository pour accéder aux catégories
+     * @return JsonResponse Liste des sous-catégories au format JSON
+     */
     #[Route('/api/sous-categories/{categorieId}', name: 'api_sous_categories')]
     public function getSousCategories($categorieId, CategorieRepository $categorieRepository): JsonResponse
     {
@@ -189,6 +237,13 @@ final class ProduitController extends AbstractController
         return $this->json($sousCategories);
     }
 
+    /**
+     * Supprime un produit du catalogue
+     * 
+     * @param Produit $produit Le produit à supprimer
+     * @param EntityManagerInterface $em Gestionnaire d'entités Doctrine
+     * @return Response Redirection vers la liste des produits
+     */
     #[Route('/produit/{id}/delete', name: 'produit_delete', methods: ['POST'])]
     public function delete(Produit $produit, EntityManagerInterface $em): Response
     {
@@ -205,6 +260,14 @@ final class ProduitController extends AbstractController
         return $this->redirectToRoute('produit');
     }
 
+    /**
+     * Met à jour le prix d'un produit pour une taille donnée via AJAX
+     * 
+     * @param Request $request Requête HTTP contenant le nouveau prix
+     * @param Avoir $avoir Relation produit-taille à mettre à jour
+     * @param EntityManagerInterface $em Gestionnaire d'entités Doctrine
+     * @return JsonResponse Confirmation de la mise à jour
+     */
     #[Route('/avoir/{id}/update-prix', name: 'update_prix', methods: ['POST'])]
     public function updatePrix(Request $request, Avoir $avoir, EntityManagerInterface $em): JsonResponse
     {

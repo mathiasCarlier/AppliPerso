@@ -11,10 +11,6 @@
     <div id="commande-page">
         <h1>Liste des commandes terminées et annulées</h1>
 
-        <button id="refresh-commandes" class="btn btn-primary mb-3">
-            <i class="bi bi-arrow-clockwise"></i> Rafraîchir
-        </button><br><br>
-
         <a href="{{ path('report') }}" class="btn btn-primary mb-3">Récap</a>
 
         {# Filtrer les commandes du jour #}
@@ -123,20 +119,7 @@
 
             // Démarrer l'actualisation automatique
             refreshInterval = setInterval(refreshCommandes, 15000);
-            refreshCommandes();
-
-            const refreshButton = document.getElementById("refresh-commandes");
-            refreshButton.addEventListener("click", function () {
-                fetch("{{ path('commande_other') }}", { headers: { "X-Requested-With": "XMLHttpRequest" } })
-                    .then(response => response.text())
-                    .then(html => {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, "text/html");
-                        const newContent = doc.querySelector("#commandes-tbody").innerHTML;
-                        document.querySelector("#commandes-tbody").innerHTML = newContent;
-                    })
-                    .catch(error => console.error("Erreur lors du rafraîchissement :", error));
-            });
+            
         });
 
         async function openCommandeModal(commandeId) {

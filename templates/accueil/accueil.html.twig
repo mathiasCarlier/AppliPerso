@@ -1,44 +1,61 @@
+{# 
+   Template de la page d'accueil
+   Ce template affiche le tableau de bord principal avec :
+   - Message de bienvenue personnalisé
+   - Menu de navigation adapté au rôle de l'utilisateur
+   - Bouton de déconnexion
+   
+   Rôles et accès :
+   - Admin (roleId = 1) : Accès complet
+   - Responsable (roleId = 2) : Accès limité
+   - Non vérifié : Message d'attente uniquement
+#}
+
 <title>{% block title %}Accueil{% endblock %}</title>
 
 {% block stylesheets %}
+    {# Styles spécifiques à la page d'accueil #}
     <link rel="stylesheet" href="{{ asset('styles/accueil/styles.css') }}">
 {% endblock %}
 
 {% block body %}
-    <!-- Bouton de déconnexion en haut à droite -->
+    {# Bouton de déconnexion toujours visible pour les utilisateurs connectés #}
     {% if app.user %}
         <div class="logout-container">
             <a href="{{ path('app_logout') }}" class="logout-link">Déconnexion</a>
         </div>
     {% endif %}
 
-    <!-- Card pour les boutons de navigation -->
+    {# Carte principale contenant le menu de navigation #}
     <div class="card">
+        {# Message de bienvenue personnalisé #}
         {% if app.user %}
             <div class="welcome-message">
                 Bienvenue <strong>{{ app.user.userIdentifier }}</strong>
             </div>
         {% endif %}
 
+        {# Détermination du rôle de l'utilisateur #}
         {% if app.user.role %}
             {% set roleId = app.user.role.id %}
         {% else %}
             {% set roleId = null %}
         {% endif %}
 
+        {# Menu de navigation adapté au rôle #}
         {% if roleId == 1 %}
-            <!-- Tous les boutons -->
+            {# Menu Administrateur : accès complet #}
             <a href="{{ path('responsable') }}" class="btn">Liste du personnel</a>
             <a href="{{ path('commande') }}" class="btn">Liste des commandes</a>
             <a href="{{ path('produit') }}" class="btn">Liste des produits</a>
             <a href="{{ path('compte') }}" class="btn">Mon compte</a>
         {% elseif roleId == 2 %}
-            <!-- Tous les boutons sauf celui de responsable -->
+            {# Menu Responsable : accès limité #}
             <a href="{{ path('commande') }}" class="btn">Liste des commandes</a>
             <a href="{{ path('produit') }}" class="btn">Liste des produits</a>
             <a href="{{ path('compte') }}" class="btn">Mon compte</a>
         {% else %}
-            <!-- Aucun bouton sauf déconnexion -->
+            {# Message pour les utilisateurs non vérifiés #}
             <div class="message-attente">
                 <p>Vous devez attendre que l'admin vous vérifie.</p>
             </div>

@@ -6,13 +6,49 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Contrôleur gérant les rapports de ventes des produits
+ * 
+ * Ce contrôleur permet de :
+ * - Générer des rapports de ventes par période
+ * - Calculer les statistiques de ventes par produit
+ * - Afficher les totaux par taille de produit
+ * - Calculer le chiffre d'affaires global
+ * 
+ * Périodes disponibles :
+ * - Aujourd'hui (today)
+ * - Cette semaine (week)
+ * - Ce mois (month)
+ * - Cette année (year)
+ */
 class ProductReportController extends AbstractController
 {
     /**
-     * @Route("/report", name="product_report")
+     * Génère et affiche le rapport des ventes de produits
+     * 
+     * Cette méthode :
+     * - Détermine la période d'analyse selon le paramètre fourni
+     * - Calcule les statistiques de ventes pour chaque produit
+     * - Agrège les données par taille de produit
+     * - Calcule le chiffre d'affaires total
+     * 
+     * Les données calculées incluent :
+     * - Nom du produit
+     * - Taille du produit
+     * - Quantité totale vendue
+     * - Chiffre d'affaires par produit
+     * - Chiffre d'affaires global
+     * 
+     * Note : Seules les commandes avec le statut 4 (livrées) sont prises en compte
+     * 
+     * @param EntityManagerInterface $em Gestionnaire d'entités Doctrine
+     * @param Request $request Requête HTTP contenant la période demandée
+     * @return Response Vue du rapport avec les statistiques
      */
-    public function index(EntityManagerInterface $em, Request $request)
+    #[Route("/report", name: "product_report")]
+    public function index(EntityManagerInterface $em, Request $request): Response
     {
         // Récupération de la période choisie dans l'URL (par défaut "today")
         $periode = $request->query->get('periode', 'today');

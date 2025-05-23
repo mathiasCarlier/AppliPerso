@@ -1,4 +1,17 @@
+{# 
+   Template de gestion des produits
+   Ce template affiche et gère la liste des produits du cinéma
+   Fonctionnalités :
+   - Affichage des produits dans un tableau
+   - Filtrage par catégorie
+   - Tri par différents critères
+   - Gestion des prix par taille
+   - Activation/désactivation des produits
+   - Suppression des produits
+#}
+
 {% block stylesheets %}
+    {# Styles spécifiques à la page des produits #}
     <link rel="stylesheet" href="{{ asset('styles/produit/styles.css') }}">
 {% endblock %}
 
@@ -6,14 +19,15 @@
 
 {% block body %}
     {# Bouton de retour à l'accueil #}
-    <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a><br><br>
+    <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Accueil</a><br><br>
     
     <div id="produit-page">
         <h1>Liste des Produits</h1>
 
+        {# Bouton d'ajout d'un nouveau produit #}
         <a href="{{ path('produit_new') }}" class="btn btn-primary">Ajouter un produit</a><br><br>
 
-        {# Formulaire de filtrage par catégorie#}
+        {# Filtres et options de tri #}
         <div class="col-12 col-md-4 mb-2">
             <label for="categorie-select" class="form-label">Filtrer par catégorie :</label>
             <select id="categorie-select" class="form-select" onchange="filtrerParCategorie()">
@@ -55,6 +69,7 @@
                 {% for produit in produits %}
                     <tr>
                         <td>{{ produit.nom }}</td>
+                        {# Liste des tailles disponibles #}
                         <td>
                             <ul class="list-unstyled">
                                 {% for avoir in produit.avoirs %}
@@ -64,28 +79,28 @@
                                 {% endfor %}
                             </ul>
                         </td>
+                        {# Prix par taille avec système d'édition #}
                         <td>
                             <ul class="list-unstyled d-flex flex-wrap gap-2">
                                 {% for avoir in produit.avoirs %}
                                     <li>
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <!-- Partie gauche : prix et input -->
-                                                <span id="prix-{{ avoir.id }}">{{ avoir.prix }} €</span>
-                                                <input type="number" 
-                                                    id="input-prix-{{ avoir.id }}" 
-                                                    value="{{ avoir.prix }}" 
-                                                    class="form-control d-none" 
-                                                    step="0.01">
+                                            <span id="prix-{{ avoir.id }}">{{ avoir.prix }} €</span>
+                                            <input type="number" 
+                                                id="input-prix-{{ avoir.id }}" 
+                                                value="{{ avoir.prix }}" 
+                                                class="form-control d-none" 
+                                                step="0.01">
                                         </div>
                                     </li>
                                 {% endfor %}
                             </ul>
                         </td>
+                        {# Boutons d'édition des prix #}
                         <td>
                             <ul class="list-unstyled d-flex flex-wrap gap-2">
                                 {% for avoir in produit.avoirs %}
                                     <li>
-                                        <!-- Partie droite : boutons -->
                                         <div>
                                             <button class="btn btn-sm btn-warning" 
                                                     id="toggle-btn-{{ avoir.id }}" 
@@ -104,17 +119,19 @@
                         </td>
                         <td>{{ produit.Categorie ? produit.Categorie.libelle : 'N/A' }}</td>
                         <td>{{ produit.sousCategorie ? produit.sousCategorie.libelle : 'N/A' }}</td>
+                        {# Sélecteur pour activer/désactiver le produit #}
                         <td>
                             <select class="form-select en-ligne-select" data-id="{{ produit.id }}">
                                 <option value="1" {{ produit.enLigne ? 'selected' : '' }}>Oui</option>
                                 <option value="0" {{ not produit.enLigne ? 'selected' : '' }}>Non</option>
                             </select>
                         </td>
+                        {# Bouton de suppression avec confirmation #}
                         <td>
-                            <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ produit.id }}', '{{ produit.nom }}')">Supprimer</button>
+                            <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ produit.id }}', '{{ produit.nom|e('js') }}')">Supprimer</button>
                             <form id="delete-form-{{ produit.id }}" action="{{ path('produit_delete', {'id': produit.id}) }}" method="post" style="display: none;">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
-                                <button type="submit"></button> {# Ce bouton sera cliqué en JS #}
+                                <button type="submit"></button>
                             </form>
                         </td>
                     </tr>
@@ -125,13 +142,15 @@
                 {% endfor %}
             </tbody>
         </table>
-
     </div>
 
-    {# Script pour la gestion des interactions #}
+    {# Scripts pour la gestion des interactions #}
     <script>
+        /**
+         * Bascule entre l'affichage et l'édition du prix
+         * @param {number} avoirId - ID de la relation produit-taille
+         */
         function toggleEdit(avoirId) {
-            // Récupère tous les éléments concernés
             const elements = {
                 prix: document.getElementById(`prix-${avoirId}`),
                 input: document.getElementById(`input-prix-${avoirId}`),
@@ -139,17 +158,19 @@
                 saveBtn: document.getElementById(`save-btn-${avoirId}`)
             };
 
-            // Basculer les classes
             Object.values(elements).forEach(el => {
                 if (el) el.classList.toggle('d-none');
             });
 
-            // Focus sur l'input si on est en mode édition
             if (!elements.input.classList.contains('d-none')) {
                 elements.input.focus();
             }
         }
 
+        /**
+         * Sauvegarde le nouveau prix d'un produit
+         * @param {number} avoirId - ID de la relation produit-taille
+         */
         async function savePrix(avoirId) {
             const input = document.getElementById(`input-prix-${avoirId}`);
             const prix = parseFloat(input.value).toFixed(2);
@@ -166,13 +187,17 @@
 
                 if (response.ok) {
                     document.getElementById(`prix-${avoirId}`).textContent = `${prix}€`;
-                    toggleEdit(avoirId); // Rebascule l'affichage
+                    toggleEdit(avoirId);
                 }
             } catch (error) {
                 console.error('Erreur:', error);
                 alert('Une erreur est survenue');
             }
         }
+
+        /**
+         * Applique le filtre par catégorie
+         */
         function filtrerParCategorie() {
             const categorieSelect = document.getElementById('categorie-select');
             const categorieId = categorieSelect.value;
@@ -187,6 +212,9 @@
             window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
         }
 
+        /**
+         * Applique le tri sélectionné
+         */
         function triCategorie() {
             const sortSelect = document.getElementById('sortSelect');
             const sortValue = sortSelect.value;
@@ -201,12 +229,9 @@
             window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
         }
 
-
+        // Initialisation des événements au chargement de la page
         document.addEventListener('DOMContentLoaded', function () {
-            const categorySelect = document.getElementById('categorie-select');
-            const subcategoryCol = document.getElementById('subcategoryCol');
-            const subcategorySelect = document.getElementById('subcategory-select');
-
+            // Gestion du statut en ligne/hors ligne des produits
             const selects = document.querySelectorAll('.en-ligne-select');
             selects.forEach(select => {
                 select.addEventListener('change', async function () {
@@ -234,12 +259,17 @@
                 });
             });
         });
-        
     </script>
 
+    {# Inclusion de SweetAlert2 pour les confirmations #}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        /**
+         * Affiche une boîte de dialogue de confirmation avant la suppression
+         * @param {string} produitId - ID du produit à supprimer
+         * @param {string} produitNom - Nom du produit à supprimer
+         */
         function confirmDelete(produitId, produitNom) {
             Swal.fire({
                 title: "Confirmation",
@@ -257,5 +287,4 @@
             });
         }
     </script>
-
 {% endblock %}

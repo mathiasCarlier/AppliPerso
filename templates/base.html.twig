@@ -1,21 +1,36 @@
+{# 
+   Template de base de l'application
+   Ce template définit la structure HTML commune à toutes les pages
+   Il inclut :
+   - Les métadonnées essentielles
+   - Le token CSRF pour la sécurité
+   - Les feuilles de style Bootstrap
+   - Les blocs pour les styles et scripts personnalisés
+   - L'import map pour la gestion des dépendances JavaScript
+#}
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
+        {# Token CSRF pour la sécurité des formulaires #}
         <meta name="csrf-token" content="{{ csrf_token('verif') }}">
-        <title>{% block title %}Welcome!{% endblock %}</title>
+        {# Bloc pour le titre de la page #}
+        <title>{% block title %}Bienvenue{% endblock %}</title>
+        {# Inclusion de Bootstrap CSS #}
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        {# Bloc pour les styles personnalisés #}
         {% block stylesheets %}{% endblock %}
 
-        <!-- Charger l'import map avant tout autre script -->
+        {# Import map pour la gestion des dépendances JavaScript #}
         {% block javascripts %}
             {{ importmap('app') }}
         {% endblock %}
     </head>
     <body>
+        {# Bloc principal pour le contenu de la page #}
         {% block body %}{% endblock %}
 
-        <!-- Ensuite, charger les scripts (après l'import map) -->
+        {# Scripts JavaScript (chargés après l'import map) #}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

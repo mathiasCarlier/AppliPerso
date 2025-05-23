@@ -8,6 +8,34 @@ body {
     padding: 20px;
 }
 
+/* Formulaire de filtre */
+form {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+form label {
+    font-size: 16px;
+    color: #666;
+    margin-right: 10px;
+}
+
+form select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+form select:focus {
+    border-color: #ff4444;
+    outline: none;
+    box-shadow: 0 0 5px rgba(255, 68, 68, 0.3);
+}
+
 /* Conteneur principal */
 .container {
     max-width: 1200px;

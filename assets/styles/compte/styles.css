@@ -102,6 +102,7 @@ button {
     font-weight: bold;
     transition: background-color 0.3s ease;
     cursor: pointer;
+    font-family: Arial, sans-serif;
 }
 
 .btn-primary {

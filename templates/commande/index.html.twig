@@ -1,30 +1,37 @@
+{# 
+   Template de gestion des commandes
+   Ce template affiche et gère la liste des commandes en cours
+   Fonctionnalités :
+   - Affichage des commandes par statut (En attente, En préparation, À régler)
+   - Filtrage des commandes du jour
+   - Popup détaillé pour chaque commande
+   - Mise à jour en temps réel des statuts
+#}
+
 <title>{% block title %}Commandes{% endblock %}</title>
 
 {% block stylesheets %}
+    {# Styles spécifiques à la page des commandes #}
     <link rel="stylesheet" href="{{ asset('styles/commande/styles.css') }}">
 {% endblock %}
 
 {% block body %}
-
-    
-    <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Retour</a>
+    {# Bouton de retour à l'accueil #}
+    <a href="{{ path('accueil') }}" class="btn btn-primary mb-3">Accueil</a>
 
     <div id="commande-page">
         <h1>Liste des commandes</h1>
 
-        <button id="refresh-commandes" class="btn btn-primary mb-3">
-            <i class="bi bi-arrow-clockwise"></i> Rafraîchir
-        </button><br><br>
-
+        {# Bouton pour voir les commandes terminées #}
         <a href="{{ path('commande_other') }}" class="btn btn-primary mb-3">Terminés</a>
         
-        {# Filtrer les commandes du jour #}
+        {# Filtrage des commandes du jour #}
         {% set today = "now"|date("Y-m-d") %}
         {% set commandes_today = commandes|filter(command => command.heure|date("Y-m-d") == today) %}
         {% set commandes_sorted = commandes_today %} 
 
         <div id="commandes-tbody" class="row">
-            <!-- Colonne pour le statut 1 -->
+            {# Section des commandes en attente (Statut 1) #}
             <div class="col-12 col-md-4">
                 <h3>En attente</h3>
                 {% set commandesStatut1 = commandes_sorted|filter(c => c.Statut.id == 1) %}
@@ -49,7 +56,7 @@
                 {% endfor %}
             </div>
 
-            <!-- Colonne pour le statut 2 -->
+            {# Section des commandes en préparation (Statut 2) #}
             <div class="col-12 col-md-4">
                 <h3>En préparation</h3>
                 {% set commandesStatut2 = commandes_sorted|filter(c => c.Statut.id == 2) %}
@@ -74,7 +81,7 @@
                 {% endfor %}
             </div>
 
-            <!-- Colonne pour le statut 3 -->
+            {# Section des commandes à régler (Statut 3) #}
             <div class="col-12 col-md-4">
                 <h3>À régler</h3>
                 {% set commandesStatut3 = commandes_sorted|filter(c => c.Statut.id == 3) %}
@@ -101,7 +108,7 @@
         </div>
     </div>
 
-    {# Markup du popup overlay #}
+    {# Popup pour afficher les détails d'une commande #}
     <div id="custom-popup-overlay" class="popup-overlay" style="display: none;">
         <div id="custom-popup" class="custom-popup">
             <div class="popup-header">
@@ -112,34 +119,41 @@
         </div>
     </div>
 
+    {# Scripts JavaScript pour la gestion dynamique des commandes #}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        console.log("Script chargé");
-
+        // Initialisation des variables globales
         let currentPopupCommandeId = null;
-        let refreshInterval; // Variable pour stocker l'intervalle d'actualisation
+        let refreshInterval; // Intervalle d'actualisation
         let isPopupOpen = false;
 
+        /**
+         * Affiche le popup avec le contenu spécifié
+         * @param {string} content - Le contenu HTML à afficher
+         * @param {string} statusClass - La classe CSS pour le style du statut
+         */
         function showPopup(content, statusClass) {
             const overlay = document.getElementById('custom-popup-overlay');
             const popup = overlay.querySelector('.custom-popup');
-            
-            // Reset all classes and apply base + status
             popup.className = `custom-popup ${statusClass || ''}`;
-            
             document.getElementById('popup-content').innerHTML = content;
             overlay.style.display = 'flex';
         }
 
+        // Initialisation des événements au chargement de la page
         document.addEventListener('DOMContentLoaded', () => {
-            // Vérifier que l'élément .close-popup existe bien
+            // Configuration des gestionnaires d'événements
             const closeBtn = document.querySelector('.close-popup');
             if (closeBtn) {
                 closeBtn.addEventListener('click', closePopup);
             }
+
+            // Fermeture du popup en cliquant sur l'overlay
             document.getElementById('custom-popup-overlay').addEventListener('click', (e) => {
                 if (e.target === e.currentTarget) closePopup();
             });
+
+            // Gestion des clics sur les cartes de commande
             document.getElementById('commande-page').addEventListener('click', async (event) => {
                 const card = event.target.closest('[data-commande-id]');
                 if (card) {
@@ -148,32 +162,18 @@
                 }
             });
 
-            // Démarrage de l'actualisation automatique
+            // Configuration de l'actualisation automatique
             refreshInterval = setInterval(refreshCommandes, 15000);
-            
-            // Actualisation immédiate au premier chargement
-            refreshCommandes();
-
-            const refreshButton = document.getElementById("refresh-commandes");
-
-            refreshButton.addEventListener("click", function () {
-                fetch("{{ path('commande') }}", { headers: { "X-Requested-With": "XMLHttpRequest" } })
-                    .then(response => response.text())
-                    .then(html => {
-                        // Extraire uniquement le contenu des commandes
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, "text/html");
-                        const newContent = doc.querySelector("#commandes-tbody").innerHTML;
-
-                        // Remplacer les commandes actuelles
-                        document.querySelector("#commandes-tbody").innerHTML = newContent;
-                    })
-                    .catch(error => console.error("Erreur lors du rafraîchissement :", error));
-            });
+            refreshCommandes(); // Première actualisation immédiate
         });
 
+        /**
+         * Ouvre le modal des détails d'une commande
+         * @param {string} commandeId - L'identifiant de la commande
+         */
         async function openCommandeModal(commandeId) {
             try {
+                // Récupération des détails de la commande
                 const url = "{{ path('commande_details', {'id': 'REPLACE_ID'}) }}".replace('REPLACE_ID', commandeId);
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Erreur lors du chargement des détails');
@@ -181,7 +181,7 @@
                 const data = await response.json();
                 const currentStatus = data.statut.id;
 
-                // Mapping des statuts et leurs libellés correspondants
+                // Configuration des libellés de statut
                 const statusLabels = {
                     1: "Commande en attente",
                     2: "Commande en préparation",
@@ -212,7 +212,7 @@
                                 ${lc.taille && lc.taille.unite ? `- ${lc.taille.unite}` : ''} 
                             </div>
                         `).join('')}
-                        <p>Nombre de produits: ${data.nombreTotalProduits}</p> <!-- Ajouter ici -->
+                        <p>Nombre de produits: ${data.nombreTotalProduits}</p>
                     </div>
 
                     <div class="statut-container">
@@ -231,17 +231,16 @@
                     </div>
                 `;
 
-                // Afficher le popup avec le contenu généré
-                document.getElementById('popup-content').innerHTML = htmlContent;
-                const statutClass = 'statut-' + currentStatus;
-                document.getElementById('custom-popup').className = `custom-popup ${statutClass}-popup`;
+                // Affichage et configuration du popup
                 showPopup(htmlContent);
                 currentPopupCommandeId = commandeId;
 
-                // Retirer la classe "statut-active" de tous les boutons statut
+                // Mise à jour des classes de statut actif
                 document.querySelectorAll('.statut-btn').forEach(btn => btn.classList.remove('statut-active'));
+                const statutClass = 'statut-' + currentStatus;
+                document.getElementById('custom-popup').className = `custom-popup ${statutClass}-popup`;
 
-                // Appliquer la classe au bouton correspondant au statut
+                // Configuration des boutons de statut
                 if (currentStatus === 2) {
                     document.getElementById('btnPreparation').classList.add('statut-active');
                 } else if (currentStatus === 3) {
@@ -249,32 +248,20 @@
                 } else if (currentStatus === 4) {
                     document.getElementById('btnTermine').classList.add('statut-active');
                 } else if (currentStatus === 5) {
-                    // Pour le bouton Annuler, qui se trouve dans .annul-btn
                     document.querySelector('.annul-btn').classList.add('statut-active');
                 }
 
-                // Écouteurs d'événements pour mettre à jour le statut
-                document.getElementById('btnPreparation').addEventListener('click', function() {
-                    updateStatut(commandeId, 2);
-                });
-
-                document.getElementById('btnRegler').addEventListener('click', function() {
-                    updateStatut(commandeId, 3);
-                });
-
-                document.getElementById('btnTermine').addEventListener('click', function() {
-                    updateStatut(commandeId, 4);
-                });
-
-                document.querySelector('.annul-btn').addEventListener('click', function() {
-                    updateStatut(commandeId, 5);
-                });
+                // Configuration des gestionnaires d'événements pour les changements de statut
+                document.getElementById('btnPreparation').addEventListener('click', () => updateStatut(commandeId, 2));
+                document.getElementById('btnRegler').addEventListener('click', () => updateStatut(commandeId, 3));
+                document.getElementById('btnTermine').addEventListener('click', () => updateStatut(commandeId, 4));
+                document.querySelector('.annul-btn').addEventListener('click', () => updateStatut(commandeId, 5));
 
             } catch (error) {
                 console.error('Erreur:', error);
-                showPopup('<p class="text-danger">Impossible de charger les informations.</p>');
+                alert('Une erreur est survenue lors du chargement des détails de la commande');
             }
-}
+        }
 
         function closePopup() {
             isPopupOpen = false;
@@ -287,7 +274,7 @@
             currentPopupCommandeId = null;
         }
 
-       function updateStatut(commandeId, statutId) {
+        function updateStatut(commandeId, statutId) {
             fetch("{{ path('update_statut', {'id': 'REPLACE_ID'}) }}".replace('REPLACE_ID', commandeId), {  
                 method: 'POST',
                 headers: {
@@ -315,7 +302,6 @@
             })
             .catch(error => console.error('Error:', error));
         }
-
 
         async function refreshCommandes() {
             try {

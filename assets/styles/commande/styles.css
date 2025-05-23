@@ -29,6 +29,7 @@ h3 {
     text-decoration: none;
     font-weight: bold;
     transition: background-color 0.3s ease;
+    font-family: 'Arial', sans-serif;
 }
 
 /* Bouton primaire */

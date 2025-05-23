@@ -1,22 +1,37 @@
+{# 
+   Template de création d'un nouveau produit
+   Ce template permet d'ajouter un nouveau produit au catalogue avec :
+   - Informations de base (nom, prix)
+   - Catégorisation (catégorie et sous-catégorie)
+   - Gestion des tailles
+   - Options de menu et réductions
+   - Upload d'image
+   - Popups pour l'ajout rapide de nouvelles catégories/tailles
+#}
+
 {% block stylesheets %}
+    {# Styles spécifiques à la page de création de produit #}
     <link rel="stylesheet" href="{{ asset('styles/produit_new/styles.css') }}">
 {% endblock %}
 
 <title>{% block title %}Ajouter un Produit{% endblock %}</title>
 
 {% block body %}
-
+    {# Bouton de retour à la liste des produits #}
     <a href="{{ path('produit') }}" class="btn btn-primary mb-3">Retour</a><br><br>
    
     <div class="container">
         <h1 class="my-4">Ajouter un Produit</h1>
 
+        {# Formulaire principal avec support des fichiers #}
         <form method="POST" enctype="multipart/form-data">
+            {# Nom du produit #}
             <div class="form-group">
                 {{ form_label(form.nom) }}
                 {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
             </div>
 
+            {# Sélection de la catégorie avec bouton d'ajout rapide #}
             <div class="form-group">
                 {{ form_label(form.Categorie) }}
                 <div class="input-group">
@@ -25,6 +40,7 @@
                 </div>
             </div>
 
+            {# Sélection de la sous-catégorie (affiché dynamiquement) #}
             <div class="form-group" id="sousCategorieContainer" style="display: none;">
                 {{ form_label(form.sous_categorie) }}
                 <div class="input-group">
@@ -33,6 +49,7 @@
                 </div>
             </div>
 
+            {# Sélection de la taille avec bouton d'ajout rapide #}
             <div class="form-group">
                 {{ form_label(form.taille) }}
                 <div class="input-group">
@@ -41,28 +58,31 @@
                 </div>
             </div>
 
+            {# Prix du produit #}
             <div class="form-group">
                 {{ form_label(form.prix) }}
                 {{ form_widget(form.prix, {'attr': {'class': 'form-control'}}) }}
             </div>
 
+            {# Option de disponibilité en ligne #}
             <div class="form-group">
                 {{ form_widget(form.en_ligne, {'attr': {'class': 'form-check-input'}}) }}
                 {{ form_label(form.en_ligne) }}
             </div>
 
-            {# Nouveau champ pour la checkbox Menu #}
+            {# Option pour définir le produit comme menu #}
             <div class="form-group form-check">
                 <input type="checkbox" id="menuCheckbox" name="menuCheckbox" class="form-check-input">
                 <label class="form-check-label" for="menuCheckbox">Menu</label>
             </div>
 
-            {# Champ pour saisir la réduction (affiché uniquement si c'est une boisson et que Menu est coché) #}
+            {# Champ de réduction pour les boissons en menu #}
             <div class="form-group" id="reductionContainer" style="display: none;">
                 <label for="reduction">Quelle sera la réduction pour cet article ?</label>
                 <input type="text" id="reduction" name="reduction" class="form-control">
             </div>
 
+            {# Upload de l'image du produit #}
             <div class="form-group">
                 {{ form_label(form.ref_produit, 'Image (PNG ou JPEG)') }}
                 {{ form_widget(form.ref_produit, {'attr': {'class': 'form-control-file'}}) }}
@@ -71,9 +91,10 @@
             <button type="submit" class="btn btn-primary">Enregistrer</button>
         </form>
 
-        <!-- Popups -->
+        {# Popups pour l'ajout rapide d'éléments #}
         <div id="popupOverlay" class="popup-overlay" style="display: none;">
             <div class="popup-content">
+                {# Popup d'ajout de catégorie #}
                 <div id="categoriePopup" class="entity-popup" style="display: none;">
                     <h4>Nouvelle Catégorie</h4>
                     <input type="text" id="newCategorie" class="form-control mb-2" placeholder="Nom de la catégorie">
@@ -81,6 +102,7 @@
                     <button class="btn btn-secondary" onclick="hidePopups()">Annuler</button>
                 </div>
 
+                {# Popup d'ajout de sous-catégorie #}
                 <div id="sous_categoriePopup" class="entity-popup" style="display: none;">
                     <h4>Nouvelle Sous-Catégorie</h4>
                     <select id="sousCategorieParent" class="form-control mb-2">
@@ -96,6 +118,7 @@
                     <button class="btn btn-secondary" onclick="hidePopups()">Annuler</button>
                 </div>
 
+                {# Popup d'ajout de taille #}
                 <div id="taillePopup" class="entity-popup" style="display: none;">
                     <h4>Nouvelle Taille</h4>
                     <input type="text" id="newTaille" class="form-control mb-2" placeholder="Quantité + Unité">
@@ -107,11 +130,18 @@
     </div>
 
     <script>
+        /**
+         * Affiche le popup correspondant au type spécifié
+         * @param {string} type - Type de popup à afficher (categorie, sous_categorie, taille)
+         */
         function showPopup(type) {
             document.getElementById('popupOverlay').style.display = 'flex';
             document.getElementById(`${type}Popup`).style.display = 'block';
         }
 
+        /**
+         * Cache tous les popups
+         */
         function hidePopups() {
             document.getElementById('popupOverlay').style.display = 'none';
             document.querySelectorAll('.entity-popup').forEach(popup => {
@@ -119,10 +149,15 @@
             });
         }
 
+        /**
+         * Sauvegarde une nouvelle entité (catégorie, sous-catégorie ou taille)
+         * @param {string} type - Type d'entité à sauvegarder
+         */
         async function saveEntity(type) {
             let data = {};
             let selectId = '';
 
+            // Préparation des données selon le type d'entité
             switch(type) {
                 case 'categorie':
                     selectId = '{{ form.Categorie.vars.id }}';
@@ -140,6 +175,7 @@
             }
 
             try {
+                // Envoi de la requête au serveur
                 const response = await fetch(`/produit/new/add-${type}`, {
                     method: 'POST',
                     headers: {
@@ -152,13 +188,13 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    // Ajouter la nouvelle option au select
+                    // Ajout de la nouvelle option au select correspondant
                     const select = document.getElementById(selectId);
                     const option = new Option(result.libelle || result.unite, result.id);
                     select.add(option);
                     option.selected = true;
 
-                    // Pour les sous-catégories, rafraîchir si nécessaire
+                    // Mise à jour des sous-catégories si nécessaire
                     if (type === 'sous_categorie') {
                         const categorieSelect = document.getElementById('{{ form.Categorie.vars.id }}');
                         categorieSelect.value = data.categorieId;
@@ -175,29 +211,32 @@
             }
         }
 
+        // Initialisation au chargement de la page
         document.addEventListener('DOMContentLoaded', function () {
-            const categorieSelect      = document.querySelector('#{{ form.Categorie.vars.id }}');
+            // Récupération des éléments du formulaire
+            const categorieSelect = document.querySelector('#{{ form.Categorie.vars.id }}');
             const sousCategorieContainer = document.getElementById('sousCategorieContainer');
-            const sousCategorieSelect  = document.querySelector('#{{ form.sous_categorie.vars.id }}');
-            const tailleSelect         = document.getElementById('{{ form.taille.vars.id }}');
-            const menuCheckbox         = document.getElementById('menuCheckbox');
-            const reductionContainer   = document.getElementById('reductionContainer');
+            const sousCategorieSelect = document.querySelector('#{{ form.sous_categorie.vars.id }}');
+            const tailleSelect = document.getElementById('{{ form.taille.vars.id }}');
+            const menuCheckbox = document.getElementById('menuCheckbox');
+            const reductionContainer = document.getElementById('reductionContainer');
 
-            // Supprimer l'option catégorie avec id 7
-            Array.from(categorieSelect.options).forEach(option => {
-                if (option.value === "7") {
-                    option.remove();
-                }
-            });
-
+            /**
+             * Charge les sous-catégories pour une catégorie donnée
+             * @param {string} categorieId - ID de la catégorie
+             */
             function chargerSousCategories(categorieId) {
+                // Réinitialisation du select des sous-catégories
                 sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
                 sousCategorieSelect.required = false;
+
                 if (categorieId) {
+                    // Récupération des sous-catégories depuis l'API
                     fetch(`/api/sous-categories/${categorieId}`)
                         .then(response => response.json())
                         .then(data => {
                             if (data.length > 0) {
+                                // Affichage et remplissage du select des sous-catégories
                                 sousCategorieContainer.style.display = 'block';
                                 sousCategorieSelect.required = true;
                                 data.forEach(sousCategorie => {
@@ -216,33 +255,30 @@
                 }
             }
 
-            // Met à jour l'affichage du champ réduction
+            /**
+             * Met à jour l'affichage du champ de réduction
+             * Affiché uniquement pour les boissons en menu
+             */
             function updateReductionDisplay() {
-                // Si la checkbox "Menu" est cochée et que la catégorie sélectionnée est "Boissons" (id = "1")
-                if (menuCheckbox.checked && categorieSelect.value === "1") {
-                    reductionContainer.style.display = 'block';
-                } else {
-                    reductionContainer.style.display = 'none';
-                }
+                reductionContainer.style.display = 
+                    (menuCheckbox.checked && categorieSelect.value === "1") ? 'block' : 'none';
             }
 
-            // Écouteur sur la checkbox "Menu"
+            // Configuration des écouteurs d'événements
             menuCheckbox.addEventListener('change', updateReductionDisplay);
-
-            // Écouteur sur le changement de catégorie
             categorieSelect.addEventListener('change', function () {
                 chargerSousCategories(this.value);
                 updateReductionDisplay();
             });
 
-            // Vérifier s'il y a une catégorie sélectionnée au chargement de la page
+            // Initialisation des sous-catégories au chargement
             if (categorieSelect.value) {
                 chargerSousCategories(categorieSelect.value);
             } else {
                 sousCategorieContainer.style.display = 'none';
             }
 
-            // Modification de l'affichage pour le select "taille"
+            // Personnalisation de l'option "Pas de taille"
             if (tailleSelect) {
                 Array.from(tailleSelect.options).forEach(option => {
                     if (option.value === "18") {
@@ -251,6 +287,5 @@
                 });
             }
         });
-
     </script>
 {% endblock %}

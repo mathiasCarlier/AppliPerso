@@ -1,35 +1,69 @@
+{# 
+   Template de connexion
+   Ce template gère le formulaire d'authentification avec :
+   - Affichage des erreurs de connexion
+   - Champs de login et mot de passe
+   - Option "Se souvenir de moi" (désactivée)
+   - Lien vers l'inscription
+#}
+
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    {# Formulaire de connexion avec désactivation de Turbo pour éviter les conflits #}
     <form method="post" data-turbo="false">
+        {# Affichage des messages d'erreur #}
         {% if error %}
             <div class="alert alert-danger">
                 {{ error.messageKey|trans(error.messageData, 'security') }}
             </div>
         {% endif %}
 
+        {# Styles spécifiques à la page de connexion #}
         <link rel="stylesheet" href="{{ asset('styles/login/styles.css') }}">
 
         <h1 class="h3 mb-3 font-weight-normal">Connexion</h1>
+
+        {# Champ de login avec auto-complétion #}
         <label for="username">Login :</label>
-        <input type="text" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="username" required autofocus><br>
+        <input type="text" 
+               value="{{ last_username }}" 
+               name="_username" 
+               id="username" 
+               class="form-control" 
+               autocomplete="username" 
+               required 
+               autofocus><br>
+
+        {# Champ de mot de passe avec auto-complétion sécurisée #}
         <label for="password">Mot de passe :</label>
-        <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required><br>
+        <input type="password" 
+               name="_password" 
+               id="password" 
+               class="form-control" 
+               autocomplete="current-password" 
+               required><br>
 
+        {# 
+           Option "Se souvenir de moi" (actuellement désactivée)
+           Pour l'activer :
+           1. Décommenter ce bloc
+           2. Configurer remember_me dans security.yaml
+           3. Voir la documentation : https://symfony.com/doc/current/security/remember_me.html
+        #}
         {#
-            Décommentez cette section et ajoutez une option remember_me dans votre firewall pour activer la fonctionnalité "se souvenir de moi".
-            Voir https://symfony.com/doc/current/security/remember_me.html
-
             <div class="checkbox mb-3">
                 <input type="checkbox" name="_remember_me" id="_remember_me">
                 <label for="_remember_me">Remember me</label>
             </div>
         #}
 
+        {# Bouton de connexion #}
         <button class="btn btn-lg btn-primary" type="submit">
             Connexion
         </button><br>
 
+        {# Lien vers la page d'inscription #}
         <a href="{{ path('inscription') }}" class="btn btn-primary">Inscription</a>
     </form>
 {% endblock %}

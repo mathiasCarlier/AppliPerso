@@ -1,6 +1,4 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Liste des Responsables{% endblock %}
+<title>{% block title %}Liste des Responsables{% endblock %}</title>
 
 {% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('styles/responsable/styles.css') }}">
@@ -8,40 +6,50 @@
 
 {% block body %}
     <!-- Vérification du rôle avant d'afficher le contenu -->
-    {% if app.user %}
-        {% set roleId = app.user.role.id %}
-    {% else %}
-        {% set roleId = null %}
-    {% endif %}
+        {% if app.user and app.user.role.id == 1 %}
+            <a href="{{ path('accueil') }}" class="btn btn-secondary">Accueil</a>
 
-    {% if roleId == 1 %}
+            <div class="container">
+                <h1>Liste des responsables</h1>
 
-        <a href="{{ path('accueil') }}" class="btn btn-secondary">Retour</a>
+                <form method="GET" action="{{ path('responsable') }}">
+                    <label for="roleFilter">Filtrer par rôle :</label>
+                    <select name="roleFilter" id="roleFilter" onchange="this.form.submit()">
+                        <option value="" {% if app.request.get('roleFilter') is empty %}selected{% endif %}>Tous</option>
+                        <option value="1" {% if app.request.get('roleFilter') == '1' %}selected{% endif %}>SuperAdmin</option>
+                        <option value="2" {% if app.request.get('roleFilter') == '2' %}selected{% endif %}>Responsable</option>
+                        <option value="null" {% if app.request.get('roleFilter') == 'null' %}selected{% endif %}>Aucun</option>
+                    </select>
+                </form>
 
-        <div class="container">
-            <h1>Liste des responsables</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th>Login</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for donnee in donnees %}
+                <table>
+                    <thead>
                         <tr>
-                            <td><a href="{{ path('responsable_show', {id: donnee.id}) }}">{{ donnee.nom }}</a></td>
-                            <td>{{ donnee.prenom }}</td>
-                            <td>{{ donnee.login }}</td>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Login</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-        <script>
-            window.location.href = "{{ path('accueil') }}";
-        </script>
-    {% endif %}
+                    </thead>
+                    <tbody>
+                        {% for donnee in donnees %}
+                            <tr>
+                                <td><a href="{{ path('responsable_show', {id: donnee.id}) }}">{{ donnee.nom }}</a></td>
+                                <td>{{ donnee.prenom }}</td>
+                                <td>{{ donnee.login }}</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="3">Aucun responsable trouvé.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <script>
+                window.location.href = "{{ path('accueil') }}";
+            </script>
+        {% endif %}
+
+
 {% endblock %}

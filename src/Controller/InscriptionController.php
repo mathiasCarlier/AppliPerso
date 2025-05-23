@@ -14,8 +14,43 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Role;
 
+/**
+ * Contrôleur gérant l'inscription des nouveaux responsables
+ * 
+ * Ce contrôleur gère :
+ * - Le formulaire d'inscription des nouveaux responsables
+ * - Le hashage des mots de passe
+ * - La notification par email aux administrateurs
+ * - La journalisation des actions
+ * 
+ * Processus d'inscription :
+ * 1. Affichage du formulaire
+ * 2. Validation et traitement des données
+ * 3. Hashage du mot de passe
+ * 4. Enregistrement en base de données
+ * 5. Notification des administrateurs par email
+ * 6. Redirection vers la page de connexion
+ */
 class InscriptionController extends AbstractController
 {
+    /**
+     * Gère le processus d'inscription d'un nouveau responsable
+     * 
+     * Cette méthode :
+     * - Affiche et traite le formulaire d'inscription
+     * - Hash le mot de passe de manière sécurisée
+     * - Enregistre le nouveau responsable en base de données
+     * - Notifie les administrateurs par email
+     * - Gère les erreurs potentielles
+     * - Journalise les actions importantes
+     * 
+     * @param Request $request Requête HTTP
+     * @param EntityManagerInterface $manager Gestionnaire d'entités Doctrine
+     * @param UserPasswordHasherInterface $passwordHasher Service de hashage des mots de passe
+     * @param MailerInterface $mailer Service d'envoi d'emails
+     * @param LoggerInterface $logger Service de journalisation
+     * @return Response Page d'inscription ou redirection
+     */
     #[Route('/inscription', name: 'inscription', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
@@ -78,12 +113,12 @@ class InscriptionController extends AbstractController
                             $mailer->send($notificationEmail);
                             $logger->info('Email envoyé avec succès');
                         } catch (\Exception $e) {
-                            $logger->error('Erreur lors de l’envoi du mail', ['error' => $e->getMessage()]);
-                            $this->addFlash('error', 'Erreur lors de l’envoi du mail : ' . $e->getMessage());
+                            $logger->error('Erreur lors de l\'envoi du mail', ['error' => $e->getMessage()]);
+                            $this->addFlash('error', 'Erreur lors de l\'envoi du mail : ' . $e->getMessage());
                         }
                     } else {
-                        $logger->warning('Aucun administrateur trouvé pour recevoir l’email.');
-                        $this->addFlash('warning', 'Aucun administrateur trouvé pour recevoir l’email.');
+                        $logger->warning('Aucun administrateur trouvé pour recevoir l\'email.');
+                        $this->addFlash('warning', 'Aucun administrateur trouvé pour recevoir l\'email.');
                     }
                 } else {
                     $logger->warning('Le rôle Administrateur (id=1) n\'existe pas.');
@@ -94,7 +129,7 @@ class InscriptionController extends AbstractController
                 return $this->redirectToRoute('app_login');
 
             } catch (\Exception $e) {
-                $logger->error('Erreur lors de l’inscription', ['error' => $e->getMessage()]);
+                $logger->error('Erreur lors de l\'inscription', ['error' => $e->getMessage()]);
                 $this->addFlash('error', 'Une erreur est survenue lors de l\'inscription : ' . $e->getMessage());
             }
         }

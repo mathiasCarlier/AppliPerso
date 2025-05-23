@@ -48,11 +48,11 @@
                         </div>
 
                         <div class="access-control">
-                            <label class="switch-label">Accès autorisé :</label>
+                            <label class="switch-label">Accès autorisé :</label><br>
                             <div>
-                                Responsable <input type="radio" name="verif_responsable" value="2" data-id="{{ donnee.id }}" {% if donnee.role and donnee.role.id == 2 %}checked{% endif %}>
-                                Admin <input type="radio" name="verif_responsable" value="1" data-id="{{ donnee.id }}" {% if donnee.role and donnee.role.id == 1 %}checked{% endif %}> 
-                                Aucun <input type="radio" name="verif_responsable" value="0" data-id="{{ donnee.id }}" {% if not donnee.role %}checked{% endif %}> 
+                                - Responsable<input type="radio" name="verif_responsable" value="2" data-id="{{ donnee.id }}" {% if donnee.role and donnee.role.id == 2 %}checked{% endif %}><br>
+                                - Admin<input type="radio" name="verif_responsable" value="1" data-id="{{ donnee.id }}" {% if donnee.role and donnee.role.id == 1 %}checked{% endif %}><br>
+                                - Aucun<input type="radio" name="verif_responsable" value="0" data-id="{{ donnee.id }}" {% if not donnee.role %}checked{% endif %}>
                             </div>
                         </div>
                     </div>
